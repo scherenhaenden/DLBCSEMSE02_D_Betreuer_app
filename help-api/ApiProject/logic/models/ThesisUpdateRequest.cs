@@ -1,6 +1,6 @@
-using ApiProject.Db;
+using ApiProject.Db.Entities;
 
-namespace ApiProject.Logic;
+namespace ApiProject.Logic.Models;
 
 /// <summary>
 /// Anfrage-Klasse für die Aktualisierung einer These.

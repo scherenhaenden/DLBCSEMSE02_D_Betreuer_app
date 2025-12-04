@@ -1,8 +1,10 @@
-using ApiProject.Db;
-using ApiProject.Logic;
+using ApiProject.Db.Entities;
+using ApiProject.Logic.Services;
+using ApiProject.Logic.Models;
+using ApiProject.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ApiProject.Api;
+namespace ApiProject.Api.Controllers;
 
 [ApiController]
 [Route("theses")]
@@ -16,15 +18,15 @@ public sealed class ThesisController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Thesis>> GetAll()
+    public async Task<ActionResult<IEnumerable<Thesis>>> GetAll()
     {
-        return Ok(_thesisService.GetAll());
+        return Ok(await _thesisService.GetAllAsync());
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Thesis> GetById(Guid id)
+    public async Task<ActionResult<Thesis>> GetById(Guid id)
     {
-        var thesis = _thesisService.GetById(id);
+        var thesis = await _thesisService.GetByIdAsync(id);
         if (thesis is null)
         {
             return NotFound();
@@ -33,9 +35,9 @@ public sealed class ThesisController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<Thesis> Create([FromBody] CreateThesisApiRequest request)
+    public async Task<ActionResult<Thesis>> Create([FromBody] CreateThesisApiRequest request)
     {
-        var created = _thesisService.CreateThesis(new ThesisCreateRequest
+        var created = await _thesisService.CreateThesisAsync(new ThesisCreateRequest
         {
             Title              = request.Title,
             OwnerId            = request.OwnerId,
@@ -51,11 +53,11 @@ public sealed class ThesisController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public ActionResult<Thesis> Update(Guid id, [FromBody] UpdateThesisApiRequest request)
+    public async Task<ActionResult<Thesis>> Update(Guid id, [FromBody] UpdateThesisApiRequest request)
     {
         try
         {
-            var updated = _thesisService.UpdateThesis(id, new ThesisUpdateRequest
+            var updated = await _thesisService.UpdateThesisAsync(id, new ThesisUpdateRequest
             {
                 Title              = request.Title,
                 Status             = request.Status,
@@ -79,9 +81,9 @@ public sealed class ThesisController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public ActionResult Delete(Guid id)
+    public async Task<ActionResult> Delete(Guid id)
     {
-        var deleted = _thesisService.DeleteThesis(id);
+        var deleted = await _thesisService.DeleteThesisAsync(id);
         if (!deleted)
         {
             return NotFound();

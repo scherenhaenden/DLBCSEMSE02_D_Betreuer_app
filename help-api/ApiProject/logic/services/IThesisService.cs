@@ -1,6 +1,7 @@
-using ApiProject.Db;
+using ApiProject.Db.Entities;
+using ApiProject.Logic.Models;
 
-namespace ApiProject.Logic;
+namespace ApiProject.Logic.Services;
 
 /// <summary>
 /// Schnittstelle für den Thesis-Service, der CRUD-Operationen für Thesen bereitstellt.
@@ -11,14 +12,14 @@ public interface IThesisService
     /// Gibt alle Thesen zurück.
     /// </summary>
     /// <returns>Eine schreibgeschützte Sammlung aller Thesen.</returns>
-    IReadOnlyCollection<Thesis> GetAll();
+    Task<IReadOnlyCollection<Thesis>> GetAllAsync();
 
     /// <summary>
     /// Gibt eine These anhand ihrer ID zurück.
     /// </summary>
     /// <param name="id">Die GUID der These.</param>
     /// <returns>Die These oder null, wenn nicht gefunden.</returns>
-    Thesis? GetById(Guid id);
+    Task<Thesis?> GetByIdAsync(Guid id);
 
     /// <summary>
     /// Erstellt eine neue These basierend auf der Anfrage.
@@ -26,7 +27,7 @@ public interface IThesisService
     /// <param name="request">Die Anfrage mit den Details der neuen These.</param>
     /// <returns>Die erstellte These.</returns>
     /// <exception cref="InvalidOperationException">Wird ausgelöst, wenn Validierungen fehlschlagen.</exception>
-    Thesis CreateThesis(ThesisCreateRequest request);
+    Task<Thesis> CreateThesisAsync(ThesisCreateRequest request);
 
     /// <summary>
     /// Aktualisiert eine bestehende These.
@@ -36,12 +37,12 @@ public interface IThesisService
     /// <returns>Die aktualisierte These.</returns>
     /// <exception cref="KeyNotFoundException">Wird ausgelöst, wenn die These nicht gefunden wird.</exception>
     /// <exception cref="InvalidOperationException">Wird ausgelöst, wenn Validierungen fehlschlagen.</exception>
-    Thesis UpdateThesis(Guid id, ThesisUpdateRequest request);
+    Task<Thesis> UpdateThesisAsync(Guid id, ThesisUpdateRequest request);
 
     /// <summary>
     /// Löscht eine These anhand ihrer ID.
     /// </summary>
     /// <param name="id">Die GUID der zu löschenden These.</param>
     /// <returns>True, wenn die These gelöscht wurde; sonst false.</returns>
-    bool DeleteThesis(Guid id);
+    Task<bool> DeleteThesisAsync(Guid id);
 }

@@ -1,9 +1,8 @@
 using System;
 
-namespace ApiProject.Db;
+namespace ApiProject.Db.Entities;
 
 public abstract class BaseEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 }
-

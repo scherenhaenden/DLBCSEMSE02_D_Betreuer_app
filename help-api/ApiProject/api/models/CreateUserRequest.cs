@@ -1,4 +1,4 @@
-namespace ApiProject.Api;
+namespace ApiProject.Api.Models;
 
 public sealed class CreateUserRequest
 {

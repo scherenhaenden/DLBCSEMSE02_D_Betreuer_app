@@ -1,4 +1,4 @@
-namespace ApiProject.Db;
+namespace ApiProject.Db.Entities;
 
 public sealed class Role : BaseEntity
 {
@@ -9,4 +9,3 @@ public sealed class Role : BaseEntity
 
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }
-

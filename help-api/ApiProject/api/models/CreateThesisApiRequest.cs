@@ -1,6 +1,6 @@
-using ApiProject.Db;
+using ApiProject.Db.Entities;
 
-namespace ApiProject.Api;
+namespace ApiProject.Api.Models;
 
 public sealed class CreateThesisApiRequest
 {

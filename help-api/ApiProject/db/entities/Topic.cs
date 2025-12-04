@@ -1,6 +1,6 @@
 using System;
 
-namespace ApiProject.Db;
+namespace ApiProject.Db.Entities;
 
 public sealed class Topic : BaseEntity
 {
@@ -14,4 +14,3 @@ public sealed class Topic : BaseEntity
     /// </summary>
     public Guid TutorId { get; set; }
 }
-

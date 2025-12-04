@@ -1,5 +1,8 @@
 using ApiProject.Logic;
 using Microsoft.OpenApi;
+using Microsoft.EntityFrameworkCore;
+using ApiProject.Db.Context;
+using ApiProject.Logic.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,11 +30,22 @@ builder.Services.AddSwaggerGen(c =>
 // MVC-Controller
 builder.Services.AddControllers();
 
-// In-Memory Services
-builder.Services.AddSingleton<IUserService, UserService>();
-builder.Services.AddSingleton<IThesisService, ThesisService>();
+// Database
+builder.Services.AddDbContext<ThesisDbContext>(options =>
+    options.UseSqlite("Data Source=thesis.db"));
+
+// Services
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IThesisService, ThesisService>();
 
 var app = builder.Build();
+
+// Ensure database is created
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ThesisDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // Swagger und SwaggerUI aktivieren (nur in Entwicklung)
 if (app.Environment.IsDevelopment())
@@ -45,29 +59,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapControllers();
 
-// Neuer Endpunkt für die Index-Seite
-app.MapGet("/", () => Results.Content(@"
-<!DOCTYPE html>
-<html lang='de'>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>Thesis Management API</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-        h1 { color: #333; }
-        a { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; }
-        a:hover { background-color: #0056b3; }
-    </style>
-</head>
-<body>
-    <h1>Willkommen zur Thesis Management API</h1>
-    <p>Die API ist bereit und funktioniert. Verwenden Sie die folgenden Optionen:</p>
-    <a href='/swagger'>Swagger-Dokumentation öffnen</a>
-</body>
-</html>
-", "text/html"));
 
 app.Run();

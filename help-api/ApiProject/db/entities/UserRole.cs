@@ -1,6 +1,6 @@
 using System;
 
-namespace ApiProject.Db;
+namespace ApiProject.Db.Entities;
 
 public sealed class UserRole
 {
@@ -10,4 +10,3 @@ public sealed class UserRole
     public User? User { get; set; }
     public Role? Role { get; set; }
 }
-

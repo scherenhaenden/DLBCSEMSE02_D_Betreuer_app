@@ -1,4 +1,4 @@
-namespace ApiProject.Db;
+namespace ApiProject.Db.Entities;
 
 public enum ThesisStatus
 {

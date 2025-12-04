@@ -1,8 +1,9 @@
-using ApiProject.Db;
-using ApiProject.Logic;
+using ApiProject.Db.Entities;
+using ApiProject.Logic.Services;
+using ApiProject.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ApiProject.Api;
+namespace ApiProject.Api.Controllers;
 
 [ApiController]
 [Route("users")]
@@ -16,10 +17,9 @@ public sealed class UserController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<UserResponse>> GetAll()
+    public async Task<ActionResult<IEnumerable<UserResponse>>> GetAll()
     {
-        var users = _userService
-            .GetAll()
+        var users = (await _userService.GetAllAsync())
             .Select(u => new UserResponse
             {
                 Id        = u.Id,
@@ -36,9 +36,9 @@ public sealed class UserController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<UserResponse> Create([FromBody] CreateUserRequest request)
+    public async Task<ActionResult<UserResponse>> Create([FromBody] CreateUserRequest request)
     {
-        var user = _userService.CreateUser(
+        var user = await _userService.CreateUserAsync(
             request.FirstName,
             request.LastName,
             request.Email,
