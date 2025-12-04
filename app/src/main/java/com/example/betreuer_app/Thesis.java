@@ -1,118 +1,68 @@
 package com.example.betreuer_app;
 
 public class Thesis {
-    // Enums
-
-    public enum Status {
-        IN_ABSTIMMUNG, ANGEMELDET, ABGEGEBEN, KOLLOQUIUM_ABGEHALTEN
-    }
-
-    public enum Rechnungsstatus{
-        KEINE, GESTELLT, BEGLICHEN
-    }
-
-    // Attribute
-
-    private int ID;
+    private int id;
     private String titel;
-    private Status status;
     private String fachgebiet;
-    private int studentID;
-    private int betreuerID;
-    private int zweitgutachterID;
     private String exposePfad;
-    private Rechnungsstatus rechnungsstatus;
+    private String status;
+    private String rechnungsstatus;
 
-
-
-// Konstruktor
-
-public Thesis(int ID, String titel, Status status, String fachgebiet, int studentID,
-                    int betreuerID, int zweitgutachterID, String exposePfad,
-                    Rechnungsstatus rechnungsstatus) {
-        this.ID = ID;
+    public Thesis(int id, String titel, String fachgebiet, String exposePfad, String status, String rechnungsstatus) {
+        this.id = id;
         this.titel = titel;
-        this.status = status;
         this.fachgebiet = fachgebiet;
-        this.studentID = studentID;
-        this.betreuerID = betreuerID;
-        this.zweitgutachterID = zweitgutachterID;
         this.exposePfad = exposePfad;
+        this.status = status;
         this.rechnungsstatus = rechnungsstatus;
     }
 
-
-// Methoden
-
-public int getID() {
-        return ID;
+    // Getter und Setter
+    public int getId() {
+        return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
-public String getTitel() {
+    public String getTitel() {
         return titel;
     }
 
-public void setTitel(String titel) {
+    public void setTitel(String titel) {
         this.titel = titel;
     }
 
-public Status getStatus() {
-        return status;
-    }
-
-public void setStatus(Status status) {
-        this.status = status;
-    }
-
-public String getFachgebiet() {
+    public String getFachgebiet() {
         return fachgebiet;
     }
 
-public void setFachgebiet(String fachgebiet) {
+    public void setFachgebiet(String fachgebiet) {
         this.fachgebiet = fachgebiet;
     }
 
-public int getStudentID() {
-        return studentID;
-    }
-
-public void setStudentID(int studentID) {
-        this.studentID = studentID;
-    }
-
-public int getBetreuerID() {
-        return betreuerID;
-    }
-
-public void setBetreuerID(int betreuerID) {
-        this.betreuerID = betreuerID;
-    }
-
-public int getZweitgutachterID() {
-        return zweitgutachterID;
-    }
-
-public void setZweitgutachterID(int zweitgutachterID) {
-        this.zweitgutachterID = zweitgutachterID;
-    }
-
-public String getExposePfad() {
+    public String getExposePfad() {
         return exposePfad;
     }
 
-public void setExposePfad(String exposePfad) {
+    public void setExposePfad(String exposePfad) {
         this.exposePfad = exposePfad;
     }
 
-public Rechnungsstatus getRechnungsstatus() {
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRechnungsstatus() {
         return rechnungsstatus;
     }
 
-public void setRechnungsstatus(Rechnungsstatus rechnungsstatus) {
+    public void setRechnungsstatus(String rechnungsstatus) {
         this.rechnungsstatus = rechnungsstatus;
     }
-
-
-
 }
