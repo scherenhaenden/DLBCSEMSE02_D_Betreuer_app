@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+help-api/ApiProject/.idea/
+help-api/ApiProject/obj/
+help-api/ApiProject/bin/
