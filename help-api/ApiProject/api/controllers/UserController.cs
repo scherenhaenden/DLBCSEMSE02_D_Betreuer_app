@@ -17,9 +17,10 @@ public sealed class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserResponse>>> GetAll()
+    public async Task<ActionResult<PaginatedResponse<UserResponse>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var users = (await _userService.GetAllAsync())
+        var result = await _userService.GetAllAsync(page, pageSize);
+        var userResponses = result.Items
             .Select(u => new UserResponse
             {
                 Id        = u.Id,
@@ -32,7 +33,15 @@ public sealed class UserController : ControllerBase
                     .ToList()
             });
 
-        return Ok(users);
+        var response = new PaginatedResponse<UserResponse>
+        {
+            Items = userResponses.ToList(),
+            TotalCount = result.TotalCount,
+            Page = result.Page,
+            PageSize = result.PageSize
+        };
+
+        return Ok(response);
     }
 
     [HttpPost]
@@ -42,7 +51,7 @@ public sealed class UserController : ControllerBase
             request.FirstName,
             request.LastName,
             request.Email,
-            request.PasswordHash,
+            request.Password,
             request.Roles ?? Enumerable.Empty<string>());
 
         var response = new UserResponse

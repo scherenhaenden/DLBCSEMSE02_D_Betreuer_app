@@ -18,9 +18,17 @@ public sealed class ThesisController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Thesis>>> GetAll()
+    public async Task<ActionResult<PaginatedResponse<Thesis>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        return Ok(await _thesisService.GetAllAsync());
+        var result = await _thesisService.GetAllAsync(page, pageSize);
+        var response = new PaginatedResponse<Thesis>
+        {
+            Items = result.Items,
+            TotalCount = result.TotalCount,
+            Page = result.Page,
+            PageSize = result.PageSize
+        };
+        return Ok(response);
     }
 
     [HttpGet("{id}")]

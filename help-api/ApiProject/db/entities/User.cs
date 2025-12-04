@@ -9,6 +9,7 @@ public sealed class User : BaseEntity
     // For the exercise we store a "hash" as string.
     // In real life: never store plain passwords.
     public required string PasswordHash { get; set; }
+    public required string Salt { get; set; }
 
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

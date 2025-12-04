@@ -1,8 +1,7 @@
-using ApiProject.Logic;
+using ApiProject.Logic.Services;
 using Microsoft.OpenApi;
 using Microsoft.EntityFrameworkCore;
 using ApiProject.Db.Context;
-using ApiProject.Logic.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +15,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Thesis Management API",
         Version = "v1",
-        Description = "API für die Verwaltung von Thesen, Benutzern und Rollen."
+        Description = "API für die Verwaltung von Thesen, Benutzern, Rollen und Themen."
     });
     // XML-Kommentare für Dokumentation einbinden (falls XML-Datei vorhanden)
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -30,6 +29,23 @@ builder.Services.AddSwaggerGen(c =>
 // MVC-Controller
 builder.Services.AddControllers();
 
+// Add JWT Authentication
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "default-secret-key"))
+        };
+    });
+
 // Database
 builder.Services.AddDbContext<ThesisDbContext>(options =>
     options.UseSqlite("Data Source=thesis.db"));
@@ -37,6 +53,7 @@ builder.Services.AddDbContext<ThesisDbContext>(options =>
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IThesisService, ThesisService>();
+builder.Services.AddScoped<ITopicService, TopicService>();
 
 var app = builder.Build();
 
@@ -58,6 +75,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

@@ -25,12 +25,26 @@ public sealed class ThesisService : IThesisService
     }
 
     /// <summary>
-    /// Gibt alle Thesen zurück.
+    /// Gibt alle Thesen paginiert zurück.
     /// </summary>
-    /// <returns>Eine schreibgeschützte Sammlung aller Thesen.</returns>
-    public async Task<IReadOnlyCollection<Thesis>> GetAllAsync()
+    /// <param name="page">Die Seitennummer (1-basiert).</param>
+    /// <param name="pageSize">Die Anzahl der Elemente pro Seite.</param>
+    /// <returns>Ein paginiertes Ergebnis mit den Thesen.</returns>
+    public async Task<PaginatedResult<Thesis>> GetAllAsync(int page, int pageSize)
     {
-        return await _context.Theses.ToListAsync();
+        var totalCount = await _context.Theses.CountAsync();
+        var items = await _context.Theses
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PaginatedResult<Thesis>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
     }
 
     /// <summary>
