@@ -1,6 +1,7 @@
 using ApiProject.Db.Context;
 using ApiProject.Db.Entities;
 using ApiProject.Logic.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiProject.Logic.Services;
 
@@ -27,9 +28,9 @@ public sealed class ThesisService : IThesisService
     /// Gibt alle Thesen zurück.
     /// </summary>
     /// <returns>Eine schreibgeschützte Sammlung aller Thesen.</returns>
-    public IReadOnlyCollection<Thesis> GetAll()
+    public async Task<IReadOnlyCollection<Thesis>> GetAllAsync()
     {
-        return _context.Theses.ToList();
+        return await _context.Theses.ToListAsync();
     }
 
     /// <summary>
@@ -37,9 +38,9 @@ public sealed class ThesisService : IThesisService
     /// </summary>
     /// <param name="id">Die GUID der These.</param>
     /// <returns>Die These oder null, wenn nicht gefunden.</returns>
-    public Thesis? GetById(Guid id)
+    public async Task<Thesis?> GetByIdAsync(Guid id)
     {
-        return _context.Theses.SingleOrDefault(t => t.Id == id);
+        return await _context.Theses.SingleOrDefaultAsync(t => t.Id == id);
     }
 
     /// <summary>
@@ -48,23 +49,23 @@ public sealed class ThesisService : IThesisService
     /// <param name="request">Die Anfrage mit den Details der neuen These.</param>
     /// <returns>Die erstellte These.</returns>
     /// <exception cref="InvalidOperationException">Wird ausgelöst, wenn Validierungen fehlschlagen.</exception>
-    public Thesis CreateThesis(ThesisCreateRequest request)
+    public async Task<Thesis> CreateThesisAsync(ThesisCreateRequest request)
     {
         // Validierung: Besitzer muss Student sein
-        if (!_userService.UserHasRole(request.OwnerId, "STUDENT"))
+        if (!await _userService.UserHasRoleAsync(request.OwnerId, "STUDENT"))
         {
             throw new InvalidOperationException("Owner must have role STUDENT.");
         }
 
         // Validierung: Tutor muss Tutor sein
-        if (!_userService.UserHasRole(request.TutorId, "TUTOR"))
+        if (!await _userService.UserHasRoleAsync(request.TutorId, "TUTOR"))
         {
             throw new InvalidOperationException("Tutor must have role TUTOR.");
         }
 
         // Validierung: Zweiter Betreuer muss Tutor sein, falls angegeben
         if (request.SecondSupervisorId.HasValue &&
-            !_userService.UserHasRole(request.SecondSupervisorId.Value, "TUTOR"))
+            !await _userService.UserHasRoleAsync(request.SecondSupervisorId.Value, "TUTOR"))
         {
             throw new InvalidOperationException(
                 "Second supervisor must have role TUTOR when defined.");
@@ -86,7 +87,7 @@ public sealed class ThesisService : IThesisService
 
         // Zur Datenbank hinzufügen
         _context.Theses.Add(thesis);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return thesis;
     }
 
@@ -98,24 +99,24 @@ public sealed class ThesisService : IThesisService
     /// <returns>Die aktualisierte These.</returns>
     /// <exception cref="KeyNotFoundException">Wird ausgelöst, wenn die These nicht gefunden wird.</exception>
     /// <exception cref="InvalidOperationException">Wird ausgelöst, wenn Validierungen fehlschlagen.</exception>
-    public Thesis UpdateThesis(Guid id, ThesisUpdateRequest request)
+    public async Task<Thesis> UpdateThesisAsync(Guid id, ThesisUpdateRequest request)
     {
         // These finden
-        var thesis = _context.Theses.SingleOrDefault(t => t.Id == id);
+        var thesis = await _context.Theses.SingleOrDefaultAsync(t => t.Id == id);
         if (thesis is null)
         {
             throw new KeyNotFoundException("Thesis not found.");
         }
 
         // Validierung: Tutor muss Tutor sein, falls aktualisiert
-        if (request.TutorId.HasValue && !_userService.UserHasRole(request.TutorId.Value, "TUTOR"))
+        if (request.TutorId.HasValue && !await _userService.UserHasRoleAsync(request.TutorId.Value, "TUTOR"))
         {
             throw new InvalidOperationException("Tutor must have role TUTOR.");
         }
 
         // Validierung: Zweiter Betreuer muss Tutor sein, falls aktualisiert
         if (request.SecondSupervisorId.HasValue &&
-            !_userService.UserHasRole(request.SecondSupervisorId.Value, "TUTOR"))
+            !await _userService.UserHasRoleAsync(request.SecondSupervisorId.Value, "TUTOR"))
         {
             throw new InvalidOperationException("Second supervisor must have role TUTOR.");
         }
@@ -154,7 +155,7 @@ public sealed class ThesisService : IThesisService
             thesis.TopicId = request.TopicId.Value;
         }
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return thesis;
     }
 
@@ -163,17 +164,17 @@ public sealed class ThesisService : IThesisService
     /// </summary>
     /// <param name="id">Die GUID der zu löschenden These.</param>
     /// <returns>True, wenn die These gelöscht wurde; sonst false.</returns>
-    public bool DeleteThesis(Guid id)
+    public async Task<bool> DeleteThesisAsync(Guid id)
     {
         // These finden
-        var thesis = _context.Theses.SingleOrDefault(t => t.Id == id);
+        var thesis = await _context.Theses.SingleOrDefaultAsync(t => t.Id == id);
         if (thesis is null)
         {
             return false;
         }
         // Aus Datenbank entfernen
         _context.Theses.Remove(thesis);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return true;
     }
 }
