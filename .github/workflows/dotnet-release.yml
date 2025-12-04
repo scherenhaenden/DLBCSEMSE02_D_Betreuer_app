@@ -1,0 +1,49 @@
+name: .NET Release
+
+on:
+  push:
+    branches:
+      - 'api-build'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup .NET 10.0.x as requested by the project configuration (net10.0).
+      # Note: This version might be a preview or future version.
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          include-prerelease: true
+
+      - name: Restore dependencies
+        run: dotnet restore help-api/ApiProject/ApiProject.csproj
+
+      - name: Build
+        run: dotnet build help-api/ApiProject/ApiProject.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish help-api/ApiProject/ApiProject.csproj --configuration Release --no-build --output ./publish
+
+      - name: Zip Release
+        run: |
+          cd publish
+          zip -r ../ApiProject-release.zip .
+          cd ..
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: api-build
+          name: API Build
+          draft: false
+          prerelease: true
+          files: ApiProject-release.zip
+          generate_release_notes: true
