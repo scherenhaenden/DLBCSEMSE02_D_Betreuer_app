@@ -1,0 +1,43 @@
+@startuml ThesisManagementAPI-SequenceDiagram
+
+title Thesis Management API - User Login Sequence Diagram
+
+actor User
+participant "AuthController" as Controller
+participant "IUserService" as UserService
+participant "Database" as DB
+
+User -> Controller: POST /api/auth/login (LoginRequest)
+activate Controller
+
+Controller -> UserService: VerifyPasswordAsync(email, password)
+activate UserService
+
+UserService -> DB: GetUserByEmailAsync(email)
+activate DB
+DB --> UserService: User (with PasswordHash and Salt)
+deactivate DB
+
+UserService -> UserService: Hash password with Salt
+UserService -> UserService: Compare hashed passwords
+alt Passwords match
+    UserService --> Controller: true
+    Controller -> UserService: GetByEmailAsync(email)
+    activate UserService
+    UserService -> DB: GetUserByEmailAsync(email)
+    activate DB
+    DB --> UserService: User data
+    deactivate DB
+    UserService --> Controller: UserResponse
+    deactivate UserService
+    Controller -> Controller: Generate JWT Token
+    Controller --> User: 200 OK (LoginResponse with Token)
+else Passwords do not match
+    UserService --> Controller: false
+    deactivate UserService
+    Controller --> User: 401 Unauthorized
+end
+
+deactivate Controller
+
+@enduml
