@@ -8,6 +8,36 @@ Dieses Projekt implementiert eine vollständig objektorientierte API für die Ve
 - **logic/**: Geschäftslogik-Services für Validierungen und Operationen.
 - **api/**: REST-Controller für HTTP-Endpunkte.
 
+## UML-Diagramme
+
+Dieses Projekt enthält eine Reihe von PlantUML-Diagrammen, um die Architektur und das Verhalten der Anwendung zu visualisieren.
+
+- **`ThesisManagementAPI-ClassDiagram.puml`**: Zeigt die Klassen, ihre Attribute, Methoden und die Beziehungen zwischen ihnen.
+- **`ThesisManagementAPI-UseCaseDiagram.puml`**: Beschreibt die Interaktionen zwischen den Akteuren (Student, Tutor, Admin) und dem System.
+- **`ThesisManagementAPI-SequenceDiagram.puml`**: Detailliert den Ablauf einer Benutzeranmeldung.
+- **`ThesisManagementAPI-ComponentDiagram.puml`**: Stellt die Hauptkomponenten der Software und ihre Abhängigkeiten dar.
+- **`ThesisManagementAPI-ActivityDiagram.puml`**: Modelliert den Prozess der Einreichung einer Abschlussarbeit.
+
+### Verwendung
+
+Um diese Diagramme anzuzeigen und zu bearbeiten, können Sie die folgenden Werkzeuge verwenden:
+- **Visual Studio Code**: Mit der [PlantUML-Erweiterung](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml).
+- **Online-Editor**: Tools wie der [offizielle PlantUML-Webserver](http://www.plantuml.com/plantuml).
+- **Andere IDEs**: Viele IDEs wie IntelliJ IDEA bieten Plugins zur Anzeige von `.puml`-Dateien.
+
+Kopieren Sie einfach den Inhalt einer `.puml`-Datei in einen Online-Editor oder öffnen Sie sie in einer IDE mit entsprechender Erweiterung, um das visuelle Diagramm zu generieren.
+
+## Konfiguration
+
+### API-Port
+Der Port, auf dem die API ausgeführt wird, kann in der Datei `appsettings.json` konfiguriert werden. Ändern Sie den Wert von `Urls`, um den gewünschten Port festzulegen:
+
+```json
+{
+  "Urls": "http://localhost:8080"
+}
+```
+
 ## Datenbank-Schema
 
 ### Users

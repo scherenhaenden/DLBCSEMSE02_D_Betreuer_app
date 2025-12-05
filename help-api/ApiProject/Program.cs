@@ -5,6 +5,9 @@ using ApiProject.Db.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure Kestrel to use URLs from appsettings.json
+builder.WebHost.UseUrls(builder.Configuration["Urls"]);
+
 // API-Endpunkte für Swagger aktivieren
 builder.Services.AddEndpointsApiExplorer();
 

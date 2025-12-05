@@ -1,0 +1,19 @@
+@startuml ThesisManagementAPI-ComponentDiagram
+
+title Thesis Management API - Component Diagram
+
+package "Thesis Management API" {
+    [API Controllers] as Api
+    [Business Logic] as Business
+    [Data Access] as Data
+}
+
+[API Client] ..> Api
+
+Api -> Business
+Business -> Data
+
+database "Thesis Database" as DB
+Data -> DB
+
+@enduml

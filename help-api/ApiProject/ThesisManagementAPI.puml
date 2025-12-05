@@ -1,0 +1,186 @@
+@startuml ThesisManagementAPI
+
+title Thesis Management API - Class Diagram
+
+package "Entities" {
+    class User {
+        + Guid Id
+        + string FirstName
+        + string LastName
+        + string Email
+        + string PasswordHash
+        + string Salt
+        + ICollection<UserRole> UserRoles
+    }
+
+    class Role {
+        + Guid Id
+        + string Name
+        + ICollection<UserRole> UserRoles
+    }
+
+    class UserRole {
+        + Guid UserId
+        + Guid RoleId
+        + User User
+        + Role Role
+    }
+
+    class Thesis {
+        + Guid Id
+        + string Title
+        + string Description
+        + Guid StudentId
+        + Guid? TutorId
+        + Guid TopicId
+        + ThesisStatus Status
+        + BillingStatus BillingStatus
+        + User Student
+        + User Tutor
+        + Topic Topic
+    }
+
+    class Topic {
+        + Guid Id
+        + string Title
+        + string Description
+        + string SubjectArea
+        + bool IsActive
+        + Guid CreatedByTutorId
+        + User CreatedByTutor
+    }
+
+    class BaseEntity {
+        + Guid Id
+        + DateTime CreatedAt
+        + DateTime UpdatedAt
+    }
+
+    User --|> BaseEntity
+    Role --|> BaseEntity
+    Thesis --|> BaseEntity
+    Topic --|> BaseEntity
+
+    UserRole --> User
+    UserRole --> Role
+    Thesis --> User : Student
+    Thesis --> User : Tutor
+    Thesis --> Topic
+    Topic --> User : CreatedByTutor
+}
+
+package "Services" {
+    interface IUserService {
+        + Task<PaginatedResult<User>> GetAllAsync(...)
+        + Task<User?> GetByIdAsync(Guid id)
+        + Task<User?> GetByEmailAsync(string email)
+        + Task<User> CreateUserAsync(...)
+        + Task<bool> VerifyPasswordAsync(string email, string password)
+        + Task<bool> UserHasRoleAsync(Guid userId, string roleName)
+        + Task<Role> EnsureRoleAsync(string roleName)
+    }
+
+    interface IThesisService {
+        + Task<PaginatedResult<Thesis>> GetAllAsync(...)
+        + Task<Thesis?> GetByIdAsync(Guid id)
+        + Task<Thesis> CreateThesisAsync(...)
+        + Task UpdateThesisAsync(...)
+        + Task<bool> DeleteThesisAsync(Guid id)
+    }
+
+    interface ITopicService {
+        + Task<PaginatedResult<Topic>> GetAllAsync(...)
+        + Task<Topic?> GetByIdAsync(Guid id)
+        + Task<List<Topic>> SearchAsync(string query, ...)
+        + Task<Topic> CreateTopicAsync(...)
+        + Task UpdateTopicAsync(...)
+        + Task<bool> DeleteTopicAsync(Guid id)
+    }
+
+    class UserService {
+    }
+
+    class ThesisService {
+    }
+
+    class TopicService {
+    }
+
+    UserService ..|> IUserService
+    ThesisService ..|> IThesisService
+    TopicService ..|> ITopicService
+}
+
+package "Controllers" {
+    class UserController {
+        + Task<IActionResult> GetAll(...)
+        + Task<IActionResult> Create(CreateUserRequest request)
+    }
+
+    class ThesisController {
+        + Task<IActionResult> GetAll(...)
+        + Task<IActionResult> GetById(Guid id)
+        + Task<IActionResult> Create(CreateThesisRequest request)
+        + Task<IActionResult> Update(Guid id, UpdateThesisRequest request)
+        + Task<IActionResult> Delete(Guid id)
+    }
+
+    class TopicController {
+        + Task<IActionResult> GetAll(...)
+        + Task<IActionResult> GetById(Guid id)
+        + Task<IActionResult> Search(string query, ...)
+        + Task<IActionResult> Create(CreateTopicRequest request)
+        + Task<IActionResult> Update(Guid id, UpdateTopicRequest request)
+        + Task<IActionResult> Delete(Guid id)
+    }
+
+    class AuthController {
+        + Task<IActionResult> Login(LoginRequest request)
+    }
+}
+
+package "Models" {
+    class CreateUserRequest {
+        + string FirstName
+        + string LastName
+        + string Email
+        + string Password
+        + List<string> Roles
+    }
+
+    class UserResponse {
+        + Guid Id
+        + string FirstName
+        + string LastName
+        + string Email
+        + List<string> Roles
+    }
+
+    class LoginRequest {
+        + string Email
+        + string Password
+    }
+
+    class LoginResponse {
+        + string Token
+        + UserResponse User
+    }
+
+    class PaginatedResponse<T> {
+        + List<T> Items
+        + int TotalCount
+        + int Page
+        + int PageSize
+    }
+}
+
+UserController --> IUserService
+ThesisController --> IThesisService
+TopicController --> ITopicService
+AuthController --> IUserService
+
+UserService --> ThesisDbContext
+ThesisService --> ThesisDbContext
+TopicService --> ThesisDbContext
+
+@enduml

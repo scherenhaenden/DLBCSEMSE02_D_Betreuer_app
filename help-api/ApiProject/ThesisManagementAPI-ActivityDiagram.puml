@@ -1,0 +1,32 @@
+@startuml ThesisManagementAPI-ActivityDiagram
+
+title Thesis Management API - Thesis Submission Activity Diagram
+
+|Student|
+start
+:Login to the system;
+:Search for available topics;
+:Select a topic;
+:Submit thesis application;
+
+|Tutor|
+:Receive notification of new application;
+:Review application;
+if (Application approved?) then (yes)
+    :Assign student to topic;
+    |Student|
+    :Receive notification of approval;
+    :Work on the thesis;
+    :Submit final thesis document;
+    |Tutor|
+    :Receive submitted thesis;
+    :Review and grade the thesis;
+    :Update thesis status to "Graded";
+else (no)
+    |Student|
+    :Receive notification of rejection;
+endif
+
+stop
+
+@enduml
