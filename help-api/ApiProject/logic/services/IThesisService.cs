@@ -9,10 +9,12 @@ namespace ApiProject.Logic.Services;
 public interface IThesisService
 {
     /// <summary>
-    /// Gibt alle Thesen zurück.
+    /// Gibt alle Thesen paginiert zurück.
     /// </summary>
-    /// <returns>Eine schreibgeschützte Sammlung aller Thesen.</returns>
-    Task<IReadOnlyCollection<Thesis>> GetAllAsync();
+    /// <param name="page">Die Seitennummer (1-basiert).</param>
+    /// <param name="pageSize">Die Anzahl der Elemente pro Seite.</param>
+    /// <returns>Ein paginiertes Ergebnis mit den Thesen.</returns>
+    Task<PaginatedResult<Thesis>> GetAllAsync(int page, int pageSize);
 
     /// <summary>
     /// Gibt eine These anhand ihrer ID zurück.
