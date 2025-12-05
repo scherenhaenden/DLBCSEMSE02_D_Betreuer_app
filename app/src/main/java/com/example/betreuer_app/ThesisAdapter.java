@@ -8,6 +8,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.betreuer_app.model.Thesis;
+
 import java.util.List;
 
 public class ThesisAdapter extends RecyclerView.Adapter<ThesisAdapter.ThesisViewHolder> {
@@ -28,10 +30,10 @@ public class ThesisAdapter extends RecyclerView.Adapter<ThesisAdapter.ThesisView
     @Override
     public void onBindViewHolder(@NonNull ThesisViewHolder holder, int position) {
         Thesis thesis = thesisList.get(position);
-        holder.textViewTitel.setText(thesis.getTitel());
-        holder.textViewFachgebiet.setText(thesis.getFachgebiet());
+        holder.textViewTitel.setText(thesis.getTitle());
+        holder.textViewFachgebiet.setText(thesis.getFieldOfStudy());
         holder.textViewStatus.setText("Status: " + thesis.getStatus());
-        holder.textViewRechnungsstatus.setText("Rechnung: " + thesis.getRechnungsstatus());
+        holder.textViewRechnungsstatus.setText("Rechnung: " + thesis.getBillingStatus());
     }
 
     @Override
