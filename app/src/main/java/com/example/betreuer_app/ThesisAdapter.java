@@ -22,12 +22,18 @@ public class ThesisAdapter extends RecyclerView.Adapter<ThesisAdapter.ThesisView
 
     @NonNull
     @Override
+    /**
+     * Creates a new ThesisViewHolder instance.
+     */
     public ThesisViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_thesis, parent, false);
         return new ThesisViewHolder(view);
     }
 
     @Override
+    /**
+     * Binds the data of a Thesis object to the views in the ThesisViewHolder.
+     */
     public void onBindViewHolder(@NonNull ThesisViewHolder holder, int position) {
         Thesis thesis = thesisList.get(position);
         holder.textViewTitel.setText(thesis.getTitle());
