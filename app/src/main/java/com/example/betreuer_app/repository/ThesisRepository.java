@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ThesisRepository {
+    /**
+     * Retrieves a list of sample theses.
+     */
     public List<Thesis> getTheses() {
         List<Thesis> theses = new ArrayList<>();
         // Fake data
