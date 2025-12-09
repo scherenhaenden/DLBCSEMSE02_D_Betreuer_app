@@ -12,12 +12,12 @@ namespace ApiProject.BusinessLogic.Services
     public sealed class ThesisService : IThesisService
     {
         private readonly ThesisDbContext _context;
-        private readonly IUserService _userService;
+        private readonly IUserBusinessLogicService _userBusinessLogicService;
 
-        public ThesisService(ThesisDbContext context, IUserService userService)
+        public ThesisService(ThesisDbContext context, IUserBusinessLogicService userBusinessLogicService)
         {
             _context = context;
-            _userService = userService;
+            _userBusinessLogicService = userBusinessLogicService;
         }
 
         public async Task<PaginatedResultBusinessLogicModel<ThesisBusinessLogicModel>> GetAllAsync(int page, int pageSize)
@@ -55,15 +55,15 @@ namespace ApiProject.BusinessLogic.Services
 
         public async Task<ThesisBusinessLogicModel> CreateThesisAsync(ThesisCreateRequestBusinessLogicModel request)
         {
-            if (!await _userService.UserHasRoleAsync(request.OwnerId, "STUDENT"))
+            if (!await _userBusinessLogicService.UserHasRoleAsync(request.OwnerId, "STUDENT"))
             {
                 throw new InvalidOperationException("Owner must have the STUDENT role.");
             }
-            if (!await _userService.UserHasRoleAsync(request.TutorId, "TUTOR"))
+            if (!await _userBusinessLogicService.UserHasRoleAsync(request.TutorId, "TUTOR"))
             {
                 throw new InvalidOperationException("Tutor must have the TUTOR role.");
             }
-            if (request.SecondSupervisorId.HasValue && !await _userService.UserHasRoleAsync(request.SecondSupervisorId.Value, "TUTOR"))
+            if (request.SecondSupervisorId.HasValue && !await _userBusinessLogicService.UserHasRoleAsync(request.SecondSupervisorId.Value, "TUTOR"))
             {
                 throw new InvalidOperationException("Second supervisor must have the TUTOR role.");
             }
@@ -98,11 +98,11 @@ namespace ApiProject.BusinessLogic.Services
                 throw new KeyNotFoundException("Thesis not found.");
             }
 
-            if (request.TutorId.HasValue && !await _userService.UserHasRoleAsync(request.TutorId.Value, "TUTOR"))
+            if (request.TutorId.HasValue && !await _userBusinessLogicService.UserHasRoleAsync(request.TutorId.Value, "TUTOR"))
             {
                 throw new InvalidOperationException("Tutor must have the TUTOR role.");
             }
-            if (request.SecondSupervisorId.HasValue && !await _userService.UserHasRoleAsync(request.SecondSupervisorId.Value, "TUTOR"))
+            if (request.SecondSupervisorId.HasValue && !await _userBusinessLogicService.UserHasRoleAsync(request.SecondSupervisorId.Value, "TUTOR"))
             {
                 throw new InvalidOperationException("Second supervisor must have the TUTOR role.");
             }

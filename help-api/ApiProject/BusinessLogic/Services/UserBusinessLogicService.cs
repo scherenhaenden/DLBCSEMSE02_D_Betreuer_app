@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiProject.BusinessLogic.Services
 {
-    public sealed class UserService : IUserService
+    public sealed class UserBusinessLogicService : IUserBusinessLogicService
     {
         private readonly ThesisDbContext _context;
 
-        public UserService(ThesisDbContext context)
+        public UserBusinessLogicService(ThesisDbContext context)
         {
             _context = context;
         }
@@ -77,7 +77,7 @@ namespace ApiProject.BusinessLogic.Services
 
         public async Task<UserBusinessLogicModel> CreateUserAsync(string firstName, string lastName, string email, string password, IEnumerable<string> roleNames)
         {
-            if (await _context.Users.AnyAsync(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
+            if (await _context.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower()))
             {
                 throw new InvalidOperationException("A user with this e-mail already exists.");
             }

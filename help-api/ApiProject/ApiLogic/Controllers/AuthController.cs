@@ -13,25 +13,25 @@ namespace ApiProject.ApiLogic.Controllers
     [Route("auth")]
     public sealed class AuthController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserBusinessLogicService _userBusinessLogicService;
         private readonly IConfiguration _configuration;
 
-        public AuthController(IUserService userService, IConfiguration configuration)
+        public AuthController(IUserBusinessLogicService userBusinessLogicService, IConfiguration configuration)
         {
-            _userService = userService;
+            _userBusinessLogicService = userBusinessLogicService;
             _configuration = configuration;
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
         {
-            var isValid = await _userService.VerifyPasswordAsync(request.Email, request.Password);
+            var isValid = await _userBusinessLogicService.VerifyPasswordAsync(request.Email, request.Password);
             if (!isValid)
             {
                 return Unauthorized("Invalid email or password.");
             }
 
-            var user = await _userService.GetByEmailAsync(request.Email);
+            var user = await _userBusinessLogicService.GetByEmailAsync(request.Email);
             if (user == null)
             {
                 return Unauthorized();

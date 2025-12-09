@@ -8,11 +8,11 @@ namespace ApiProject.ApiLogic.Controllers
     [Route("users")]
     public sealed class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserBusinessLogicService _userBusinessLogicService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserBusinessLogicService userBusinessLogicService)
         {
-            _userService = userService;
+            _userBusinessLogicService = userBusinessLogicService;
         }
 
         [HttpGet]
@@ -24,7 +24,7 @@ namespace ApiProject.ApiLogic.Controllers
             [FromQuery] string? lastName = null,
             [FromQuery] string? role = null)
         {
-            var result = await _userService.GetAllAsync(page, pageSize, email, firstName, lastName, role);
+            var result = await _userBusinessLogicService.GetAllAsync(page, pageSize, email, firstName, lastName, role);
 
             var response = new PaginatedResponse<UserResponse>
             {
@@ -47,7 +47,7 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpPost]
         public async Task<ActionResult<UserResponse>> Create([FromBody] CreateUserRequest request)
         {
-            var user = await _userService.CreateUserAsync(
+            var user = await _userBusinessLogicService.CreateUserAsync(
                 request.FirstName,
                 request.LastName,
                 request.Email,

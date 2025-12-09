@@ -62,7 +62,7 @@ else
 }
 
 // Services
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserBusinessLogicService, UserBusinessLogicService>();
 builder.Services.AddScoped<IThesisService, ThesisService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 

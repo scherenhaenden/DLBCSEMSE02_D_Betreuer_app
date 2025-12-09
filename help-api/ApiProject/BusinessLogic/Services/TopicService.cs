@@ -10,12 +10,12 @@ namespace ApiProject.BusinessLogic.Services
     public sealed class TopicService : ITopicService
     {
         private readonly ThesisDbContext _context;
-        private readonly IUserService _userService;
+        private readonly IUserBusinessLogicService _userBusinessLogicService;
 
-        public TopicService(ThesisDbContext context, IUserService userService)
+        public TopicService(ThesisDbContext context, IUserBusinessLogicService userBusinessLogicService)
         {
             _context = context;
-            _userService = userService;
+            _userBusinessLogicService = userBusinessLogicService;
         }
 
         public async Task<PaginatedResultBusinessLogicModel<TopicBusinessLogicModel>> GetAllAsync(int page, int pageSize)
@@ -72,7 +72,7 @@ namespace ApiProject.BusinessLogic.Services
         {
             foreach (var tutorId in request.TutorIds)
             {
-                if (!await _userService.UserHasRoleAsync(tutorId, "TUTOR"))
+                if (!await _userBusinessLogicService.UserHasRoleAsync(tutorId, "TUTOR"))
                 {
                     throw new InvalidOperationException($"User with ID {tutorId} must have the TUTOR role.");
                 }
@@ -118,7 +118,7 @@ namespace ApiProject.BusinessLogic.Services
             {
                 foreach (var tutorId in request.TutorIds)
                 {
-                    if (!await _userService.UserHasRoleAsync(tutorId, "TUTOR"))
+                    if (!await _userBusinessLogicService.UserHasRoleAsync(tutorId, "TUTOR"))
                     {
                         throw new InvalidOperationException($"User with ID {tutorId} must have the TUTOR role.");
                     }

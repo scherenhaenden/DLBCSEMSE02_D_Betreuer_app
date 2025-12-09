@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiProject", "ApiProject.csproj", "{BAFB9879-F49A-49F0-BA60-D2E59E507319}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiProject", "..\ApiProject\ApiProject.csproj", "{BAFB9879-F49A-49F0-BA60-D2E59E507319}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiProject.Tests", "..\ApiProject.Tests\ApiProject.Tests.csproj", "{D5FCE5C1-2E43-44B0-A353-4C5E219DB668}"
 EndProject
