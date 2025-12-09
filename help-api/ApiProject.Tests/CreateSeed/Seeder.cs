@@ -13,6 +13,9 @@ public class Seeder
     [Test]
     public void CreateSeed()
     {
+        // get current directory
+        string directory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        
         ICreateSeedOfObject createSeedOfObject = new CreateSeedOfObject();
         
         
@@ -56,10 +59,39 @@ public class Seeder
             userRolesToSeed.Add(userRole);
         }
         
+        // Create specific users for testers
+        var testers = new[] { "Abraham", "Eddie", "Stefan", "Michael" };
+        foreach (var testerName in testers)
+        {
+            foreach (var role in rolesToSeed)
+            {
+                var specificUser = new UserDataAccessModel
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = testerName,
+                    LastName = role.Name, // Using role name as last name for easy identification
+                    Email = $"{testerName.ToLower()}.{role.Name.ToLower()}@test.com",
+                    PasswordHash = "password123", // Using a fixed password for testing
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                users.Add(specificUser);
+
+                var specificUserRole = new UserRoleDataAccessModel
+                {
+                    UserId = specificUser.Id,
+                    RoleId = role.Id
+                };
+                userRolesToSeed.Add(specificUserRole);
+            }
+        }
+        
         var seedData = new { Users = users, Roles = rolesToSeed, UserRoles = userRolesToSeed };
         
 
         var json = JsonSerializer.Serialize(seedData, new JsonSerializerOptions { WriteIndented = true });
+        
+        File.WriteAllText(Path.Combine(directory, "seed.json"), json);
 
     } 
 }
