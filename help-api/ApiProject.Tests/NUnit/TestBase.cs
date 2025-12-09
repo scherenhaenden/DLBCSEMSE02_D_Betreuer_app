@@ -1,4 +1,4 @@
-using ApiProject.Db.Context;
+using ApiProject.DatabaseAccess.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiProject.Tests.NUnit;

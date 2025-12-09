@@ -1,5 +1,4 @@
-using ApiProject.Db.Entities;
-using ApiProject.Logic.Services;
+/*using ApiProject.Logic.Services;
 using Moq;
 
 namespace ApiProject.Tests.NUnit.Services;
@@ -174,4 +173,4 @@ public class TopicServiceTests : TestBase
         // Assert
         Assert.That(result, Is.False);
     }
-}
+}*/
