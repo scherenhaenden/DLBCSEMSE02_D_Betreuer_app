@@ -13,4 +13,6 @@ public class CreateSeedOfObject : ICreateSeedOfObject
         var objects = configuredFaker.Generate(count);
         return JsonSerializer.Serialize(objects, new JsonSerializerOptions { WriteIndented = true });
     }   
+    
+    
 }

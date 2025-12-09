@@ -6,9 +6,9 @@ namespace ApiProject.DatabaseAccess.Entities
     public class UserRoleDataAccessModel
     {
         public Guid UserId { get; set; }
-        public UserDataAccessModel User { get; set; }
+        public virtual UserDataAccessModel User { get; set; }
 
         public Guid RoleId { get; set; }
-        public RoleDataAccessModel Role { get; set; }
+        public virtual RoleDataAccessModel Role { get; set; }
     }
 }

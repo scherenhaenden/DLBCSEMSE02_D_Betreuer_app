@@ -77,6 +77,13 @@ namespace ApiProject.BusinessLogic.Services
 
         public async Task<UserBusinessLogicModel> CreateUserAsync(string firstName, string lastName, string email, string password, IEnumerable<string> roleNames)
         {
+            var roleNamesList = roleNames?.Select(r => r.Trim().ToUpperInvariant()).Distinct().ToList() 
+                                ?? new List<string>();
+            if (!roleNamesList.Any())
+            {
+                throw new ArgumentException("User must be assigned at least one role.", nameof(roleNames));
+            }
+            
             if (await _context.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower()))
             {
                 throw new InvalidOperationException("A user with this e-mail already exists.");
@@ -90,15 +97,18 @@ namespace ApiProject.BusinessLogic.Services
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
             };
 
-            foreach (var roleName in roleNames)
+            var existingRoles = await _context.Roles
+                .Where(r => roleNamesList.Contains(r.Name))
+                .ToListAsync();
+
+            if (existingRoles.Count != roleNamesList.Count)
             {
-                var normalizedRole = roleName.Trim().ToUpperInvariant();
-                var role = await _context.Roles.SingleOrDefaultAsync(r => r.Name == normalizedRole);
-                if (role != null)
-                {
-                    user.UserRoles.Add(new UserRoleDataAccessModel { User = user, Role = role });
-                }
+                var missingRoles = roleNamesList.Except(existingRoles.Select(r => r.Name));
+                throw new InvalidOperationException($"The following roles do not exist: {string.Join(", ", missingRoles)}");
             }
+
+            foreach (var role in existingRoles)
+                user.UserRoles.Add(new UserRoleDataAccessModel { User = user, Role = role });
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

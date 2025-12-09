@@ -66,7 +66,8 @@ public class ThesisDbContext : DbContext
         // --- Seed Data ---
         modelBuilder.Entity<RoleDataAccessModel>().HasData(
             new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "STUDENT", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "TUTOR", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "TUTOR", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "ADMIN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
         );
 
         modelBuilder.Entity<ThesisStatusDataAccessModel>().HasData(
