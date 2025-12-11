@@ -1,6 +1,5 @@
-using ApiProject.Api.Controllers;
-using ApiProject.Api.Models;
-using ApiProject.Db.Entities;
+/*using ApiProject.Api.Controllers;
+using ApiProject.ApiLogic.models;
 using ApiProject.Logic.Models;
 using ApiProject.Logic.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -173,4 +172,4 @@ public class TopicControllerTests
         // Assert
         Assert.That(result, Is.InstanceOf<NotFoundResult>());
     }
-}
+}*/

@@ -1,5 +1,15 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AIRelationalConnection_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003F_002Econfig_003FJetBrains_003FRider2025_002E3_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003Fda0300657eda4e00bb16b3ade29a3373216c20_003F1d_003Fc4446389_003FIRelationalConnection_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/dotCover/Editor/HighlightingSourceSnapshotLocation/@EntryValue">/home/edward/.cache/JetBrains/Rider2025.3/resharper-host/temp/Rider/vAny/CoverageData/_ApiProject.-1258216614/Snapshot/snapshot.utdcvr</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=380b39cb_002D7852_002D48c0_002D9b9b_002D2c660c02deb0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ThesisDbContextTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.DataAccess.Context.ThesisDbContextTests&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.UserBusinessLogicServiceTests&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.ApiLogic.Controllers.UserControllerTests&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.DataAccess.Entities.UserTopicDataAccessModelTests&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.CreateSeed.Seeder.CreateSeed&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d46977f5_002D2f7a_002D4c1e_002D84ef_002D3e16e91dd3b2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;ApiProject.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Project Location="/home/edward/Development/DLBCSEMSE02_D_Betreuet_app/help-api/ApiProject.Tests" Presentation="&amp;lt;ApiProject.Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
