@@ -5,7 +5,7 @@ package com.example.betreuer_app.model;
  */
 public class Topic {
     
-    private int id;
+    private String id;
     private String title;
     private String description;
     private String subjectArea;
@@ -19,7 +19,7 @@ public class Topic {
      * @param subjectArea The subject area of the topic.
      * @param isActive The active status of the topic.
      */
-    public Topic(int id, String title, String description, String subjectArea, boolean isActive) {
+    public Topic(String id, String title, String description, String subjectArea, boolean isActive) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -31,7 +31,7 @@ public class Topic {
      * Returns the ID of the topic.
      * @return The ID.
      */
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -39,7 +39,7 @@ public class Topic {
      * Sets the ID of the topic.
      * @param id The new ID.
      */
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -3,22 +3,33 @@ package com.example.betreuer_app.model;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.UUID;
+
 import static org.junit.Assert.*;
 
-public class ThesisUnitTest {
+public class ThesisTest {
 
     private Thesis thesis;
+    private UUID thesisId;
+    private UUID studentId;
+    private UUID supervisorId;
+    private UUID secondExaminerId;
 
     @Before
     public void setUp() {
+        thesisId = UUID.randomUUID();
+        studentId = UUID.randomUUID();
+        supervisorId = UUID.randomUUID();
+        secondExaminerId = UUID.randomUUID();
+
         thesis = new Thesis(
-                1,
+                thesisId,
                 "Test Thesis",
                 Thesis.Status.IN_DISCUSSION,
                 "Informatik",
-                100,
-                200,
-                300,
+                studentId,
+                supervisorId,
+                secondExaminerId,
                 "/path/expose.pdf",
                 Thesis.BillingStatus.NONE
         );
@@ -26,13 +37,13 @@ public class ThesisUnitTest {
 
     @Test
     public void testConstructorAndGetters() {
-        assertEquals(1, thesis.getId());
+        assertEquals(thesisId, thesis.getId());
         assertEquals("Test Thesis", thesis.getTitle());
         assertEquals(Thesis.Status.IN_DISCUSSION, thesis.getStatus());
         assertEquals("Informatik", thesis.getFieldOfStudy());
-        assertEquals(100, thesis.getStudentId());
-        assertEquals(200, thesis.getSupervisorId());
-        assertEquals(300, thesis.getSecondExaminerId());
+        assertEquals(studentId, thesis.getStudentId());
+        assertEquals(supervisorId, thesis.getSupervisorId());
+        assertEquals(secondExaminerId, thesis.getSecondExaminerId());
         assertEquals("/path/expose.pdf", thesis.getExposePath());
         assertEquals(Thesis.BillingStatus.NONE, thesis.getBillingStatus());
     }
@@ -57,20 +68,23 @@ public class ThesisUnitTest {
 
     @Test
     public void testSetStudentId() {
-        thesis.setStudentId(555);
-        assertEquals(555, thesis.getStudentId());
+        UUID newStudentId = UUID.randomUUID();
+        thesis.setStudentId(newStudentId);
+        assertEquals(newStudentId, thesis.getStudentId());
     }
 
     @Test
     public void testSetSupervisorId() {
-        thesis.setSupervisorId(777);
-        assertEquals(777, thesis.getSupervisorId());
+        UUID newSupervisorId = UUID.randomUUID();
+        thesis.setSupervisorId(newSupervisorId);
+        assertEquals(newSupervisorId, thesis.getSupervisorId());
     }
 
     @Test
     public void testSetSecondExaminerId() {
-        thesis.setSecondExaminerId(888);
-        assertEquals(888, thesis.getSecondExaminerId());
+        UUID newSecondExaminerId = UUID.randomUUID();
+        thesis.setSecondExaminerId(newSecondExaminerId);
+        assertEquals(newSecondExaminerId, thesis.getSecondExaminerId());
     }
 
     @Test
