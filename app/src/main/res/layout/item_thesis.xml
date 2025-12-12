@@ -1,48 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp">
 
-    <TextView
-        android:id="@+id/textViewTitel"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Titel"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/textViewFachgebiet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Fachgebiet"
-        android:textColor="#808080"
-        android:textSize="14sp" />
+        <ImageView
+            android:id="@+id/thesis_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/backgrounds/scenic" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        <TextView
+            android:id="@+id/textViewTitel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Titel"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            app:layout_constraintStart_toEndOf="@id/thesis_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/thesis_image" />
+
+        <TextView
+            android:id="@+id/textViewFachgebiet"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Fachgebiet"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            app:layout_constraintStart_toStartOf="@id/textViewTitel"
+            app:layout_constraintEnd_toEndOf="@id/textViewTitel"
+            app:layout_constraintTop_toBottomOf="@id/textViewTitel" />
 
         <TextView
             android:id="@+id/textViewStatus"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginTop="8dp"
             android:text="Status"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            app:layout_constraintStart_toStartOf="@id/textViewTitel"
+            app:layout_constraintTop_toBottomOf="@id/textViewFachgebiet" />
 
         <TextView
             android:id="@+id/textViewRechnungsstatus"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginStart="16dp"
             android:text="Rechnungsstatus"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            app:layout_constraintStart_toEndOf="@id/textViewStatus"
+            app:layout_constraintTop_toTopOf="@id/textViewStatus" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>
