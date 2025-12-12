@@ -1,11 +1,13 @@
 package com.example.betreuer_app.model;
 
+import java.util.UUID;
+
 /**
  * Represents a topic for a thesis.
  */
 public class Topic {
     
-    private int id;
+    private UUID id;
     private String title;
     private String description;
     private String subjectArea;
@@ -19,7 +21,7 @@ public class Topic {
      * @param subjectArea The subject area of the topic.
      * @param isActive The active status of the topic.
      */
-    public Topic(int id, String title, String description, String subjectArea, boolean isActive) {
+    public Topic(UUID id, String title, String description, String subjectArea, boolean isActive) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -31,7 +33,7 @@ public class Topic {
      * Returns the ID of the topic.
      * @return The ID.
      */
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -39,7 +41,7 @@ public class Topic {
      * Sets the ID of the topic.
      * @param id The new ID.
      */
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

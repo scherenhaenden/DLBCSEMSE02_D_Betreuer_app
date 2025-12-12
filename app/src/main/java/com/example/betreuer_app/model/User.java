@@ -1,10 +1,12 @@
 package com.example.betreuer_app.model;
 
+import java.util.UUID;
+
 /**
  * Represents a user in the application.
  */
 public class User {
-    private int id;
+    private UUID id;
     private String name;
     private String email;
     private String role;
@@ -16,7 +18,7 @@ public class User {
      * @param email The user's email address.
      * @param role The user's role.
      */
-    public User(int id, String name, String email, String role) {
+    public User(UUID id, String name, String email, String role) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -27,7 +29,7 @@ public class User {
      * Returns the user's ID.
      * @return The ID.
      */
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -35,7 +37,7 @@ public class User {
      * Sets the user's ID.
      * @param id The new ID.
      */
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

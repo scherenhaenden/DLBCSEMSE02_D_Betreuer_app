@@ -1,5 +1,7 @@
 package com.example.betreuer_app.model;
 
+import java.util.UUID;
+
 /**
  * Represents a thesis.
  */
@@ -16,13 +18,13 @@ public class Thesis {
 
     // Attributes
 
-    private int id;
+    private UUID id;
     private String title;
     private Status status;
     private String fieldOfStudy;
-    private int studentId;
-    private int supervisorId;
-    private int secondExaminerId;
+    private UUID studentId;
+    private UUID supervisorId;
+    private UUID secondExaminerId;
     private String exposePath;
     private BillingStatus billingStatus;
 
@@ -40,8 +42,8 @@ public class Thesis {
      * @param exposePath The path to the exposé file.
      * @param billingStatus The billing status of the thesis.
      */
-    public Thesis(int id, String title, Status status, String fieldOfStudy, int studentId,
-                int supervisorId, int secondExaminerId, String exposePath,
+    public Thesis(UUID id, String title, Status status, String fieldOfStudy, UUID studentId,
+                UUID supervisorId, UUID secondExaminerId, String exposePath,
                   BillingStatus billingStatus) {
         this.id = id;
         this.title = title;
@@ -60,8 +62,16 @@ public class Thesis {
      * Returns the ID of the thesis.
      * @return The ID.
      */
-    public int getId() {
+    public UUID getId() {
         return id;
+    }
+
+    /**
+     * Sets the ID of the thesis.
+     * @param id The new ID.
+     */
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     /**
@@ -116,7 +126,7 @@ public class Thesis {
      * Returns the student's ID.
      * @return The student ID.
      */
-    public int getStudentId() {
+    public UUID getStudentId() {
         return studentId;
     }
 
@@ -124,7 +134,7 @@ public class Thesis {
      * Sets the student's ID.
      * @param studentId The new student ID.
      */
-    public void setStudentId(int studentId) {
+    public void setStudentId(UUID studentId) {
         this.studentId = studentId;
     }
 
@@ -132,7 +142,7 @@ public class Thesis {
      * Returns the supervisor's ID.
      * @return The supervisor ID.
      */
-    public int getSupervisorId() {
+    public UUID getSupervisorId() {
         return supervisorId;
     }
 
@@ -140,7 +150,7 @@ public class Thesis {
      * Sets the supervisor's ID.
      * @param supervisorId The new supervisor ID.
      */
-    public void setSupervisorId(int supervisorId) {
+    public void setSupervisorId(UUID supervisorId) {
         this.supervisorId = supervisorId;
     }
 
@@ -148,7 +158,7 @@ public class Thesis {
      * Returns the second examiner's ID.
      * @return The second examiner ID.
      */
-    public int getSecondExaminerId() {
+    public UUID getSecondExaminerId() {
         return secondExaminerId;
     }
 
@@ -156,7 +166,7 @@ public class Thesis {
      * Sets the second examiner's ID.
      * @param secondExaminerId The new second examiner ID.
      */
-    public void setSecondExaminerId(int secondExaminerId) {
+    public void setSecondExaminerId(UUID secondExaminerId) {
         this.secondExaminerId = secondExaminerId;
     }
 
