@@ -26,7 +26,7 @@ public class Thesis {
     // Constructor
 
     public Thesis(int id, String title, Status status, String fieldOfStudy, int studentId,
-                  int supervisorId, int secondExaminerId, String exposePath,
+                int supervisorId, int secondExaminerId, String exposePath,
                   BillingStatus billingStatus) {
         this.id = id;
         this.title = title;
