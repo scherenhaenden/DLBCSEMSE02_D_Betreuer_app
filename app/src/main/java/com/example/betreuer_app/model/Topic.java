@@ -1,5 +1,8 @@
 package com.example.betreuer_app.model;
 
+/**
+ * Represents a topic for a thesis.
+ */
 public class Topic {
     
     private int id;
@@ -8,6 +11,14 @@ public class Topic {
     private String subjectArea;
     private boolean isActive;
 
+    /**
+     * Constructs a new Topic.
+     * @param id The ID of the topic.
+     * @param title The title of the topic.
+     * @param description The description of the topic.
+     * @param subjectArea The subject area of the topic.
+     * @param isActive The active status of the topic.
+     */
     public Topic(int id, String title, String description, String subjectArea, boolean isActive) {
         this.id = id;
         this.title = title;
@@ -16,95 +27,81 @@ public class Topic {
         this.isActive = isActive;
     }
 
-    /*
-    Returns the ID.
-    */
+    /**
+     * Returns the ID of the topic.
+     * @return The ID.
+     */
     public int getId() {
         return id;
     }
 
-    /*
-    Sets the ID.
-    */
+    /**
+     * Sets the ID of the topic.
+     * @param id The new ID.
+     */
     public void setId(int id) {
         this.id = id;
     }
 
-    /*
-    Returns the title.
-    */
     /**
-     * Returns the title.
+     * Returns the title of the topic.
+     * @return The title.
      */
     public String getTitle() {
         return title;
     }
 
-    /*
-    Sets the title
-    */
     /**
-     * Sets the title.
+     * Sets the title of the topic.
+     * @param title The new title.
      */
     public void setTitle(String title) {
         this.title = title;
     }
 
-    /*
-    Returns the description.
-    */
     /**
-     * Returns the description.
+     * Returns the description of the topic.
+     * @return The description.
      */
     public String getDescription() {
         return description;
     }
 
-    /*
-    Set the description.
-    */
     /**
-     * Sets the description.
+     * Sets the description of the topic.
+     * @param description The new description.
      */
     public void setDescription(String description) {
         this.description = description;
     }
 
-    /*
-    Returns the subjectArea.
-    */
     /**
-     * Returns the subject area.
+     * Returns the subject area of the topic.
+     * @return The subject area.
      */
     public String getSubjectArea() {
         return subjectArea;
     }
 
-    /*
-    Sets the subjectArea.
-    */
     /**
-     * Sets the subject area.
+     * Sets the subject area of the topic.
+     * @param subjectArea The new subject area.
      */
     public void setSubjectArea(String subjectArea) {
         this.subjectArea = subjectArea;
     }
 
-    /*
-    Returns the isActive.
-    */
     /**
-     * Returns the active status.
+     * Returns whether the topic is active.
+     * @return The active status.
      */
     public boolean isActive() {
         return isActive;
     }
 
-    /*
-    Sets isActive.
-    */
     /**
-     * Sets the active state of the object.
+     * Sets the active status of the topic.
+     * @param isActive The new active status.
      */
     public void setActive(boolean isActive) {
         this.isActive = isActive;

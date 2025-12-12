@@ -1,11 +1,21 @@
 package com.example.betreuer_app.model;
 
+/**
+ * Represents a user in the application.
+ */
 public class User {
     private int id;
     private String name;
     private String email;
     private String role;
 
+    /**
+     * Constructs a new User object.
+     * @param id The user's ID.
+     * @param name The user's name.
+     * @param email The user's email address.
+     * @param role The user's role.
+     */
     public User(int id, String name, String email, String role) {
         this.id = id;
         this.name = name;
@@ -14,53 +24,64 @@ public class User {
     }
 
     /**
-     * Returns the ID.
+     * Returns the user's ID.
+     * @return The ID.
      */
     public int getId() {
         return id;
     }
 
     /**
-     * Sets the id of the object.
+     * Sets the user's ID.
+     * @param id The new ID.
      */
     public void setId(int id) {
         this.id = id;
     }
 
     /**
-     * Returns the name.
+     * Returns the user's name.
+     * @return The name.
      */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the user's name.
+     * @param name The new name.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * Returns the email address.
+     * Returns the user's email address.
+     * @return The email address.
      */
     public String getEmail() {
         return email;
     }
 
     /**
-     * Sets the email address.
+     * Sets the user's email address.
+     * @param email The new email address.
      */
     public void setEmail(String email) {
         this.email = email;
     }
 
     /**
-     * Returns the role of the user.
+     * Returns the user's role.
+     * @return The role.
      */
     public String getRole() {
         return role;
     }
 
     /**
-     * Sets the role of the user.
+     * Sets the user's role.
+     * @param role The new role.
      */
     public void setRole(String role) {
         this.role = role;
