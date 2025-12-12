@@ -33,6 +33,9 @@ public class Topic {
     /*
     Returns the title.
     */
+    /**
+     * Returns the title.
+     */
     public String getTitle() {
         return title;
     }
@@ -40,6 +43,9 @@ public class Topic {
     /*
     Sets the title
     */
+    /**
+     * Sets the title.
+     */
     public void setTitle(String title) {
         this.title = title;
     }
@@ -47,6 +53,9 @@ public class Topic {
     /*
     Returns the description.
     */
+    /**
+     * Returns the description.
+     */
     public String getDescription() {
         return description;
     }
@@ -54,6 +63,9 @@ public class Topic {
     /*
     Set the description.
     */
+    /**
+     * Sets the description.
+     */
     public void setDescription(String description) {
         this.description = description;
     }
@@ -61,6 +73,9 @@ public class Topic {
     /*
     Returns the subjectArea.
     */
+    /**
+     * Returns the subject area.
+     */
     public String getSubjectArea() {
         return subjectArea;
     }
@@ -68,6 +83,9 @@ public class Topic {
     /*
     Sets the subjectArea.
     */
+    /**
+     * Sets the subject area.
+     */
     public void setSubjectArea(String subjectArea) {
         this.subjectArea = subjectArea;
     }
@@ -75,6 +93,9 @@ public class Topic {
     /*
     Returns the isActive.
     */
+    /**
+     * Returns the active status.
+     */
     public boolean isActive() {
         return isActive;
     }
@@ -82,6 +103,9 @@ public class Topic {
     /*
     Sets isActive.
     */
+    /**
+     * Sets the active state of the object.
+     */
     public void setActive(boolean isActive) {
         this.isActive = isActive;
     }
