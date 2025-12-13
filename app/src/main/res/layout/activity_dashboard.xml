@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".DashboardActivity">
+
+    <TextView
+        android:id="@+id/welcomeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"
+        tools:text="Hallo Stefan!" />
+
+    <!-- ############ STUDENTEN-ANSICHT ############ -->
+    <LinearLayout
+        android:id="@+id/studentDashboardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dein Dashboard (Student)"
+            android:textSize="20sp" />
+
+        <!-- Hier könnten z.B. Details zur eigenen Arbeit stehen -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Platzhalter für: Meine Abschlussarbeit" />
+
+    </LinearLayout>
+
+    <!-- ############ DOZENTEN-ANSICHT ############ -->
+    <LinearLayout
+        android:id="@+id/lecturerDashboardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dein Dashboard (Dozent)"
+            android:textSize="20sp" />
+
+        <!-- Hier könnte z.B. eine Liste der betreuten Arbeiten sein -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Platzhalter für: Liste der betreuten Arbeiten" />
+
+    </LinearLayout>
+
+</LinearLayout>
