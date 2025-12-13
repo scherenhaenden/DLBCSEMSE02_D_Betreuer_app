@@ -80,7 +80,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:hint="Name des Betreuers..."
+        android:hint="Name des Betreuers..."
         app:startIconDrawable="@drawable/ic_search">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -135,7 +135,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tutors_recycler_view"
-        android:layout_width="match_parent"
+        android.layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="8dp"
