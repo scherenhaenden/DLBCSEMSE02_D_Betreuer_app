@@ -3,6 +3,8 @@ using ApiProject.BusinessLogic.Models;
 using ApiProject.DatabaseAccess.Context;
 using ApiProject.DatabaseAccess.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ApiProject.BusinessLogic.Services
 {
@@ -20,12 +22,33 @@ namespace ApiProject.BusinessLogic.Services
             _userBusinessLogicService = userBusinessLogicService;
         }
 
-        public async Task<PaginatedResultBusinessLogicModel<ThesisBusinessLogicModel>> GetAllAsync(int page, int pageSize)
+        public async Task<PaginatedResultBusinessLogicModel<ThesisBusinessLogicModel>> GetAllAsync(int page, int pageSize, Guid userId, List<string> userRoles)
         {
             var query = _context.Theses
                 .Include(t => t.Status)
                 .Include(t => t.BillingStatus)
-                .Include(t => t.Document);
+                .Include(t => t.Document)
+                .AsQueryable();
+
+            // Admins can see all theses
+            if (!userRoles.Contains("ADMIN"))
+            {
+                // Tutors see theses they are assigned to
+                if (userRoles.Contains("TUTOR"))
+                {
+                    query = query.Where(t => t.TutorId == userId || t.SecondSupervisorId == userId);
+                }
+                // Students see their own theses
+                else if (userRoles.Contains("STUDENT"))
+                {
+                    query = query.Where(t => t.OwnerId == userId);
+                }
+                else
+                {
+                    // If user is not an admin, tutor, or student, they can't see any theses.
+                    query = query.Where(t => false);
+                }
+            }
 
             var totalCount = await query.CountAsync();
             var items = await query

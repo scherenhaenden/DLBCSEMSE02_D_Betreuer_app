@@ -1,4 +1,5 @@
 using ApiProject.BusinessLogic.Models;
+using System.Collections.Generic;
 
 namespace ApiProject.BusinessLogic.Services
 {
@@ -8,12 +9,14 @@ namespace ApiProject.BusinessLogic.Services
     public interface IThesisService
     {
         /// <summary>
-        /// Returns all theses in a paginated result.
+        /// Returns all theses in a paginated result, filtered by user roles and ID.
         /// </summary>
         /// <param name="page">The page number (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
+        /// <param name="userId">The ID of the current user.</param>
+        /// <param name="userRoles">The roles of the current user.</param>
         /// <returns>A paginated result containing the theses.</returns>
-        Task<PaginatedResultBusinessLogicModel<ThesisBusinessLogicModel>> GetAllAsync(int page, int pageSize);
+        Task<PaginatedResultBusinessLogicModel<ThesisBusinessLogicModel>> GetAllAsync(int page, int pageSize, Guid userId, List<string> userRoles);
 
         /// <summary>
         /// Returns a thesis by its ID.

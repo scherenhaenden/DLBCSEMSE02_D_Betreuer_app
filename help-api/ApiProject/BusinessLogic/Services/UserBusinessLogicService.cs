@@ -1,3 +1,4 @@
+using ApiProject.ApiLogic.Models;
 using ApiProject.BusinessLogic.Mappers;
 using ApiProject.BusinessLogic.Models;
 using ApiProject.DatabaseAccess.Context;
@@ -144,6 +145,84 @@ namespace ApiProject.BusinessLogic.Services
 
             var normalizedRole = roleName.Trim().ToUpperInvariant();
             return user.UserRoles.Any(ur => ur.Role.Name == normalizedRole);
+        }
+
+        public async Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? topicId, string? topicName, int page, int pageSize)
+        {
+            var query = _context.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.UserTopics)
+                .ThenInclude(ut => ut.Topic)
+                .Where(u => u.UserRoles.Any(ur => ur.Role.Name == "TUTOR"));
+
+            if (topicId.HasValue)
+            {
+                query = query.Where(u => u.UserTopics.Any(ut => ut.TopicId == topicId.Value));
+            }
+
+            if (!string.IsNullOrWhiteSpace(topicName))
+            {
+                query = query.Where(u => u.UserTopics.Any(ut => ut.Topic.Title.ToLower().Contains(topicName.ToLower())));
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var tutorProfiles = items.Select(u => new TutorProfileResponse
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email,
+                Topics = u.UserTopics.Select(ut => new TopicResponse
+                {
+                    Id = ut.Topic.Id,
+                    Title = ut.Topic.Title,
+                    Description = ut.Topic.Description
+                }).ToList()
+            }).ToList();
+
+            return new PaginatedResponse<TutorProfileResponse>
+            {
+                Items = tutorProfiles,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<TutorProfileResponse?> GetTutorByIdAsync(Guid id)
+        {
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.UserTopics)
+                .ThenInclude(ut => ut.Topic)
+                .Where(u => u.Id == id && u.UserRoles.Any(ur => ur.Role.Name == "TUTOR"))
+                .SingleOrDefaultAsync();
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new TutorProfileResponse
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Topics = user.UserTopics.Select(ut => new TopicResponse
+                {
+                    Id = ut.Topic.Id,
+                    Title = ut.Topic.Title,
+                    Description = ut.Topic.Description
+                }).ToList()
+            };
         }
     }
 }

@@ -1,13 +1,15 @@
 using ApiProject.ApiLogic.Models;
 using ApiProject.BusinessLogic.Models;
 using ApiProject.BusinessLogic.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using System.Security.Claims;
 
 namespace ApiProject.ApiLogic.Controllers
 {
     [ApiController]
     [Route("theses")]
+    [Authorize] // Require authentication for all actions in this controller
     public sealed class ThesisController : ControllerBase
     {
         private readonly IThesisService _thesisService;
@@ -20,7 +22,12 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpGet]
         public async Task<ActionResult<PaginatedResponse<ThesisResponse>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _thesisService.GetAllAsync(page, pageSize);
+            // Get user ID and roles from the security context
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+            var result = await _thesisService.GetAllAsync(page, pageSize, userId, userRoles);
+            
             var response = new PaginatedResponse<ThesisResponse>
             {
                 Items = result.Items.Select(MapToResponse).ToList(),
@@ -65,7 +72,6 @@ namespace ApiProject.ApiLogic.Controllers
                 var updated = await _thesisService.UpdateThesisAsync(id, new ThesisUpdateRequestBusinessLogicModel
                 {
                     Title = request.Title,
-                    SubjectArea = request.SubjectArea,
                     //StatusId = request.StatusId,
                     //BillingStatusId = request.BillingStatusId,
                     TutorId = request.TutorId,
@@ -101,7 +107,6 @@ namespace ApiProject.ApiLogic.Controllers
             {
                 Id = thesis.Id,
                 Title = thesis.Title,
-                SubjectArea = thesis.SubjectArea,
                 Status = thesis.Status,
                 //BillingStatus = thesis.BillingStatus,
                 OwnerId = thesis.OwnerId,
