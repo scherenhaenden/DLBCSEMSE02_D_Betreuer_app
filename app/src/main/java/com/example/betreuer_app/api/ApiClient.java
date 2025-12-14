@@ -7,6 +7,9 @@ public class ApiClient {
     private static final String BASE_URL = "http://10.0.2.2:8080/";
     private static Retrofit retrofit = null;
 
+    /**
+     * Returns a singleton instance of Retrofit.
+     */
     public static Retrofit getClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
@@ -17,6 +20,9 @@ public class ApiClient {
         return retrofit;
     }
 
+    /**
+     * Creates and returns an instance of UserApiService.
+     */
     public static UserApiService getUserApiService() {
         return getClient().create(UserApiService.class);
     }
