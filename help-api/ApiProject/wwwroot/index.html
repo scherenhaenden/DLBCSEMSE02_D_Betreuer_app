@@ -44,6 +44,11 @@
         a.button:hover {
             background-color: #9965f4;
         }
+        .environment {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
     </style>
 </head>
 <body>
@@ -51,6 +56,21 @@
         <h1>Thesis Management API</h1>
         <p>Welcome to the backend service for the Thesis Management System.</p>
         <a href="/swagger" class="button">Open API Documentation</a>
+        <div class="environment">
+            Current Environment: <span id="env-name">Loading...</span>
+        </div>
     </div>
+
+    <script>
+        fetch('/api/environment')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('env-name').textContent = data.environment;
+            })
+            .catch(error => {
+                console.error('Error fetching environment:', error);
+                document.getElementById('env-name').textContent = 'Unknown';
+            });
+    </script>
 </body>
 </html>

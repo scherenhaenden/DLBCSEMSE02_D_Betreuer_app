@@ -28,14 +28,22 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+// Always enable Swagger to ensure API documentation and testing tools are available 
+// in all environments (Development, Staging, Production). This is critical for 
+// this application to allow consumers to easily interact with and validate the API 
+// endpoints regardless of where the application is deployed.
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    // Display the environment in the Swagger UI
+    var environment = app.Environment.EnvironmentName;
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", $"Thesis Management API v1 - {environment}");
+    c.InjectStylesheet("/swagger-dark.css");
+});
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Thesis Management API v1");
-        c.InjectStylesheet("/swagger-dark.css");
-    });
+    // Development-specific logic can go here.
 }
 
 app.UseHttpsRedirection();
