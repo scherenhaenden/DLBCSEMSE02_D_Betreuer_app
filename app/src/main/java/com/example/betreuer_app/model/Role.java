@@ -18,10 +18,16 @@ public enum Role {
         return guiId;
     }
 
+    /**
+     * Returns the name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the description.
+     */
     public String getDescription() {
         return description;
     }
