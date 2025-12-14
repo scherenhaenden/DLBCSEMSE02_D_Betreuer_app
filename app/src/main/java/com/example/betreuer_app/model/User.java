@@ -75,7 +75,6 @@ public class User {
 
     /**
      * Returns the user's role.
-     * @return The role.
      */
     public Role getRole() {
         return role;
