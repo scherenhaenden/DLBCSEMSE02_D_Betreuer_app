@@ -14,7 +14,7 @@ public class UserTest {
     @Before
     public void setUp() {
         userId = UUID.randomUUID();
-        user = new User(userId, "John Doe", "john.doe@example.com", "student");
+        user = new User(userId, "John Doe", "john.doe@example.com", Role.STUDENT);
     }
 
     @Test
@@ -22,7 +22,7 @@ public class UserTest {
         assertEquals(userId, user.getId());
         assertEquals("John Doe", user.getName());
         assertEquals("john.doe@example.com", user.getEmail());
-        assertEquals("student", user.getRole());
+        assertEquals(Role.STUDENT, user.getRole());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class UserTest {
 
     @Test
     public void testSetRole() {
-        user.setRole("supervisor");
-        assertEquals("supervisor", user.getRole());
+        user.setRole(Role.TUTOR);
+        assertEquals(Role.TUTOR, user.getRole());
     }
 }

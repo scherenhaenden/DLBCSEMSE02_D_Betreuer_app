@@ -9,7 +9,7 @@ public class User {
     private UUID id;
     private String name;
     private String email;
-    private String role;
+    private Role role;
 
     /**
      * Constructs a new User object.
@@ -18,7 +18,7 @@ public class User {
      * @param email The user's email address.
      * @param role The user's role.
      */
-    public User(UUID id, String name, String email, String role) {
+    public User(UUID id, String name, String email, Role role) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -77,7 +77,7 @@ public class User {
      * Returns the user's role.
      * @return The role.
      */
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
@@ -85,7 +85,7 @@ public class User {
      * Sets the user's role.
      * @param role The new role.
      */
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 }

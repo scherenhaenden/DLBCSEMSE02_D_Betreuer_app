@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ThesisStatusFragment">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="Mein Arbeitsfortschritt" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Step 1: Angemeldet -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/icon_registered"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_status_complete" />
+                <TextView
+                    android:id="@+id/title_registered"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/icon_registered"
+                    android:layout_marginStart="16dp"
+                    android:text="Angemeldet"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+                 <TextView
+                    android:id="@+id/date_registered"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title_registered"
+                    android:layout_alignStart="@id/title_registered"
+                    tools:text="Abgeschlossen am 15.03.2024" />
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="40dp"
+                    android:layout_below="@id/icon_registered"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignStart="@id/icon_registered"
+                    android:layout_marginStart="11dp"
+                    android:background="?attr/colorPrimary" />
+            </RelativeLayout>
+
+            <!-- Step 2: In Bearbeitung -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/icon_in_progress"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_status_current" />
+                <TextView
+                    android:id="@+id/title_in_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/icon_in_progress"
+                    android:layout_marginStart="16dp"
+                    android:text="In Bearbeitung"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="40dp"
+                    android:layout_below="@id/icon_in_progress"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignStart="@id/icon_in_progress"
+                    android:layout_marginStart="11dp"
+                    android:background="@color/material_on_surface_disabled" />
+            </RelativeLayout>
+
+            <!-- Step 3: Eingereicht -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/icon_submitted"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_status_pending" />
+                <TextView
+                    android:id="@+id/title_submitted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/icon_submitted"
+                    android:layout_marginStart="16dp"
+                    android:text="Eingereicht"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    android:textColor="?android:attr/textColorSecondary"/>
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="40dp"
+                    android:layout_below="@id/icon_submitted"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignStart="@id/icon_submitted"
+                    android:layout_marginStart="11dp"
+                    android:background="@color/material_on_surface_disabled" />
+            </RelativeLayout>
+
+            <!-- Step 4: Benotet -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/icon_graded"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_status_pending" />
+                <TextView
+                    android:id="@+id/title_graded"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/icon_graded"
+                    android:layout_marginStart="16dp"
+                    android:text="Benotet"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    android:textColor="?android:attr/textColorSecondary"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="8dp">
+        <Button
+            android:id="@+id/action_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Arbeit jetzt einreichen"
+            android:padding="12dp" />
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>
