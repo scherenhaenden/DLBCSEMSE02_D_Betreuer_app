@@ -32,6 +32,9 @@ jobs:
       - name: Publish
         run: dotnet publish help-api/ApiProject/ApiProject.csproj --configuration Release --no-build --output ./publish
 
+      - name: Copy seed.json
+        run: cp help-api/ApiProject/seed.json ./publish/
+
       - name: Zip Release
         run: |
           cd publish
