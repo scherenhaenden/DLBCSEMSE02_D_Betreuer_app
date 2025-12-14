@@ -21,10 +21,4 @@
       <ProjectReference Include="..\ApiProject.Seed\ApiProject.Seed.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Include="seed.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
-
 </Project>
