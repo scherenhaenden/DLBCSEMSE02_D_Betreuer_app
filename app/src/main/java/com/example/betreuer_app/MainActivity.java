@@ -28,12 +28,6 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     @Override
-    /**
-     * Initializes the activity and sets up the content view with window insets.
-     */
-    /**
-     * Initializes the activity, sets up the layout, and populates the RecyclerView with thesis data.
-     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -58,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         // API Call to test
         TextView apiResponseText = findViewById(R.id.apiResponseText);
-        UserApiService apiService = ApiClient.getUserApiService();
+        UserApiService apiService = ApiClient.getUserApiService(this);
         Call<UsersResponse> call = apiService.getUsers(1, 10);
         call.enqueue(new Callback<UsersResponse>() {
             @Override
@@ -74,14 +68,12 @@ public class MainActivity extends AppCompatActivity {
                         sb.append("- ID: ").append(user.getId()).append(", Name: ").append(user.getFirstName()).append(" ").append(user.getLastName()).append(", Email: ").append(user.getEmail()).append("\n");
                     }
                     apiResponseText.setText(sb.toString());
-                } else {
-                    apiResponseText.setText("Error: " + response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<UsersResponse> call, Throwable t) {
-                apiResponseText.setText("Failure: " + t.getMessage());
+                apiResponseText.setText("API call failed: " + t.getMessage());
             }
         });
     }

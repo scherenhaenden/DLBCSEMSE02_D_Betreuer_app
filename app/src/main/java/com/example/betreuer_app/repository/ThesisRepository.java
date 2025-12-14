@@ -1,20 +1,23 @@
 package com.example.betreuer_app.repository;
 
-import com.example.betreuer_app.model.Thesis;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import android.content.Context;
+
+import com.example.betreuer_app.api.ApiClient;
+import com.example.betreuer_app.api.UserApiService;
+import com.example.betreuer_app.model.ThesesResponse;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class ThesisRepository {
-    /**
-     * Retrieves a list of sample theses.
-     */
-    public List<Thesis> getTheses() {
-        List<Thesis> theses = new ArrayList<>();
-        // Fake data
-        theses.add(new Thesis(UUID.randomUUID(), "Thesis on AI", Thesis.Status.IN_DISCUSSION, "Computer Science", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "/path/expose1.pdf", Thesis.BillingStatus.NONE));
-        theses.add(new Thesis(UUID.randomUUID(), "Thesis on Biology", Thesis.Status.REGISTERED, "Biology", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "/path/expose2.pdf", Thesis.BillingStatus.ISSUED));
-        theses.add(new Thesis(UUID.randomUUID(), "Thesis on Physics", Thesis.Status.SUBMITTED, "Physics", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "/path/expose3.pdf", Thesis.BillingStatus.PAID));
-        return theses;
+    private UserApiService apiService;
+
+    public ThesisRepository(Context context) {
+        apiService = ApiClient.getUserApiService(context);
+    }
+
+    public void getTheses(int page, int pageSize, Callback<ThesesResponse> callback) {
+        Call<ThesesResponse> call = apiService.getTheses(page, pageSize);
+        call.enqueue(callback);
     }
 }

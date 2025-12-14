@@ -41,10 +41,10 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         themeSwitch = findViewById(R.id.themeSwitch);
 
-        loginRepository = new LoginRepository();
+        loginRepository = new LoginRepository(this);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("theme_prefs", MODE_PRIVATE);
-        boolean isDarkMode = sharedPreferences.getBoolean("is_dark_mode", false);
+        SharedPreferences themePreferences = getSharedPreferences("theme_prefs", MODE_PRIVATE);
+        boolean isDarkMode = themePreferences.getBoolean("is_dark_mode", false);
         themeSwitch.setChecked(isDarkMode);
 
         themeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
-            SharedPreferences.Editor editor = sharedPreferences.edit();
+            SharedPreferences.Editor editor = themePreferences.edit();
             editor.putBoolean("is_dark_mode", isChecked);
             editor.apply();
         });
@@ -77,6 +77,12 @@ public class LoginActivity extends AppCompatActivity {
                     loginButton.setEnabled(true);
 
                     if (response.isSuccessful() && response.body() != null) {
+                        // Save the token
+                        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = authPreferences.edit();
+                        editor.putString("jwt_token", response.body().getToken());
+                        editor.apply();
+
                         LoggedInUser user = response.body().getUser();
                         Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
                         intent.putExtra("USER_NAME", user.getFirstName());

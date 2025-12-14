@@ -34,8 +34,8 @@ namespace ApiProject.ApiLogic.Controllers
             {
                 Items = result.Items.Select(_thesisApiMapper.MapToResponse).ToList(),
                 TotalCount = result.TotalCount,
-                Page = result.Page,
-                PageSize = result.PageSize
+                Page = page, // Ensure page is reflected from request if result is ambiguous
+                PageSize = pageSize // Ensure pageSize is reflected from request
             };
             return Ok(response);
         }
