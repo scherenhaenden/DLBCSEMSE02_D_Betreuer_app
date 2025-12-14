@@ -11,6 +11,11 @@
     &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.CreateSeed.Seeder.CreateSeed&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=45e89314_002D427c_002D42e5_002Dbb5d_002D71c8b2b01f55/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CreateSeed" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.CreateSeed.Seeder.CreateSeed&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=cb21db55_002D531d_002D4919_002D9257_002D0efab0df520e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CreateSeed" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.CreateSeed.Seeder.CreateSeed&lt;/TestId&gt;
