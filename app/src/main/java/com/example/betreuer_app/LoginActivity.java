@@ -72,6 +72,14 @@ public class LoginActivity extends AppCompatActivity {
 
             loginRepository.login(email, password, new Callback<LoginResponse>() {
                 @Override
+                /**
+                 * Handles the response from the login API call.
+                 *
+                 * This method processes the response received from the login attempt. If the response is successful and contains a valid body, it saves the JWT token in shared preferences and starts the DashboardActivity, passing the user's first name and role if available. If the login fails, it displays a toast message indicating the failure.
+                 *
+                 * @param call The original call object that was made to the login API.
+                 * @param response The response object containing the result of the login attempt.
+                 */
                 public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                     progressBar.setVisibility(View.GONE);
                     loginButton.setEnabled(true);
@@ -97,6 +105,9 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 @Override
+                /**
+                 * Handles the failure of a login request by updating the UI and showing an error message.
+                 */
                 public void onFailure(Call<LoginResponse> call, Throwable t) {
                     progressBar.setVisibility(View.GONE);
                     loginButton.setEnabled(true);
