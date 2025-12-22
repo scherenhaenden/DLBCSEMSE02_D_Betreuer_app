@@ -6,22 +6,16 @@ import com.example.betreuer_app.model.Thesis;
 import com.example.betreuer_app.model.Role;
 
 /**
- * Das Gehirn für unsere Status-Seite! 🧠
- * Hier wird entschieden, wer welchen Status sehen und ändern darf.
- * 
- * Mira-Vibe: Keine Panik vor der Logik, ich hab alles ordentlich beschriftet! ✨
+ * ViewModel zur Verwaltung des Status einer Abschlussarbeit.
+ * Beinhaltet die rollenbasierte Logik für Statusänderungen (Student vs. Tutor).
  */
 public class ThesisStatusViewModel extends ViewModel {
 
-    // Die aktuellen Daten der Arbeit
     public MutableLiveData<Thesis> thesisData = new MutableLiveData<>();
-    
-    // Wer schaut gerade drauf? Student oder Tutor?
     public MutableLiveData<Role> currentUserRole = new MutableLiveData<>();
 
     /**
-     * Bestimmt den Text für den großen Button unten.
-     * Je nach Rolle und aktuellem Status ändert sich die Aufschrift.
+     * Liefert den passenden Text für den Action-Button basierend auf dem aktuellen Status und der Benutzerrolle.
      */
     public String getActionButonText() {
         Thesis thesis = thesisData.getValue();
@@ -32,14 +26,12 @@ public class ThesisStatusViewModel extends ViewModel {
         Thesis.Status status = thesis.getStatus();
 
         if (role == Role.STUDENT) {
-            // Logik für Studierende 🎓
             switch (status) {
                 case IN_DISCUSSION: return "In Bearbeitung setzen";
                 case REGISTERED:    return "Arbeit jetzt abgeben";
                 default:            return "Warten auf Betreuer";
             }
         } else {
-            // Logik für Betreuer (Tutor) 👨‍🏫
             switch (status) {
                 case IN_DISCUSSION: return "Anmeldung bestätigen";
                 case REGISTERED:    return "Warten auf Abgabe";
@@ -50,8 +42,7 @@ public class ThesisStatusViewModel extends ViewModel {
     }
 
     /**
-     * Prüft, ob der Button überhaupt klickbar sein sollte.
-     * (Wir wollen ja nicht, dass man wild rumklickt, wenn es nichts zu tun gibt)
+     * Prüft die Berechtigung zur Statusänderung basierend auf der Rolle.
      */
     public boolean isActionButtonEnabled() {
         Thesis thesis = thesisData.getValue();
@@ -61,16 +52,14 @@ public class ThesisStatusViewModel extends ViewModel {
         Thesis.Status status = thesis.getStatus();
 
         if (role == Role.STUDENT) {
-            // Studi darf nur von Abstimmung -> Bearbeitung und von Angemeldet -> Abgegeben
             return status == Thesis.Status.IN_DISCUSSION || status == Thesis.Status.REGISTERED;
         } else {
-            // Tutor darf Abstimmung bestätigen oder Kolloquium abschließen
             return status == Thesis.Status.IN_DISCUSSION || status == Thesis.Status.SUBMITTED;
         }
     }
 
     /**
-     * Berechnet den nächsten Status, der an das Backend geschickt werden soll.
+     * Ermittelt den nachfolgenden Status für ein Update.
      */
     public Thesis.Status getNextStatus() {
         Thesis thesis = thesisData.getValue();

@@ -19,16 +19,12 @@ import com.google.android.material.button.MaterialButton;
 
 /**
  * Fragment zur Anzeige und Steuerung des Arbeitsstatus.
- * Bindet die GUI aus fragment_thesis_status.xml an das ViewModel an.
- * 
- * Mira-Kommentar: Hier passiert das "Anmalen" der GUI! Wir färben alles 
- * passend zum aktuellen Fortschritt ein. 🎨✨
+ * Bindet die UI-Komponenten an das ThesisStatusViewModel an.
  */
 public class ThesisStatusFragment extends Fragment {
 
     private ThesisStatusViewModel viewModel;
     
-    // UI Elemente aus dem XML
     private ImageView iconRegistered, iconInProgress, iconSubmitted, iconGraded;
     private TextView titleRegistered, titleInProgress, titleSubmitted, titleGraded;
     private MaterialButton actionButton;
@@ -41,7 +37,6 @@ public class ThesisStatusFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialisierung der UI-Komponenten (Mapping zum XML)
         iconRegistered = view.findViewById(R.id.icon_registered);
         iconInProgress = view.findViewById(R.id.icon_in_progress);
         iconSubmitted = view.findViewById(R.id.icon_submitted);
@@ -54,18 +49,13 @@ public class ThesisStatusFragment extends Fragment {
 
         actionButton = view.findViewById(R.id.action_button);
 
-        // ViewModel abrufen
         viewModel = new ViewModelProvider(this).get(ThesisStatusViewModel.class);
 
-        // Beobachter einrichten: Wenn sich Daten ändern, UI aktualisieren!
         viewModel.thesisData.observe(getViewLifecycleOwner(), this::updateUi);
         
-        // Button-Klick: Status ändern
         actionButton.setOnClickListener(v -> {
             Thesis.Status next = viewModel.getNextStatus();
             if (next != null) {
-                // Mira: "Hier würde normalerweise der API-Call zum Server gehen!"
-                // Für den Moment simulieren wir das Update lokal:
                 Thesis current = viewModel.thesisData.getValue();
                 if (current != null) {
                     current.setStatus(next);
@@ -76,46 +66,27 @@ public class ThesisStatusFragment extends Fragment {
         });
     }
 
-    /**
-     * Kernlogik für die GUI-Aktualisierung.
-     * Färbt Icons und Texte basierend auf dem Status der Abschlussarbeit.
-     */
     private void updateUi(Thesis thesis) {
         if (thesis == null) return;
 
         Thesis.Status s = thesis.getStatus();
 
-        // 1. Button Text und Status setzen
         actionButton.setText(viewModel.getActionButonText());
         actionButton.setEnabled(viewModel.isActionButtonEnabled());
 
-        // 2. Die einzelnen Schritte (Steps) visualisieren
-        
-        // Step 1: Angemeldet (Erledigt, wenn nicht mehr in Abstimmung)
         boolean isRegistered = (s != Thesis.Status.IN_DISCUSSION);
         setStepVisuals(iconRegistered, titleRegistered, isRegistered, true);
 
-        // Step 2: In Bearbeitung (Aktiv ab REGISTERED)
         boolean inProgress = (s == Thesis.Status.REGISTERED || s == Thesis.Status.SUBMITTED || s == Thesis.Status.COLLOQUIUM_HELD);
         setStepVisuals(iconInProgress, titleInProgress, inProgress, s == Thesis.Status.REGISTERED);
 
-        // Step 3: Eingereicht (SUBMITTED)
         boolean isSubmitted = (s == Thesis.Status.SUBMITTED || s == Thesis.Status.COLLOQUIUM_HELD);
         setStepVisuals(iconSubmitted, titleSubmitted, isSubmitted, s == Thesis.Status.SUBMITTED);
 
-        // Step 4: Benotet / Kolloquium (COLLOQUIUM_HELD)
         boolean isGraded = (s == Thesis.Status.COLLOQUIUM_HELD);
         setStepVisuals(iconGraded, titleGraded, isGraded, isGraded);
     }
 
-    /**
-     * Hilfsmethode für einheitliches Design der Status-Steps.
-     * 
-     * @param icon Das Icon-View
-     * @param text Das Label-View
-     * @param completed Ist dieser Schritt erreicht?
-     * @param isActive Ist dies der aktuell aktive Schritt?
-     */
     private void setStepVisuals(ImageView icon, TextView text, boolean completed, boolean isActive) {
         int color;
         int iconRes;

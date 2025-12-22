@@ -7,26 +7,21 @@ import retrofit2.http.PATCH;
 import retrofit2.http.Path;
 
 /**
- * Interface für alle API-Aufrufe, die mit Abschlussarbeiten zu tun haben.
- * 
- * Mira-Tipp: Hier definieren wir die "Sprache", die unsere App mit dem 
- * .NET-Backend spricht. 🗣️💻
+ * Interface für API-Endpunkte im Bereich der Abschlussarbeiten.
  */
 public interface ThesisApiService {
 
     /**
-     * Aktualisiert nur den Status einer Arbeit.
-     * Nutzt PATCH, da wir nur ein einzelnes Feld (den Status) ändern wollen.
+     * Aktualisiert den Status einer spezifischen Abschlussarbeit.
      * 
-     * @param id Die UUID der Abschlussarbeit
-     * @param request Ein kleines Objekt, das den neuen Status enthält
+     * @param id Die ID der Arbeit.
+     * @param request Das Request-Objekt mit dem neuen Status.
      */
     @PATCH("theses/{id}/status")
     Call<Thesis> updateStatus(@Path("id") String id, @Body StatusUpdateRequest request);
 
     /**
-     * Hilfsklasse für den Request-Body. 
-     * Das Backend erwartet ein JSON wie: { "status": "SUBMITTED" }
+     * Datenmodell für das Status-Update-Request.
      */
     class StatusUpdateRequest {
         public String status;
