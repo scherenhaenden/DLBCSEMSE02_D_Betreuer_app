@@ -6,7 +6,7 @@ import java.util.List;
  * Represents a role in the system.
  * Roles define the permissions of users.
  */
-public class Role extends BaseEntity {
+public class Role extends BaseEntityApiModel {
     private String name;
     private List<UserRole> userRoles;
 

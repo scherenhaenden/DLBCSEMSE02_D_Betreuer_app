@@ -1,8 +1,6 @@
 package com.example.betreuer_app.model;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -11,8 +9,8 @@ import java.util.UUID;
  */
 public abstract class BaseEntity {
     private UUID id = UUID.randomUUID();
-    private LocalDateTime createdAt = Instant.now().atZone(ZoneId.of("UTC")).toLocalDateTime();
-    private LocalDateTime updatedAt = Instant.now().atZone(ZoneId.of("UTC")).toLocalDateTime();
+    private Date createdAt = new Date();
+    private Date updatedAt = new Date();
 
     /**
      * Returns the unique ID of the entity.
@@ -32,9 +30,9 @@ public abstract class BaseEntity {
 
     /**
      * Returns the creation timestamp.
-     * @return The creation timestamp in UTC.
+     * @return The creation timestamp.
      */
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
@@ -42,15 +40,15 @@ public abstract class BaseEntity {
      * Sets the creation timestamp.
      * @param createdAt The new creation timestamp.
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
     /**
      * Returns the last update timestamp.
-     * @return The update timestamp in UTC.
+     * @return The update timestamp.
      */
-    public LocalDateTime getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
@@ -58,7 +56,7 @@ public abstract class BaseEntity {
      * Sets the update timestamp.
      * @param updatedAt The new update timestamp.
      */
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

@@ -2,13 +2,12 @@ package com.example.betreuer_app.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Represents a user in the system.
  * Contains personal information and relationships to roles and topics.
  */
-public class User extends BaseEntity {
+public class User extends BaseEntityApiModel {
     private String firstName;
     private String lastName;
     private String email;
