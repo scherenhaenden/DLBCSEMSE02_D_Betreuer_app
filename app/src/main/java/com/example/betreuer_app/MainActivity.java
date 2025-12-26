@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Dummy-Daten erstellen
         List<Thesis> thesisList = new ArrayList<>();
-        thesisList.add(new Thesis("Entwicklung einer mobilen App", "REGISTERED", "ISSUED", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
-        thesisList.add(new Thesis("Analyse von KI-Algorithmen", "IN_DISCUSSION", "NONE", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
-        thesisList.add(new Thesis("Umweltstudie zur Nachhaltigkeit", "SUBMITTED", "PAID", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
+        thesisList.add(new Thesis(UUID.randomUUID().toString(), "Entwicklung einer mobilen App", "REGISTERED", "ISSUED", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        thesisList.add(new Thesis(UUID.randomUUID().toString(), "Analyse von KI-Algorithmen", "IN_DISCUSSION", "NONE", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        thesisList.add(new Thesis(UUID.randomUUID().toString(), "Umweltstudie zur Nachhaltigkeit", "SUBMITTED", "PAID", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
 
         // RecyclerView einrichten
         RecyclerView recyclerView = findViewById(R.id.recyclerView);

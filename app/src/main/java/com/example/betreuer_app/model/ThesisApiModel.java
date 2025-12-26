@@ -1,11 +1,12 @@
 package com.example.betreuer_app.model;
 
+import java.util.UUID;
+
 /**
  * API model for Thesis, combining fields from Thesis and ThesisApi.
  * Used for API interactions.
  */
-public class ThesisApiModel {
-    private String id;
+public class ThesisApiModel extends BaseEntityApiModel {
     private String title;
     private String status;
     private String billingStatus;
@@ -25,7 +26,7 @@ public class ThesisApiModel {
      * Constructor with basic fields.
      */
     public ThesisApiModel(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId) {
-        this.id = id;
+        super(UUID.fromString(id));
         this.title = title;
         this.status = status;
         this.billingStatus = billingStatus;
@@ -39,7 +40,7 @@ public class ThesisApiModel {
      * Full constructor.
      */
     public ThesisApiModel(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId, String documentFileName) {
-        this.id = id;
+        super(UUID.fromString(id));
         this.title = title;
         this.status = status;
         this.billingStatus = billingStatus;
@@ -51,14 +52,6 @@ public class ThesisApiModel {
     }
 
     // Getters and setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getTitle() {
         return title;
     }

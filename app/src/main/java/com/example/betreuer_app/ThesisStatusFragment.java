@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.betreuer_app.model.Thesis;
+import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.ThesisStatus;
 import com.example.betreuer_app.viewmodel.ThesisStatusViewModel;
 
@@ -57,7 +57,7 @@ public class ThesisStatusFragment extends Fragment {
         actionButton.setOnClickListener(v -> {
             ThesisStatus next = viewModel.getNextStatus();
             if (next != null) {
-                Thesis current = viewModel.thesisData.getValue();
+                ThesisApiModel current = viewModel.thesisData.getValue();
                 if (current != null) {
                     current.setStatus(next.getName());
                     viewModel.thesisData.setValue(current);
@@ -67,7 +67,7 @@ public class ThesisStatusFragment extends Fragment {
         });
     }
 
-    private void updateUi(Thesis thesis) {
+    private void updateUi(ThesisApiModel thesis) {
         if (thesis == null) return;
 
         String s = thesis.getStatus();
