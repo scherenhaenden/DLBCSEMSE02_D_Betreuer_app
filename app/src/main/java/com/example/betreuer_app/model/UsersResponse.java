@@ -3,12 +3,12 @@ package com.example.betreuer_app.model;
 import java.util.List;
 
 public class UsersResponse {
-    private List<UserApi> items;
+    private List<UserApiModel> items;
     private int totalCount;
     private int page;
     private int pageSize;
 
-    public UsersResponse(List<UserApi> items, int totalCount, int page, int pageSize) {
+    public UsersResponse(List<UserApiModel> items, int totalCount, int page, int pageSize) {
         this.items = items;
         this.totalCount = totalCount;
         this.page = page;
@@ -16,11 +16,11 @@ public class UsersResponse {
     }
 
     // Getters and setters
-    public List<UserApi> getItems() {
+    public List<UserApiModel> getItems() {
         return items;
     }
 
-    public void setItems(List<UserApi> items) {
+    public void setItems(List<UserApiModel> items) {
         this.items = items;
     }
 

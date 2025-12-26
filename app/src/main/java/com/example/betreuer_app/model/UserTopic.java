@@ -7,8 +7,8 @@ import java.util.UUID;
  * This is a junction table for the many-to-many relationship between User and Topic.
  */
 public class UserTopic {
-    private UUID userId;
-    private User user;
+    private String userId;
+    private UserApiModel user;
     private UUID topicId;
     private Topic topic;
 
@@ -16,7 +16,7 @@ public class UserTopic {
      * Returns the user ID.
      * @return The UUID of the user.
      */
-    public UUID getUserId() {
+    public String getUserId() {
         return userId;
     }
 
@@ -24,7 +24,7 @@ public class UserTopic {
      * Sets the user ID.
      * @param userId The new user ID.
      */
-    public void setUserId(UUID userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -32,7 +32,7 @@ public class UserTopic {
      * Returns the User object.
      * @return The User object.
      */
-    public User getUser() {
+    public UserApiModel getUser() {
         return user;
     }
 
@@ -40,7 +40,7 @@ public class UserTopic {
      * Sets the User object.
      * @param user The new User object.
      */
-    public void setUser(User user) {
+    public void setUser(UserApiModel user) {
         this.user = user;
     }
 

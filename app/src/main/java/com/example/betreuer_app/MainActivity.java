@@ -16,7 +16,7 @@ import com.example.betreuer_app.api.UserApiService;
 import com.example.betreuer_app.model.BillingStatusApiModel;
 import com.example.betreuer_app.model.Thesis;
 import com.example.betreuer_app.model.ThesisStatus;
-import com.example.betreuer_app.model.UserApi;
+import com.example.betreuer_app.model.UserApiModel;
 import com.example.betreuer_app.model.UsersResponse;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                     sb.append("Page: ").append(usersResponse.getPage()).append("\n");
                     sb.append("Page Size: ").append(usersResponse.getPageSize()).append("\n");
                     sb.append("Users:\n");
-                    for (UserApi user : usersResponse.getItems()) {
+                    for (UserApiModel user : usersResponse.getItems()) {
                         sb.append("- ID: ").append(user.getId()).append(", Name: ").append(user.getFirstName()).append(" ").append(user.getLastName()).append(", Email: ").append(user.getEmail()).append("\n");
                     }
                     apiResponseText.setText(sb.toString());

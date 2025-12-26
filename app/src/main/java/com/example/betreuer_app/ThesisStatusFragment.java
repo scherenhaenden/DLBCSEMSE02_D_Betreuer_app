@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.betreuer_app.model.Thesis;
+import com.example.betreuer_app.model.ThesisStatus;
 import com.example.betreuer_app.viewmodel.ThesisStatusViewModel;
 
 /**
@@ -54,13 +55,13 @@ public class ThesisStatusFragment extends Fragment {
         viewModel.thesisData.observe(getViewLifecycleOwner(), this::updateUi);
         
         actionButton.setOnClickListener(v -> {
-            Thesis.Status next = viewModel.getNextStatus();
+            ThesisStatus next = viewModel.getNextStatus();
             if (next != null) {
                 Thesis current = viewModel.thesisData.getValue();
                 if (current != null) {
                     current.setStatus(next);
                     viewModel.thesisData.setValue(current);
-                    Toast.makeText(getContext(), "Status aktualisiert auf: " + next.name(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Status aktualisiert auf: " + next.getName(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -69,21 +70,21 @@ public class ThesisStatusFragment extends Fragment {
     private void updateUi(Thesis thesis) {
         if (thesis == null) return;
 
-        Thesis.Status s = thesis.getStatus();
+        ThesisStatus s = thesis.getStatus();
 
         actionButton.setText(viewModel.getActionButonText());
         actionButton.setEnabled(viewModel.isActionButtonEnabled());
 
-        boolean isRegistered = (s != Thesis.Status.IN_DISCUSSION);
+        boolean isRegistered = !s.getName().equals("IN_DISCUSSION");
         setStepVisuals(iconRegistered, titleRegistered, isRegistered, true);
 
-        boolean inProgress = (s == Thesis.Status.REGISTERED || s == Thesis.Status.SUBMITTED || s == Thesis.Status.COLLOQUIUM_HELD);
-        setStepVisuals(iconInProgress, titleInProgress, inProgress, s == Thesis.Status.REGISTERED);
+        boolean inProgress = s.getName().equals("REGISTERED") || s.getName().equals("SUBMITTED") || s.getName().equals("DEFENDED");
+        setStepVisuals(iconInProgress, titleInProgress, inProgress, s.getName().equals("REGISTERED"));
 
-        boolean isSubmitted = (s == Thesis.Status.SUBMITTED || s == Thesis.Status.COLLOQUIUM_HELD);
-        setStepVisuals(iconSubmitted, titleSubmitted, isSubmitted, s == Thesis.Status.SUBMITTED);
+        boolean isSubmitted = s.getName().equals("SUBMITTED") || s.getName().equals("DEFENDED");
+        setStepVisuals(iconSubmitted, titleSubmitted, isSubmitted, s.getName().equals("SUBMITTED"));
 
-        boolean isGraded = (s == Thesis.Status.COLLOQUIUM_HELD);
+        boolean isGraded = s.getName().equals("DEFENDED");
         setStepVisuals(iconGraded, titleGraded, isGraded, isGraded);
     }
 

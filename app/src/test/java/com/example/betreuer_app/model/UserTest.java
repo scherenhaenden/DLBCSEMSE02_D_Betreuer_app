@@ -4,11 +4,13 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class UserTest {
 
-    private User user;
+    private UserApiModel user;
     private UUID userId;
 
     @Before
@@ -17,7 +19,8 @@ public class UserTest {
      */
     public void setUp() {
         userId = UUID.randomUUID();
-        user = new User("John", "Doe", "john.doe@example.com", "password");
+        user = new UserApiModel(userId.toString(), "John", "Doe", "john.doe@example.com", new ArrayList<>(Arrays.asList("USER")));
+        user.setPasswordHash("password");
     }
 
     @Test
@@ -25,7 +28,7 @@ public class UserTest {
      * Tests the constructor and getter methods of the user object.
      */
     public void testConstructorAndGetters() {
-        assertEquals(userId, user.getId());
+        assertEquals(userId.toString(), user.getId());
         assertEquals("John", user.getFirstName());
         assertEquals("Doe", user.getLastName());
         assertEquals("john.doe@example.com", user.getEmail());
@@ -34,7 +37,7 @@ public class UserTest {
 
     @Test
     public void testSetId() {
-        UUID newId = UUID.randomUUID();
+        String newId = UUID.randomUUID().toString();
         user.setId(newId);
         assertEquals(newId, user.getId());
     }
@@ -62,10 +65,9 @@ public class UserTest {
      * Tests setting the user's roles by adding a new role.
      */
     public void testSetUserRoles() {
-        UserRole userRole = new UserRole();
-        userRole.setRole(new RoleApiModel("TUTOR"));
-        user.getUserRoles().add(userRole);
-        assertEquals(1, user.getUserRoles().size());
-        assertEquals("TUTOR", user.getUserRoles().get(0).getRole().getName());
+        user.getRoles().add("TUTOR");
+        assertEquals(2, user.getRoles().size());
+        assertEquals("USER", user.getRoles().get(0));
+        assertEquals("TUTOR", user.getRoles().get(1));
     }
 }
