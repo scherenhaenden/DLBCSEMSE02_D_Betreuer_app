@@ -15,6 +15,7 @@ import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.UserApiService;
 import com.example.betreuer_app.model.BillingStatus;
 import com.example.betreuer_app.model.Thesis;
+import com.example.betreuer_app.model.ThesisStatus;
 import com.example.betreuer_app.model.UserApi;
 import com.example.betreuer_app.model.UsersResponse;
 
@@ -41,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Dummy-Daten erstellen
         List<Thesis> thesisList = new ArrayList<>();
-        thesisList.add(new Thesis(UUID.randomUUID(), "Entwicklung einer mobilen App", Thesis.Status.REGISTERED, "Informatik", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "/path/expose1.pdf", new BillingStatus("ISSUED")));
-        thesisList.add(new Thesis(UUID.randomUUID(), "Analyse von KI-Algorithmen", Thesis.Status.IN_DISCUSSION, "Mathematik", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "/path/expose2.pdf", new BillingStatus("NONE")));
-        thesisList.add(new Thesis(UUID.randomUUID(), "Umweltstudie zur Nachhaltigkeit", Thesis.Status.SUBMITTED, "Umweltwissenschaften", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "/path/expose3.pdf", new BillingStatus("PAID")));
+        thesisList.add(new Thesis("Entwicklung einer mobilen App", new ThesisStatus("REGISTERED"), new BillingStatus("ISSUED"), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
+        thesisList.add(new Thesis("Analyse von KI-Algorithmen", new ThesisStatus("IN_DISCUSSION"), new BillingStatus("NONE"), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
+        thesisList.add(new Thesis("Umweltstudie zur Nachhaltigkeit", new ThesisStatus("SUBMITTED"), new BillingStatus("PAID"), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
 
         // RecyclerView einrichten
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
