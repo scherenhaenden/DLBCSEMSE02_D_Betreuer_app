@@ -7,7 +7,7 @@ import java.util.List;
  * Used for API responses that return multiple thesis items with pagination information.
  */
 public class ThesesResponse {
-    private List<ThesisApi> items;
+    private List<ThesisApiModel> items;
     private int totalCount;
     private int page;
     private int pageSize;
@@ -19,7 +19,7 @@ public class ThesesResponse {
      * @param page The current page number.
      * @param pageSize The number of items per page.
      */
-    public ThesesResponse(List<ThesisApi> items, int totalCount, int page, int pageSize) {
+    public ThesesResponse(List<ThesisApiModel> items, int totalCount, int page, int pageSize) {
         this.items = items;
         this.totalCount = totalCount;
         this.page = page;
@@ -28,17 +28,17 @@ public class ThesesResponse {
 
     /**
      * Returns the list of thesis items on the current page.
-     * @return The list of ThesisApi objects.
+     * @return The list of ThesisApiModel objects.
      */
-    public List<ThesisApi> getItems() {
+    public List<ThesisApiModel> getItems() {
         return items;
     }
 
     /**
      * Sets the list of thesis items on the current page.
-     * @param items The new list of ThesisApi objects.
+     * @param items The new list of ThesisApiModel objects.
      */
-    public void setItems(List<ThesisApi> items) {
+    public void setItems(List<ThesisApiModel> items) {
         this.items = items;
     }
 

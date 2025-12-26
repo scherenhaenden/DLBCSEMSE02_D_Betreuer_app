@@ -59,7 +59,7 @@ public class ThesisStatusFragment extends Fragment {
             if (next != null) {
                 Thesis current = viewModel.thesisData.getValue();
                 if (current != null) {
-                    current.setStatus(next);
+                    current.setStatus(next.getName());
                     viewModel.thesisData.setValue(current);
                     Toast.makeText(getContext(), "Status aktualisiert auf: " + next.getName(), Toast.LENGTH_SHORT).show();
                 }
@@ -70,21 +70,21 @@ public class ThesisStatusFragment extends Fragment {
     private void updateUi(Thesis thesis) {
         if (thesis == null) return;
 
-        ThesisStatus s = thesis.getStatus();
+        String s = thesis.getStatus();
 
         actionButton.setText(viewModel.getActionButonText());
         actionButton.setEnabled(viewModel.isActionButtonEnabled());
 
-        boolean isRegistered = !s.getName().equals("IN_DISCUSSION");
+        boolean isRegistered = !s.equals("IN_DISCUSSION");
         setStepVisuals(iconRegistered, titleRegistered, isRegistered, true);
 
-        boolean inProgress = s.getName().equals("REGISTERED") || s.getName().equals("SUBMITTED") || s.getName().equals("DEFENDED");
-        setStepVisuals(iconInProgress, titleInProgress, inProgress, s.getName().equals("REGISTERED"));
+        boolean inProgress = s.equals("REGISTERED") || s.equals("SUBMITTED") || s.equals("DEFENDED");
+        setStepVisuals(iconInProgress, titleInProgress, inProgress, s.equals("REGISTERED"));
 
-        boolean isSubmitted = s.getName().equals("SUBMITTED") || s.getName().equals("DEFENDED");
-        setStepVisuals(iconSubmitted, titleSubmitted, isSubmitted, s.getName().equals("SUBMITTED"));
+        boolean isSubmitted = s.equals("SUBMITTED") || s.equals("DEFENDED");
+        setStepVisuals(iconSubmitted, titleSubmitted, isSubmitted, s.equals("SUBMITTED"));
 
-        boolean isGraded = s.getName().equals("DEFENDED");
+        boolean isGraded = s.equals("DEFENDED");
         setStepVisuals(iconGraded, titleGraded, isGraded, isGraded);
     }
 

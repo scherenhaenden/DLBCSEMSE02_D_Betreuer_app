@@ -1,6 +1,10 @@
 package com.example.betreuer_app.model;
 
-public class ThesisApi {
+/**
+ * API model for Thesis, combining fields from Thesis and ThesisApi.
+ * Used for API interactions.
+ */
+public class ThesisApiModel {
     private String id;
     private String title;
     private String status;
@@ -11,7 +15,30 @@ public class ThesisApi {
     private String topicId;
     private String documentFileName;
 
-    public ThesisApi(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId, String documentFileName) {
+    /**
+     * Default constructor.
+     */
+    public ThesisApiModel() {
+    }
+
+    /**
+     * Constructor with basic fields.
+     */
+    public ThesisApiModel(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId) {
+        this.id = id;
+        this.title = title;
+        this.status = status;
+        this.billingStatus = billingStatus;
+        this.ownerId = ownerId;
+        this.tutorId = tutorId;
+        this.secondSupervisorId = secondSupervisorId;
+        this.topicId = topicId;
+    }
+
+    /**
+     * Full constructor.
+     */
+    public ThesisApiModel(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId, String documentFileName) {
         this.id = id;
         this.title = title;
         this.status = status;
@@ -23,6 +50,7 @@ public class ThesisApi {
         this.documentFileName = documentFileName;
     }
 
+    // Getters and setters
     public String getId() {
         return id;
     }
