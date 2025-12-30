@@ -8,9 +8,15 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.betreuer_app.model.TopicApiModel;
+import com.example.betreuer_app.model.TopicsResponse;
 import com.example.betreuer_app.model.TutorsResponse;
+import com.example.betreuer_app.repository.TopicRepository;
 import com.example.betreuer_app.repository.TutorRepository;
 import com.example.betreuer_app.ui.tutorlist.TutorListAdapter;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import java.util.UUID;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -20,7 +26,10 @@ public class TutorListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TutorListAdapter adapter;
     private TutorRepository tutorRepository;
+    private TopicRepository topicRepository;
     private EditText searchInput;
+    private ChipGroup topicChipGroup;
+    private String selectedTopicId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +39,12 @@ public class TutorListActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.tutorsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         searchInput = findViewById(R.id.search_input);
+        topicChipGroup = findViewById(R.id.topic_chip_group);
 
         tutorRepository = new TutorRepository(this);
+        topicRepository = new TopicRepository(this);
+
+        loadTopics();
         loadTutors(null);
 
         searchInput.addTextChangedListener(new TextWatcher() {
@@ -48,16 +61,59 @@ public class TutorListActivity extends AppCompatActivity {
         });
     }
 
+    private void loadTopics() {
+        topicRepository.getTopics(1, 10, new Callback<TopicsResponse>() {
+            @Override
+            public void onResponse(Call<TopicsResponse> call, Response<TopicsResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    topicChipGroup.removeAllViews();
+                    for (TopicApiModel topic : response.body().getItems()) {
+                        addTopicChip(topic);
+                    }
+                } else {
+                    Toast.makeText(TutorListActivity.this, "Failed to load topics", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TopicsResponse> call, Throwable t) {
+                Toast.makeText(TutorListActivity.this, "Failed to load topics: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addTopicChip(TopicApiModel topic) {
+        Chip chip = new Chip(this);
+        chip.setText(topic.getTitle());
+        chip.setCheckable(true);
+        chip.setClickable(true);
+        // Using BaseEntityApiModel UUID logic if needed, but assuming getId is available as UUID or String based on implementation
+        // Assuming getId returns UUID, we need String for tag or similar
+        chip.setTag(topic.getId()); 
+        
+        chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                selectedTopicId = topic.getId().toString();
+            } else {
+                selectedTopicId = null;
+            }
+            loadTutors(searchInput.getText().toString());
+        });
+
+        topicChipGroup.addView(chip);
+    }
+
     private void loadTutors(String name) {
-        // Fetch first page of tutors with default page size, filtering by name if provided
-        tutorRepository.getTutors(null, null, name, 1, 20, new Callback<TutorsResponse>() {
+        // Fetch first page of tutors with default page size, filtering by name and topic
+        tutorRepository.getTutors(selectedTopicId, null, name, 1, 20, new Callback<TutorsResponse>() {
             @Override
             public void onResponse(Call<TutorsResponse> call, Response<TutorsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     adapter = new TutorListAdapter(response.body().getItems());
                     recyclerView.setAdapter(adapter);
                 } else {
-                    Toast.makeText(TutorListActivity.this, "Failed to load tutors", Toast.LENGTH_SHORT).show();
+                    // Handle error or empty state
+                    Toast.makeText(TutorListActivity.this, "No tutors found or error loading", Toast.LENGTH_SHORT).show();
                 }
             }
 
