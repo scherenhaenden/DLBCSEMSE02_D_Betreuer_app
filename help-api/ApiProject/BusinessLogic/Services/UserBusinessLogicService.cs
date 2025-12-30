@@ -168,8 +168,7 @@ namespace ApiProject.BusinessLogic.Services
 
             if (!string.IsNullOrWhiteSpace(name))
             {
-                var searchName = name.ToLower();
-                query = query.Where(u => u.FirstName.ToLower().Contains(searchName) || u.LastName.ToLower().Contains(searchName));
+                query = query.Where(u => EF.Functions.Like(u.FirstName, $"%{name}%") || EF.Functions.Like(u.LastName, $"%{name}%"));
             }
 
             var totalCount = await query.CountAsync();

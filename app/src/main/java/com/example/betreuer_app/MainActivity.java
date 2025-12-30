@@ -8,20 +8,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.UserApiService;
-import com.example.betreuer_app.model.BillingStatusApiModel;
-import com.example.betreuer_app.model.ThesisApiModel;
-import com.example.betreuer_app.model.ThesisStatus;
 import com.example.betreuer_app.model.UserApiModel;
 import com.example.betreuer_app.model.UsersResponse;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,21 +30,6 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        // Dummy-Daten erstellen
-        List<ThesisApiModel> thesisList = new ArrayList<>();
-        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Entwicklung einer mobilen App", "REGISTERED", "ISSUED", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
-        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Analyse von KI-Algorithmen", "IN_DISCUSSION", "NONE", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
-        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Umweltstudie zur Nachhaltigkeit", "SUBMITTED", "PAID", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
-        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Marktanalyse für neue Technologien", "REGISTERED", "NONE", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
-        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Entwicklung eines Prototyps für ein Smart Home System", "IN_DISCUSSION", "ISSUED", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
-        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Studie über das Nutzerverhalten von Social Media", "SUBMITTED", "PAID", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
-
-        // RecyclerView einrichten
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        ThesisAdapter adapter = new ThesisAdapter(thesisList);
-        recyclerView.setAdapter(adapter);
 
         // API Call to test
         TextView apiResponseText = findViewById(R.id.apiResponseText);
