@@ -14,13 +14,34 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * CreateThesisActivity provides a user interface for creating a new thesis.
+ * Users can input the thesis title and optionally specify a topic ID.
+ * Upon successful creation, the activity displays a success message and closes.
+ * If creation fails, an error message is shown.
+ */
 public class CreateThesisActivity extends AppCompatActivity {
 
+    /** Input field for entering the thesis title. */
     private TextInputEditText etTitle;
+
+    /** Input field for entering the topic ID (optional). */
     private TextInputEditText etTopicId;
+
+    /** Button to trigger the thesis creation process. */
     private MaterialButton btnCreate;
+
+    /** Repository for handling thesis-related API operations. */
     private ThesisRepository thesisRepository;
 
+    /**
+     * Called when the activity is starting. This method initializes the UI components,
+     * sets up the thesis repository, and configures the button click listener to handle
+     * thesis creation with input validation.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     * this Bundle contains the data it most recently supplied in onSaveInstanceState.
+     * This value may be null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +68,12 @@ public class CreateThesisActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Initiates the thesis creation process by calling the API with the provided title and topic ID.
+     * Handles the API response asynchronously, showing success or error messages accordingly.
+     * @param title The title of the thesis to be created. Must not be null or empty.
+     * @param topicId The optional topic ID associated with the thesis. Can be null if not specified.
+     */
     private void createThesis(String title, String topicId) {
         thesisRepository.createThesis(title, topicId, new Callback<ThesisApiModel>() {
             @Override
