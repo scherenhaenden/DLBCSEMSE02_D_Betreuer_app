@@ -1,7 +1,12 @@
 package com.example.betreuer_app.model;
 
-public class ThesisApi {
-    private String id;
+import java.util.UUID;
+
+/**
+ * API model for Thesis, combining fields from Thesis and ThesisApi.
+ * Used for API interactions.
+ */
+public class ThesisApiModel extends BaseEntityApiModel {
     private String title;
     private String status;
     private String billingStatus;
@@ -11,8 +16,33 @@ public class ThesisApi {
     private String topicId;
     private String documentFileName;
 
-    public ThesisApi(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId, String documentFileName) {
-        this.id = id;
+    /**
+     * Default constructor.
+     */
+    public ThesisApiModel() {
+    }
+
+    /**
+     * Constructor with basic fields.
+     */
+    public ThesisApiModel(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId) {
+        super();
+        setId(UUID.fromString(id));
+        this.title = title;
+        this.status = status;
+        this.billingStatus = billingStatus;
+        this.ownerId = ownerId;
+        this.tutorId = tutorId;
+        this.secondSupervisorId = secondSupervisorId;
+        this.topicId = topicId;
+    }
+
+    /**
+     * Full constructor.
+     */
+    public ThesisApiModel(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId, String documentFileName) {
+        super();
+        setId(UUID.fromString(id));
         this.title = title;
         this.status = status;
         this.billingStatus = billingStatus;
@@ -23,14 +53,7 @@ public class ThesisApi {
         this.documentFileName = documentFileName;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
+    // Getters and setters
     public String getTitle() {
         return title;
     }

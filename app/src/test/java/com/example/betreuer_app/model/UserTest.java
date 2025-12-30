@@ -4,11 +4,13 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class UserTest {
 
-    private User user;
+    private UserApiModel user;
     private UUID userId;
 
     @Before
@@ -17,7 +19,8 @@ public class UserTest {
      */
     public void setUp() {
         userId = UUID.randomUUID();
-        user = new User(userId, "John Doe", "john.doe@example.com", Role.STUDENT);
+        user = new UserApiModel(userId.toString(), "John", "Doe", "john.doe@example.com", new ArrayList<>(Arrays.asList("USER")));
+        user.setPasswordHash("password");
     }
 
     @Test
@@ -25,23 +28,30 @@ public class UserTest {
      * Tests the constructor and getter methods of the user object.
      */
     public void testConstructorAndGetters() {
-        assertEquals(userId, user.getId());
-        assertEquals("John Doe", user.getName());
+        assertEquals(userId.toString(), user.getId());
+        assertEquals("John", user.getFirstName());
+        assertEquals("Doe", user.getLastName());
         assertEquals("john.doe@example.com", user.getEmail());
-        assertEquals(Role.STUDENT, user.getRole());
+        assertEquals("password", user.getPasswordHash());
     }
 
     @Test
     public void testSetId() {
-        UUID newId = UUID.randomUUID();
+        String newId = UUID.randomUUID().toString();
         user.setId(newId);
         assertEquals(newId, user.getId());
     }
 
     @Test
-    public void testSetName() {
-        user.setName("Jane Doe");
-        assertEquals("Jane Doe", user.getName());
+    public void testSetFirstName() {
+        user.setFirstName("Jane");
+        assertEquals("Jane", user.getFirstName());
+    }
+
+    @Test
+    public void testSetLastName() {
+        user.setLastName("Smith");
+        assertEquals("Smith", user.getLastName());
     }
 
     @Test
@@ -52,10 +62,14 @@ public class UserTest {
 
     @Test
     /**
-     * Tests setting the user's role to TUTOR and verifies the role.
+     * Tests setting the user's roles by adding a new role.
      */
-    public void testSetRole() {
-        user.setRole(Role.TUTOR);
-        assertEquals(Role.TUTOR, user.getRole());
+    public void testSetUserRoles() {
+        UserRoleApiModel userRole = new UserRoleApiModel();
+        userRole.setRole(new RoleApiModel("TUTOR"));
+        user.getRoles().add("TUTOR");
+        assertEquals(2, user.getRoles().size());
+        assertEquals("USER", user.getRoles().get(0));
+        assertEquals("TUTOR", user.getRoles().get(1));
     }
 }

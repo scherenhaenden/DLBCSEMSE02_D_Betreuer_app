@@ -1,47 +1,33 @@
 package com.example.betreuer_app.model;
 
-import java.util.UUID;
+import java.util.List;
 
 /**
  * Represents a topic for a thesis.
+ * Topics are areas of research that theses can be associated with.
  */
-public class Topic {
-    
-    private UUID id;
+public class Topic extends BaseEntityApiModel {
     private String title;
     private String description;
-    private String subjectArea;
     private boolean isActive;
+    private List<UserTopic> userTopics;
 
     /**
-     * Constructs a new Topic.
-     * @param id The ID of the topic.
+     * Default constructor.
+     */
+    public Topic() {
+    }
+
+    /**
+     * Constructor for a new topic.
      * @param title The title of the topic.
      * @param description The description of the topic.
-     * @param subjectArea The subject area of the topic.
-     * @param isActive The active status of the topic.
+     * @param isActive Whether the topic is active.
      */
-    public Topic(UUID id, String title, String description, String subjectArea, boolean isActive) {
-        this.id = id;
+    public Topic(String title, String description, boolean isActive) {
         this.title = title;
         this.description = description;
-        this.subjectArea = subjectArea;
         this.isActive = isActive;
-    }
-
-    /**
-     * Returns the ID of the topic.
-     */
-    public UUID getId() {
-        return id;
-    }
-
-    /**
-     * Sets the ID of the topic.
-     * @param id The new ID.
-     */
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     /**
@@ -77,34 +63,34 @@ public class Topic {
     }
 
     /**
-     * Returns the subject area of the topic.
-     * @return The subject area.
-     */
-    public String getSubjectArea() {
-        return subjectArea;
-    }
-
-    /**
-     * Sets the subject area of the topic.
-     * @param subjectArea The new subject area.
-     */
-    public void setSubjectArea(String subjectArea) {
-        this.subjectArea = subjectArea;
-    }
-
-    /**
      * Returns whether the topic is active.
-     * @return The active status.
+     * @return True if active, false otherwise.
      */
     public boolean isActive() {
         return isActive;
     }
 
     /**
-     * Sets the active status of the topic.
-     * @param isActive The new active status.
+     * Sets whether the topic is active.
+     * @param active The new active status.
      */
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    /**
+     * Returns the list of user topics.
+     * @return The list of UserTopic objects.
+     */
+    public List<UserTopic> getUserTopics() {
+        return userTopics;
+    }
+
+    /**
+     * Sets the list of user topics.
+     * @param userTopics The new list of UserTopic objects.
+     */
+    public void setUserTopics(List<UserTopic> userTopics) {
+        this.userTopics = userTopics;
     }
 }
