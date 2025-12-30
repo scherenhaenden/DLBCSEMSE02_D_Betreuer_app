@@ -14,7 +14,9 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.betreuer_app.model.LoggedInUser;
 import com.example.betreuer_app.model.LoginResponse;
+import com.example.betreuer_app.model.ThesesResponse;
 import com.example.betreuer_app.repository.LoginRepository;
+import com.example.betreuer_app.repository.ThesisRepository;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import retrofit2.Call;
@@ -33,22 +35,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // Auto-login check
-        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
-        String token = authPreferences.getString("jwt_token", null);
-        if (token != null) {
-            String savedName = authPreferences.getString("user_name", null);
-            String savedRole = authPreferences.getString("user_role", null);
-            
-            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-            if (savedName != null) intent.putExtra("USER_NAME", savedName);
-            if (savedRole != null) intent.putExtra("USER_ROLE", savedRole);
-            startActivity(intent);
-            finish();
-            return; // Skip the rest of onCreate
-        }
-
         setContentView(R.layout.activity_login);
 
         emailEditText = findViewById(R.id.emailEditText);
@@ -124,5 +110,62 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         });
+
+        // Auto-login check
+        checkAutoLogin();
+    }
+
+    private void checkAutoLogin() {
+        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+        String token = authPreferences.getString("jwt_token", null);
+        String savedName = authPreferences.getString("user_name", null);
+        String savedRole = authPreferences.getString("user_role", null);
+        if (token != null && savedName != null && savedRole != null) {
+            progressBar.setVisibility(View.VISIBLE);
+            loginButton.setVisibility(View.GONE);
+            emailEditText.setVisibility(View.GONE);
+            passwordEditText.setVisibility(View.GONE);
+            themeSwitch.setVisibility(View.GONE);
+
+            ThesisRepository thesisRepository = new ThesisRepository(this);
+            thesisRepository.getTheses(1, 1, new Callback<ThesesResponse>() {
+                @Override
+                public void onResponse(Call<ThesesResponse> call, Response<ThesesResponse> response) {
+                    if (response.isSuccessful()) {
+                        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                        intent.putExtra("USER_NAME", savedName);
+                        intent.putExtra("USER_ROLE", savedRole);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        // Token invalid
+                        showLogin();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ThesesResponse> call, Throwable t) {
+                    // Network error or verification failed
+                    showLogin();
+                }
+            });
+        } else {
+            // No valid saved data, show login
+            showLogin();
+        }
+    }
+
+    private void showLogin() {
+        // Clear token as it might be invalid
+        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = authPreferences.edit();
+        editor.clear();
+        editor.apply();
+
+        progressBar.setVisibility(View.GONE);
+        loginButton.setVisibility(View.VISIBLE);
+        emailEditText.setVisibility(View.VISIBLE);
+        passwordEditText.setVisibility(View.VISIBLE);
+        themeSwitch.setVisibility(View.VISIBLE);
     }
 }
