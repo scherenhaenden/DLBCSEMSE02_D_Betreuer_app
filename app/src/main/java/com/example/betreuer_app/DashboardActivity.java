@@ -38,6 +38,7 @@ public class DashboardActivity extends AppCompatActivity {
         MaterialCardView studentThesisCard = findViewById(R.id.student_thesis_card);
         MaterialCardView lecturerThesisCard = findViewById(R.id.lecturer_thesis_card);
         Button btnCreateNewThesis = findViewById(R.id.btn_create_new_thesis);
+        Button btnFindTutor = findViewById(R.id.btn_find_tutor);
 
         String userName = getIntent().getStringExtra("USER_NAME");
         String userRole = getIntent().getStringExtra("USER_ROLE");
@@ -56,6 +57,11 @@ public class DashboardActivity extends AppCompatActivity {
 
         btnCreateNewThesis.setOnClickListener(v -> {
             Intent intent = new Intent(DashboardActivity.this, CreateThesisActivity.class);
+            startActivity(intent);
+        });
+
+        btnFindTutor.setOnClickListener(v -> {
+            Intent intent = new Intent(DashboardActivity.this, TutorListActivity.class);
             startActivity(intent);
         });
 
@@ -78,7 +84,7 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Reload thesis count when returning, e.g., after creating a thesis
+        // Reload thesis count when returning
         String userRole = getIntent().getStringExtra("USER_ROLE");
         TextView studentThesisCountTextView = findViewById(R.id.studentThesisCountTextView);
         TextView lecturerThesisCountTextView = findViewById(R.id.lecturerThesisCountTextView);
