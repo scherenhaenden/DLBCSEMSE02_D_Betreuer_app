@@ -1,13 +1,13 @@
 package com.example.betreuer_app;
 
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.repository.ThesisRepository;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import retrofit2.Call;
@@ -18,7 +18,7 @@ public class CreateThesisActivity extends AppCompatActivity {
 
     private TextInputEditText etTitle;
     private TextInputEditText etTopicId;
-    private Button btnCreate;
+    private MaterialButton btnCreate;
     private ThesisRepository thesisRepository;
 
     @Override
