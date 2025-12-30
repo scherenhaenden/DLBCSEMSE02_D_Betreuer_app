@@ -1,6 +1,9 @@
 package com.example.betreuer_app;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +20,7 @@ public class TutorListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TutorListAdapter adapter;
     private TutorRepository tutorRepository;
+    private EditText searchInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,14 +29,28 @@ public class TutorListActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.tutorsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        searchInput = findViewById(R.id.search_input);
 
         tutorRepository = new TutorRepository(this);
-        loadTutors();
+        loadTutors(null);
+
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                loadTutors(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
-    private void loadTutors() {
-        // Fetch first page of tutors with default page size
-        tutorRepository.getTutors(null, null, 1, 20, new Callback<TutorsResponse>() {
+    private void loadTutors(String name) {
+        // Fetch first page of tutors with default page size, filtering by name if provided
+        tutorRepository.getTutors(null, null, name, 1, 20, new Callback<TutorsResponse>() {
             @Override
             public void onResponse(Call<TutorsResponse> call, Response<TutorsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {

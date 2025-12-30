@@ -12,6 +12,7 @@ public interface TutorApiService {
     Call<TutorsResponse> getTutors(
             @Query("topicId") String topicId,
             @Query("topicName") String topicName,
+            @Query("name") String name,
             @Query("page") int page,
             @Query("pageSize") int pageSize
     );
