@@ -78,8 +78,8 @@ public class TutorListActivity extends AppCompatActivity {
         searchInput = findViewById(R.id.search_input);
         topicChipGroup = findViewById(R.id.topic_chip_group);
 
-        tutorRepository = new TutorRepository(this);
-        topicRepository = new TopicRepository(this);
+        tutorRepository = new TutorRepository(getApplicationContext());
+        topicRepository = new TopicRepository(getApplicationContext());
 
         loadTopics();
         loadTutors(null);

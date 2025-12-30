@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.example.betreuer_app.constants.AuthConstants;
+import com.example.betreuer_app.constants.ThemeConstants;
 import com.example.betreuer_app.model.LoggedInUser;
 import com.example.betreuer_app.model.LoginResponse;
 import com.example.betreuer_app.model.ThesesResponse;
@@ -74,8 +76,8 @@ public class LoginActivity extends AppCompatActivity {
      * Sets up the theme switch listener to handle light/dark mode toggling.
      */
     private void setupThemeSwitch() {
-        SharedPreferences themePreferences = getSharedPreferences("theme_prefs", MODE_PRIVATE);
-        boolean isDarkMode = themePreferences.getBoolean("is_dark_mode", false);
+        SharedPreferences themePreferences = getSharedPreferences(ThemeConstants.PREFS_NAME, MODE_PRIVATE);
+        boolean isDarkMode = themePreferences.getBoolean(ThemeConstants.KEY_IS_DARK_MODE, false);
         themeSwitch.setChecked(isDarkMode);
 
         themeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -85,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
             SharedPreferences.Editor editor = themePreferences.edit();
-            editor.putBoolean("is_dark_mode", isChecked);
+            editor.putBoolean(ThemeConstants.KEY_IS_DARK_MODE, isChecked);
             editor.apply();
         });
     }
@@ -176,11 +178,11 @@ public class LoginActivity extends AppCompatActivity {
      * @param token The JWT token.
      */
     private void saveUserData(LoggedInUser user, String role, String token) {
-        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+        SharedPreferences authPreferences = getSharedPreferences(AuthConstants.PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = authPreferences.edit();
-        editor.putString("jwt_token", token);
-        editor.putString("user_name", user.getFirstName());
-        editor.putString("user_role", role);
+        editor.putString(AuthConstants.KEY_JWT_TOKEN, token);
+        editor.putString(AuthConstants.KEY_USER_NAME, user.getFirstName());
+        editor.putString(AuthConstants.KEY_USER_ROLE, role);
         editor.apply();
     }
 
@@ -204,10 +206,10 @@ public class LoginActivity extends AppCompatActivity {
      * If valid, proceeds to DashboardActivity; otherwise, shows the login form.
      */
     private void checkAutoLogin() {
-        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
-        String token = authPreferences.getString("jwt_token", null);
-        String savedName = authPreferences.getString("user_name", null);
-        String savedRole = authPreferences.getString("user_role", null);
+        SharedPreferences authPreferences = getSharedPreferences(AuthConstants.PREFS_NAME, MODE_PRIVATE);
+        String token = authPreferences.getString(AuthConstants.KEY_JWT_TOKEN, null);
+        String savedName = authPreferences.getString(AuthConstants.KEY_USER_NAME, null);
+        String savedRole = authPreferences.getString(AuthConstants.KEY_USER_ROLE, null);
         if (token != null && savedName != null && savedRole != null) {
             progressBar.setVisibility(View.VISIBLE);
             loginButton.setVisibility(View.GONE);
@@ -215,7 +217,7 @@ public class LoginActivity extends AppCompatActivity {
             passwordEditText.setVisibility(View.GONE);
             themeSwitch.setVisibility(View.GONE);
 
-            ThesisRepository thesisRepository = new ThesisRepository(this);
+            ThesisRepository thesisRepository = new ThesisRepository(getApplicationContext());
             thesisRepository.getTheses(1, 1, new Callback<ThesesResponse>() {
                 @Override
                 public void onResponse(Call<ThesesResponse> call, Response<ThesesResponse> response) {
@@ -248,7 +250,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void showLogin() {
         // Clear token as it might be invalid
-        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+        SharedPreferences authPreferences = getSharedPreferences(AuthConstants.PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = authPreferences.edit();
         editor.clear();
         editor.apply();
