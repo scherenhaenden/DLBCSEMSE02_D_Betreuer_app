@@ -16,6 +16,7 @@ import java.util.Random;
 public class TutorListAdapter extends RecyclerView.Adapter<TutorListAdapter.TutorViewHolder> {
 
     private List<TutorProfileResponse> tutorList;
+    private OnItemClickListener listener;
     
     // Array of colors for avatar backgrounds
     private final int[] avatarColors = {
@@ -25,8 +26,13 @@ public class TutorListAdapter extends RecyclerView.Adapter<TutorListAdapter.Tuto
         0xFFA1887F, 0xFF90A4AE
     };
 
-    public TutorListAdapter(List<TutorProfileResponse> tutorList) {
+    public interface OnItemClickListener {
+        void onItemClick(TutorProfileResponse tutor);
+    }
+
+    public TutorListAdapter(List<TutorProfileResponse> tutorList, OnItemClickListener listener) {
         this.tutorList = tutorList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -79,6 +85,12 @@ public class TutorListAdapter extends RecyclerView.Adapter<TutorListAdapter.Tuto
         background.setShape(android.graphics.drawable.GradientDrawable.OVAL);
         background.setColor(color);
         holder.initials.setBackground(background);
+        
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(tutor);
+            }
+        });
     }
 
     @Override

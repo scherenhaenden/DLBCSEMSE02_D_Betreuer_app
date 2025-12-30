@@ -50,6 +50,13 @@
         <activity
             android:name=".TutorListActivity"
             android:exported="false" />
+            
+        <!-- Supervision Request Activity -->
+        <activity
+            android:name=".SupervisionRequestActivity"
+            android:exported="false"
+            android:label="Betreuungsanfrage"
+            android:parentActivityName=".TutorListActivity" />
 
     </application>
 
