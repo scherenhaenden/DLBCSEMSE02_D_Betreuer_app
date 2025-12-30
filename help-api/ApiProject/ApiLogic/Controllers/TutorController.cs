@@ -16,18 +16,23 @@ namespace ApiProject.ApiLogic.Controllers
         }
 
         /// <summary>
-        /// Gets a paginated list of tutors, optionally filtered by topic ID or topic name.
+        /// Gets a paginated list of tutors, optionally filtered by topic, name, or last name.
         /// </summary>
         /// <param name="topicId">The ID of the topic to filter by.</param>
         /// <param name="topicName">The name (or partial name) of the topic to filter by (case-insensitive).</param>
+        /// <param name="name">A string to search for in the tutor's first or last name (case-insensitive).</param>
         /// <param name="page">The page number to retrieve.</param>
         /// <param name="pageSize">The number of items per page.</param>
         /// <returns>A paginated list of tutors.</returns>
         [HttpGet]
         public async Task<ActionResult<PaginatedResponse<TutorProfileResponse>>> GetTutors(
-            [FromQuery] Guid? topicId, [FromQuery] string? topicName, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+            [FromQuery] Guid? topicId, 
+            [FromQuery] string? topicName, 
+            [FromQuery] string? name,
+            [FromQuery] int page = 1, 
+            [FromQuery] int pageSize = 10)
         {
-            var tutors = await _userBusinessLogicService.GetTutorsAsync(topicId, topicName, page, pageSize);
+            var tutors = await _userBusinessLogicService.GetTutorsAsync(topicId, topicName, name, page, pageSize);
             return Ok(tutors);
         }
 

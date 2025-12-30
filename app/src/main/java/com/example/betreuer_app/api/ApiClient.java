@@ -36,4 +36,8 @@ public class ApiClient {
     public static TopicApiService getTopicApiService(Context context) {
         return getClient(context).create(TopicApiService.class);
     }
+
+    public static TutorApiService getTutorApiService(Context context) {
+        return getClient(context).create(TutorApiService.class);
+    }
 }
