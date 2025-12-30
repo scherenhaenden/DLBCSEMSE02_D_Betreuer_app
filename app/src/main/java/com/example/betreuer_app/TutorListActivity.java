@@ -139,11 +139,14 @@ public class TutorListActivity extends AppCompatActivity {
         chip.setText(topic.getTitle());
         chip.setCheckable(true);
         chip.setClickable(true);
+        if (topic.getId() == null) {
+            Toast.makeText(this, "Ungültige Themen-Daten empfangen: " + topic.getTitle(), Toast.LENGTH_SHORT).show();
+        }
         chip.setTag(topic.getId());
         
         chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                selectedTopicId = topic.getId().toString();
+                selectedTopicId = topic.getId() != null ? topic.getId().toString() : null;
             } else {
                 selectedTopicId = null;
             }

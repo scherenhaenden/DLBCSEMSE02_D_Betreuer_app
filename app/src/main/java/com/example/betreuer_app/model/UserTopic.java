@@ -10,7 +10,7 @@ public class UserTopic {
     private String userId;
     private UserApiModel user;
     private UUID topicId;
-    private Topic topic;
+    private TopicApiModel topic;
 
     /**
      * Returns the user ID.
@@ -64,7 +64,7 @@ public class UserTopic {
      * Returns the Topic object.
      * @return The Topic object.
      */
-    public Topic getTopic() {
+    public TopicApiModel getTopic() {
         return topic;
     }
 
@@ -72,7 +72,7 @@ public class UserTopic {
      * Sets the Topic object.
      * @param topic The new Topic object.
      */
-    public void setTopic(Topic topic) {
+    public void setTopic(TopicApiModel topic) {
         this.topic = topic;
     }
 }

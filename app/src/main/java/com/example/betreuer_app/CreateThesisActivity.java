@@ -62,6 +62,7 @@ public class CreateThesisActivity extends AppCompatActivity {
                 return;
             }
 
+            btnCreate.setEnabled(false);
             // Optional: validate topicId format if needed
 
             createThesis(title, topicId.isEmpty() ? null : topicId);
@@ -78,6 +79,7 @@ public class CreateThesisActivity extends AppCompatActivity {
         thesisRepository.createThesis(title, topicId, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
+                btnCreate.setEnabled(true);
                 if (response.isSuccessful()) {
                     Toast.makeText(CreateThesisActivity.this, "Thesis erfolgreich erstellt", Toast.LENGTH_SHORT).show();
                     finish(); // Close activity and go back
@@ -88,6 +90,7 @@ public class CreateThesisActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ThesisApiModel> call, Throwable t) {
+                btnCreate.setEnabled(true);
                 Toast.makeText(CreateThesisActivity.this, "Fehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
