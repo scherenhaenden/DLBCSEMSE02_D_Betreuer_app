@@ -166,8 +166,13 @@ public class TutorListActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<TutorsResponse> call, Response<TutorsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    adapter = new TutorListAdapter(response.body().getItems());
-                    recyclerView.setAdapter(adapter);
+                    var items = response.body().getItems();
+                    if (items != null) {
+                        adapter = new TutorListAdapter(items);
+                        recyclerView.setAdapter(adapter);
+                    } else {
+                        Toast.makeText(TutorListActivity.this, "No tutors found", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(TutorListActivity.this, "No tutors found or error loading", Toast.LENGTH_SHORT).show();
                 }
