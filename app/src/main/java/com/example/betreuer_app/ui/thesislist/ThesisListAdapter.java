@@ -7,14 +7,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.betreuer_app.R;
-import com.example.betreuer_app.model.ThesisApi;
+import com.example.betreuer_app.model.ThesisApiModel;
 import java.util.List;
 
 public class ThesisListAdapter extends RecyclerView.Adapter<ThesisListAdapter.ThesisViewHolder> {
 
-    private List<ThesisApi> thesisList;
+    private List<ThesisApiModel> thesisList;
 
-    public ThesisListAdapter(List<ThesisApi> thesisList) {
+    public ThesisListAdapter(List<ThesisApiModel> thesisList) {
         this.thesisList = thesisList;
     }
 
@@ -27,7 +27,7 @@ public class ThesisListAdapter extends RecyclerView.Adapter<ThesisListAdapter.Th
 
     @Override
     public void onBindViewHolder(@NonNull ThesisViewHolder holder, int position) {
-        ThesisApi thesis = thesisList.get(position);
+        ThesisApiModel thesis = thesisList.get(position);
         holder.textViewTitel.setText(thesis.getTitle());
         // ThesesResponse does not contain a field for "Fachgebiet", so we hide it or leave it blank.
         holder.textViewFachgebiet.setText(""); // Or set to View.GONE

@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.UserApiService;
-import com.example.betreuer_app.model.Thesis;
-import com.example.betreuer_app.model.UserApi;
+import com.example.betreuer_app.model.BillingStatusApiModel;
+import com.example.betreuer_app.model.ThesisApiModel;
+import com.example.betreuer_app.model.ThesisStatus;
+import com.example.betreuer_app.model.UserApiModel;
 import com.example.betreuer_app.model.UsersResponse;
 
 import java.util.ArrayList;
@@ -39,10 +41,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Dummy-Daten erstellen
-        List<Thesis> thesisList = new ArrayList<>();
-        thesisList.add(new Thesis(UUID.randomUUID(), "Entwicklung einer mobilen App", Thesis.Status.REGISTERED, "Informatik", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "/path/expose1.pdf", Thesis.BillingStatus.ISSUED));
-        thesisList.add(new Thesis(UUID.randomUUID(), "Analyse von KI-Algorithmen", Thesis.Status.IN_DISCUSSION, "Mathematik", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "/path/expose2.pdf", Thesis.BillingStatus.NONE));
-        thesisList.add(new Thesis(UUID.randomUUID(), "Umweltstudie zur Nachhaltigkeit", Thesis.Status.SUBMITTED, "Umweltwissenschaften", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "/path/expose3.pdf", Thesis.BillingStatus.PAID));
+        List<ThesisApiModel> thesisList = new ArrayList<>();
+        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Entwicklung einer mobilen App", "REGISTERED", "ISSUED", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Analyse von KI-Algorithmen", "IN_DISCUSSION", "NONE", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Umweltstudie zur Nachhaltigkeit", "SUBMITTED", "PAID", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Marktanalyse für neue Technologien", "REGISTERED", "NONE", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Entwicklung eines Prototyps für ein Smart Home System", "IN_DISCUSSION", "ISSUED", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        thesisList.add(new ThesisApiModel(UUID.randomUUID().toString(), "Studie über das Nutzerverhalten von Social Media", "SUBMITTED", "PAID", UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()));
 
         // RecyclerView einrichten
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -64,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     sb.append("Page: ").append(usersResponse.getPage()).append("\n");
                     sb.append("Page Size: ").append(usersResponse.getPageSize()).append("\n");
                     sb.append("Users:\n");
-                    for (UserApi user : usersResponse.getItems()) {
+                    for (UserApiModel user : usersResponse.getItems()) {
                         sb.append("- ID: ").append(user.getId()).append(", Name: ").append(user.getFirstName()).append(" ").append(user.getLastName()).append(", Email: ").append(user.getEmail()).append("\n");
                     }
                     apiResponseText.setText(sb.toString());

@@ -11,7 +11,7 @@ namespace ApiProject.BusinessLogic.Services
         Task<UserBusinessLogicModel> CreateUserAsync(string firstName, string lastName, string email, string password, IEnumerable<string> roleNames);
         Task<bool> VerifyPasswordAsync(string email, string password);
         Task<bool> UserHasRoleAsync(Guid userId, string roleName);
-        Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? topicId, string? topicName, int page, int pageSize);
+        Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? topicId, string? topicName, string? name, int page, int pageSize);
         Task<TutorProfileResponse?> GetTutorByIdAsync(Guid id);
     }
 }

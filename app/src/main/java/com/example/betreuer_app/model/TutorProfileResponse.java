@@ -1,29 +1,23 @@
 package com.example.betreuer_app.model;
 
 import java.util.List;
+import java.util.UUID;
 
-public class UserApi {
-    private String id;
+public class TutorProfileResponse extends BaseEntityApiModel {
     private String firstName;
     private String lastName;
     private String email;
-    private List<String> roles;
+    private List<TopicApiModel> topics;
 
-    public UserApi(String id, String firstName, String lastName, String email, List<String> roles) {
-        this.id = id;
+    public TutorProfileResponse(String id, String firstName, String lastName, String email, List<TopicApiModel> topics) {
+        super();
+        if (id != null) {
+            setId(UUID.fromString(id));
+        }
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.roles = roles;
-    }
-
-    // Getters and setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        this.topics = topics;
     }
 
     public String getFirstName() {
@@ -50,11 +44,11 @@ public class UserApi {
         this.email = email;
     }
 
-    public List<String> getRoles() {
-        return roles;
+    public List<TopicApiModel> getTopics() {
+        return topics;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setTopics(List<TopicApiModel> topics) {
+        this.topics = topics;
     }
 }

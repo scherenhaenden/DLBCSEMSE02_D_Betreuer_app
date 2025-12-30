@@ -147,7 +147,7 @@ namespace ApiProject.BusinessLogic.Services
             return user.UserRoles.Any(ur => ur.Role.Name == normalizedRole);
         }
 
-        public async Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? topicId, string? topicName, int page, int pageSize)
+        public async Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? topicId, string? topicName, string? name, int page, int pageSize)
         {
             var query = _context.Users
                 .Include(u => u.UserRoles)
@@ -164,6 +164,12 @@ namespace ApiProject.BusinessLogic.Services
             if (!string.IsNullOrWhiteSpace(topicName))
             {
                 query = query.Where(u => u.UserTopics.Any(ut => ut.Topic.Title.ToLower().Contains(topicName.ToLower())));
+            }
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                var searchName = name.ToLower();
+                query = query.Where(u => u.FirstName.ToLower().Contains(searchName) || u.LastName.ToLower().Contains(searchName));
             }
 
             var totalCount = await query.CountAsync();

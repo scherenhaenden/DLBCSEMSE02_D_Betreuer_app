@@ -2,24 +2,24 @@ package com.example.betreuer_app.model;
 
 import java.util.List;
 
-public class ThesesResponse {
-    private List<ThesisApiModel> items;
+public class TutorsResponse {
+    private List<TutorProfileResponse> items;
     private int totalCount;
     private int page;
     private int pageSize;
 
-    public ThesesResponse(List<ThesisApiModel> items, int totalCount, int page, int pageSize) {
+    public TutorsResponse(List<TutorProfileResponse> items, int totalCount, int page, int pageSize) {
         this.items = items;
         this.totalCount = totalCount;
         this.page = page;
         this.pageSize = pageSize;
     }
 
-    public List<ThesisApiModel> getItems() {
+    public List<TutorProfileResponse> getItems() {
         return items;
     }
 
-    public void setItems(List<ThesisApiModel> items) {
+    public void setItems(List<TutorProfileResponse> items) {
         this.items = items;
     }
 

@@ -41,6 +41,16 @@
             android:name=".ThesisListActivity"
             android:exported="false" />
 
+        <!-- CreateThesis Activity -->
+        <activity
+            android:name=".CreateThesisActivity"
+            android:exported="false" />
+
+        <!-- TutorList Activity -->
+        <activity
+            android:name=".TutorListActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

@@ -66,12 +66,24 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Hier könnten z.B. Details zur eigenen Arbeit stehen -->
-        <TextView
+        <Button
+            android:id="@+id/btn_create_new_thesis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Platzhalter für: Meine Abschlussarbeit" />
+            android:text="Neue Abschlussarbeit erstellen"
+            app:icon="@drawable/ic_add"
+            app:iconGravity="textStart" />
+
+        <Button
+            android:id="@+id/btn_find_tutor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Betreuer finden"
+            app:icon="@drawable/ic_search"
+            app:iconGravity="textStart"
+            style="@style/Widget.Material3.Button.TonalButton"/>
 
     </LinearLayout>
 
