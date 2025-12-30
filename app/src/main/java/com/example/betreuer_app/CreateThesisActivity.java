@@ -51,7 +51,7 @@ public class CreateThesisActivity extends AppCompatActivity {
         etTopicId = findViewById(R.id.et_topic_id);
         btnCreate = findViewById(R.id.btn_create_thesis);
 
-        thesisRepository = new ThesisRepository(this);
+        thesisRepository = new ThesisRepository(getApplicationContext());
 
         btnCreate.setOnClickListener(v -> {
             String title = String.valueOf(etTitle.getText()).trim();
