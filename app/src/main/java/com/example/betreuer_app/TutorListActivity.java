@@ -114,8 +114,11 @@ public class TutorListActivity extends AppCompatActivity {
             public void onResponse(Call<TopicsResponse> call, Response<TopicsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     topicChipGroup.removeAllViews();
-                    for (TopicApiModel topic : response.body().getItems()) {
-                        addTopicChip(topic);
+                    var items = response.body().getItems();
+                    if (items != null) {
+                        for (TopicApiModel topic : items) {
+                            addTopicChip(topic);
+                        }
                     }
                 } else {
                     Toast.makeText(TutorListActivity.this, "Failed to load topics", Toast.LENGTH_SHORT).show();
