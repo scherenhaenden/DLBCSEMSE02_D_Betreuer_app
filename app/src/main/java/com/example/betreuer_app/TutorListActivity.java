@@ -1,6 +1,8 @@
 package com.example.betreuer_app;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
@@ -31,6 +33,10 @@ public class TutorListActivity extends AppCompatActivity {
     private ChipGroup topicChipGroup;
     private String selectedTopicId = null;
 
+    private static final long SEARCH_DEBOUNCE_DELAY_MS = 300L;
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    private Runnable pendingSearchRunnable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +59,12 @@ public class TutorListActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                loadTutors(s.toString());
+                if (pendingSearchRunnable != null) {
+                    searchHandler.removeCallbacks(pendingSearchRunnable);
+                }
+                final String query = s.toString();
+                pendingSearchRunnable = () -> loadTutors(query);
+                searchHandler.postDelayed(pendingSearchRunnable, SEARCH_DEBOUNCE_DELAY_MS);
             }
 
             @Override
@@ -87,9 +98,7 @@ public class TutorListActivity extends AppCompatActivity {
         chip.setText(topic.getTitle());
         chip.setCheckable(true);
         chip.setClickable(true);
-        // Using BaseEntityApiModel UUID logic if needed, but assuming getId is available as UUID or String based on implementation
-        // Assuming getId returns UUID, we need String for tag or similar
-        chip.setTag(topic.getId()); 
+        chip.setTag(topic.getId());
         
         chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -104,7 +113,6 @@ public class TutorListActivity extends AppCompatActivity {
     }
 
     private void loadTutors(String name) {
-        // Fetch first page of tutors with default page size, filtering by name and topic
         tutorRepository.getTutors(selectedTopicId, null, name, 1, 20, new Callback<TutorsResponse>() {
             @Override
             public void onResponse(Call<TutorsResponse> call, Response<TutorsResponse> response) {
@@ -112,7 +120,6 @@ public class TutorListActivity extends AppCompatActivity {
                     adapter = new TutorListAdapter(response.body().getItems());
                     recyclerView.setAdapter(adapter);
                 } else {
-                    // Handle error or empty state
                     Toast.makeText(TutorListActivity.this, "No tutors found or error loading", Toast.LENGTH_SHORT).show();
                 }
             }
