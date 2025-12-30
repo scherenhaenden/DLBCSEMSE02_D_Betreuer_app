@@ -33,6 +33,22 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Auto-login check
+        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+        String token = authPreferences.getString("jwt_token", null);
+        if (token != null) {
+            String savedName = authPreferences.getString("user_name", null);
+            String savedRole = authPreferences.getString("user_role", null);
+            
+            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+            if (savedName != null) intent.putExtra("USER_NAME", savedName);
+            if (savedRole != null) intent.putExtra("USER_ROLE", savedRole);
+            startActivity(intent);
+            finish();
+            return; // Skip the rest of onCreate
+        }
+
         setContentView(R.layout.activity_login);
 
         emailEditText = findViewById(R.id.emailEditText);
@@ -72,30 +88,26 @@ public class LoginActivity extends AppCompatActivity {
 
             loginRepository.login(email, password, new Callback<LoginResponse>() {
                 @Override
-                /**
-                 * Handles the response from the login API call.
-                 *
-                 * This method processes the response received from the login attempt. If the response is successful and contains a valid body, it saves the JWT token in shared preferences and starts the DashboardActivity, passing the user's first name and role if available. If the login fails, it displays a toast message indicating the failure.
-                 *
-                 * @param call The original call object that was made to the login API.
-                 * @param response The response object containing the result of the login attempt.
-                 */
                 public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                     progressBar.setVisibility(View.GONE);
                     loginButton.setEnabled(true);
 
                     if (response.isSuccessful() && response.body() != null) {
-                        // Save the token
+                        LoggedInUser user = response.body().getUser();
+                        String role = (user.getRoles() != null && !user.getRoles().isEmpty()) ? user.getRoles().get(0) : null;
+
+                        // Save the token and user info
                         SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
                         SharedPreferences.Editor editor = authPreferences.edit();
                         editor.putString("jwt_token", response.body().getToken());
+                        editor.putString("user_name", user.getFirstName());
+                        editor.putString("user_role", role);
                         editor.apply();
 
-                        LoggedInUser user = response.body().getUser();
                         Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
                         intent.putExtra("USER_NAME", user.getFirstName());
-                        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
-                            intent.putExtra("USER_ROLE", user.getRoles().get(0));
+                        if (role != null) {
+                            intent.putExtra("USER_ROLE", role);
                         }
                         startActivity(intent);
                         finish();
@@ -105,9 +117,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 @Override
-                /**
-                 * Handles the failure of a login request by updating the UI and showing an error message.
-                 */
                 public void onFailure(Call<LoginResponse> call, Throwable t) {
                     progressBar.setVisibility(View.GONE);
                     loginButton.setEnabled(true);
