@@ -33,8 +33,8 @@ public class CreateThesisActivity extends AppCompatActivity {
         thesisRepository = new ThesisRepository(this);
 
         btnCreate.setOnClickListener(v -> {
-            String title = etTitle.getText().toString().trim();
-            String topicId = etTopicId.getText().toString().trim();
+            String title = String.valueOf(etTitle.getText()).trim();
+            String topicId = String.valueOf(etTopicId.getText()).trim();
 
             if (title.isEmpty()) {
                 etTitle.setError("Titel ist erforderlich");
