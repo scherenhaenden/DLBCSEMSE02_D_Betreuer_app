@@ -8,5 +8,8 @@ namespace ApiProject.BusinessLogic.Models
         public Guid TutorId { get; set; }
         public Guid? SecondSupervisorId { get; set; }
         public Guid? SubjectAreaId { get; set; }
+        public string? DocumentFileName { get; set; }
+        public string? DocumentContentType { get; set; }
+        public byte[]? DocumentContent { get; set; }
     }
 }

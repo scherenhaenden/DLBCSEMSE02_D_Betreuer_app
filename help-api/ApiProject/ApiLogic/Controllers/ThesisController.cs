@@ -4,6 +4,7 @@ using ApiProject.BusinessLogic.Models;
 using ApiProject.BusinessLogic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 using System.Security.Claims;
 
 namespace ApiProject.ApiLogic.Controllers
@@ -49,28 +50,62 @@ namespace ApiProject.ApiLogic.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ThesisResponse>> Create([FromBody] CreateThesisRequest request)
+        [Authorize(Roles = "STUDENT")]
+        public async Task<ActionResult<ThesisResponse>> Create([FromForm] CreateThesisRequest request)
         {
             var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            string? fileName = null;
+            string? contentType = null;
+            byte[]? content = null;
+
+            if (request.Document != null)
+            {
+                fileName = request.Document.FileName;
+                contentType = request.Document.ContentType;
+                using var memoryStream = new MemoryStream();
+                await request.Document.CopyToAsync(memoryStream);
+                content = memoryStream.ToArray();
+            }
+
             var created = await _thesisService.CreateThesisAsync(new ThesisCreateRequestBusinessLogicModel
             {
                 Title = request.Title,
                 OwnerId = ownerId,
-                SubjectAreaId = request.SubjectAreaId
+                SubjectAreaId = request.SubjectAreaId,
+                DocumentFileName = fileName,
+                DocumentContentType = contentType,
+                DocumentContent = content
             });
 
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, _thesisApiMapper.MapToResponse(created));
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<ThesisResponse>> Update(Guid id, [FromBody] UpdateThesisRequest request)
+        public async Task<ActionResult<ThesisResponse>> Update(Guid id, [FromForm] UpdateThesisRequest request)
         {
+            string? fileName = null;
+            string? contentType = null;
+            byte[]? content = null;
+
+            if (request.Document != null)
+            {
+                fileName = request.Document.FileName;
+                contentType = request.Document.ContentType;
+                using var memoryStream = new MemoryStream();
+                await request.Document.CopyToAsync(memoryStream);
+                content = memoryStream.ToArray();
+            }
+
             try
             {
                 var updated = await _thesisService.UpdateThesisAsync(id, new ThesisUpdateRequestBusinessLogicModel
                 {
                     Title = request.Title,
-                    SubjectAreaId = request.SubjectAreaId
+                    SubjectAreaId = request.SubjectAreaId,
+                    DocumentFileName = fileName,
+                    DocumentContentType = contentType,
+                    DocumentContent = content
                 });
                 return Ok(_thesisApiMapper.MapToResponse(updated));
             }

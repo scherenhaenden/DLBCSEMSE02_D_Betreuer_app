@@ -90,6 +90,19 @@ namespace ApiProject.BusinessLogic.Services
             _context.Theses.Add(thesis);
             await _context.SaveChangesAsync();
 
+            if (request.DocumentContent != null)
+            {
+                var document = new ThesisDocumentDataAccessModel
+                {
+                    FileName = request.DocumentFileName!,
+                    ContentType = request.DocumentContentType!,
+                    Content = request.DocumentContent,
+                    ThesisId = thesis.Id
+                };
+                _context.ThesisDocuments.Add(document);
+                await _context.SaveChangesAsync();
+            }
+
             var createdThesis = await GetByIdAsync(thesis.Id);
             return createdThesis!;
         }
@@ -111,6 +124,30 @@ namespace ApiProject.BusinessLogic.Services
 
             if (request.Title != null) thesis.Title = request.Title.Trim();
             if (request.SubjectAreaId.HasValue) thesis.SubjectAreaId = request.SubjectAreaId.Value;
+
+            if (request.DocumentContent != null)
+            {
+                var existingDocument = await _context.ThesisDocuments.FirstOrDefaultAsync(d => d.ThesisId == id);
+                if (existingDocument != null)
+                {
+                    // Update existing
+                    existingDocument.FileName = request.DocumentFileName!;
+                    existingDocument.ContentType = request.DocumentContentType!;
+                    existingDocument.Content = request.DocumentContent;
+                }
+                else
+                {
+                    // Create new
+                    var document = new ThesisDocumentDataAccessModel
+                    {
+                        FileName = request.DocumentFileName!,
+                        ContentType = request.DocumentContentType!,
+                        Content = request.DocumentContent,
+                        ThesisId = id
+                    };
+                    _context.ThesisDocuments.Add(document);
+                }
+            }
 
             await _context.SaveChangesAsync();
             

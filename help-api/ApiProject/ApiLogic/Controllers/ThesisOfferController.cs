@@ -3,6 +3,8 @@ using ApiProject.ApiLogic.Models;
 using ApiProject.BusinessLogic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using ApiProject.BusinessLogic.Models;
 
 namespace ApiProject.ApiLogic.Controllers
 {
@@ -23,7 +25,10 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpGet]
         public async Task<ActionResult<PaginatedResponse<ThesisOfferResponse>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _thesisOfferService.GetAllAsync(page, pageSize);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+            var result = await _thesisOfferService.GetAllAsync(page, pageSize, userId, userRoles);
 
             var response = new PaginatedResponse<ThesisOfferResponse>
             {
@@ -33,6 +38,24 @@ namespace ApiProject.ApiLogic.Controllers
                 PageSize = pageSize
             };
             return Ok(response);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "TUTOR")]
+        public async Task<ActionResult<ThesisOfferResponse>> Create([FromBody] CreateThesisOfferRequest request)
+        {
+            var tutorId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var created = await _thesisOfferService.CreateAsync(new ThesisOfferCreateRequestBusinessLogicModel
+            {
+                Title = request.Title,
+                Description = request.Description,
+                SubjectAreaId = request.SubjectAreaId,
+                TutorId = tutorId,
+                MaxStudents = request.MaxStudents,
+                ExpiresAt = request.ExpiresAt
+            });
+
+            return CreatedAtAction(nameof(GetAll), new { }, _thesisOfferApiMapper.MapToResponse(created));
         }
     }
 }

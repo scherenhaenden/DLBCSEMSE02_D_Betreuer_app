@@ -143,9 +143,9 @@ public class ThesisDbContext : DbContext
         );
 
         modelBuilder.Entity<ThesisOfferStatusDataAccessModel>().HasData(
-            new ThesisOfferStatusDataAccessModel { Id = Guid.NewGuid(), Name = "OPEN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new ThesisOfferStatusDataAccessModel { Id = Guid.NewGuid(), Name = "CLOSED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new ThesisOfferStatusDataAccessModel { Id = Guid.NewGuid(), Name = "ARCHIVED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            new ThesisOfferStatusDataAccessModel { Id = new Guid("11111111-1111-1111-1111-111111111111"), Name = "OPEN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new ThesisOfferStatusDataAccessModel { Id = new Guid("22222222-2222-2222-2222-222222222222"), Name = "CLOSED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new ThesisOfferStatusDataAccessModel { Id = new Guid("33333333-3333-3333-3333-333333333333"), Name = "ARCHIVED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
         );
     }
 }
