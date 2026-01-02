@@ -33,8 +33,8 @@ public class ApiClient {
         return getClient(context).create(ThesisApiService.class);
     }
 
-    public static TopicApiService getTopicApiService(Context context) {
-        return getClient(context).create(TopicApiService.class);
+    public static SubjectAreaApiService getSubjectAreaApiService(Context context) {
+        return getClient(context).create(SubjectAreaApiService.class);
     }
 
     public static TutorApiService getTutorApiService(Context context) {

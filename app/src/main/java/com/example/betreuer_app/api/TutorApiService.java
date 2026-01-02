@@ -10,8 +10,8 @@ import retrofit2.http.Query;
 public interface TutorApiService {
     @GET("api/Tutor")
     Call<TutorsResponse> getTutors(
-            @Query("topicId") String topicId,
-            @Query("topicName") String topicName,
+            @Query("subjectAreaId") String subjectAreaId,
+            @Query("subjectAreaName") String subjectAreaName,
             @Query("name") String name,
             @Query("page") int page,
             @Query("pageSize") int pageSize

@@ -17,7 +17,7 @@ class UserDataAccessModel extends BaseEntity {
   + PasswordHash: string
 }
 
-class TopicDataAccessModel extends BaseEntity {
+class SubjectAreaDataAccessModel extends BaseEntity {
   + Title: string
   + Description: string
   + IsActive: bool
@@ -30,7 +30,7 @@ class ThesisDataAccessModel extends BaseEntity {
   + OwnerId: Guid
   + TutorId: Guid
   + SecondSupervisorId: Guid?
-  + TopicId: Guid?
+  + SubjectAreaId: Guid?
 }
 
 class UserRoleDataAccessModel {
@@ -38,9 +38,9 @@ class UserRoleDataAccessModel {
   + RoleId: Guid
 }
 
-class UserTopicDataAccessModel {
+class UserToSubjectAreas {
   + UserId: Guid
-  + TopicId: Guid
+  + SubjectAreaId: Guid
 }
 
 class ThesisStatusDataAccessModel extends BaseEntity {
@@ -77,15 +77,15 @@ class RequestStatusDataAccessModel extends BaseEntity {
 
 UserDataAccessModel "1" -- "0..*" UserRoleDataAccessModel : has
 RoleDataAccessModel "1" -- "0..*" UserRoleDataAccessModel : has
-UserDataAccessModel "1" -- "0..*" UserTopicDataAccessModel : has
-TopicDataAccessModel "1" -- "0..*" UserTopicDataAccessModel : has
+UserDataAccessModel "1" -- "0..*" UserToSubjectAreas : has
+SubjectAreaDataAccessModel "1" -- "0..*" UserToSubjectAreas : has
 
 ThesisDataAccessModel "1" -- "1" ThesisStatusDataAccessModel : has
 ThesisDataAccessModel "1" -- "1" BillingStatusDataAccessModel : has
 ThesisDataAccessModel "1" -- "1" UserDataAccessModel : "Owner"
 ThesisDataAccessModel "1" -- "1" UserDataAccessModel : "Tutor"
 ThesisDataAccessModel "1" -- "0..1" UserDataAccessModel : "SecondSupervisor"
-ThesisDataAccessModel "1" -- "0..1" TopicDataAccessModel : has
+ThesisDataAccessModel "1" -- "0..1" SubjectAreaDataAccessModel : has
 ThesisDataAccessModel "1" -- "0..1" ThesisDocumentDataAccessModel : has
 
 ThesisRequestDataAccessModel "1" -- "1" UserDataAccessModel : "Requester"
