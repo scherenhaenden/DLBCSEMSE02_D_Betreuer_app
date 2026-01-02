@@ -13,5 +13,6 @@ namespace ApiProject.ApiLogic.Models
         public Guid? SubjectAreaId { get; set; }
 
         public IFormFile? Document { get; set; }
+        public Guid OwnerId { get; set; }
     }
 }

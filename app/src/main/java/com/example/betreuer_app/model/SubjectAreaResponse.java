@@ -5,12 +5,12 @@ import java.util.UUID;
 import android.util.Log;
 
 /**
- * TopicApiModel represents a topic entity from the API.
+ * SubjectAreaResponse represents a subject area entity from the API.
  * It extends BaseEntityApiModel and includes properties like title, description, subject area,
  * active status, and a list of associated tutor IDs.
  * The constructor handles UUID parsing for the ID field, logging errors for invalid UUIDs.
  */
-public class TopicApiModel extends BaseEntityApiModel {
+public class SubjectAreaResponse extends BaseEntityApiModel {
     private String title;
     private String description;
     private String subjectArea;
@@ -18,22 +18,22 @@ public class TopicApiModel extends BaseEntityApiModel {
     private List<String> tutorIds;
 
     /**
-     * Constructs a new TopicApiModel with the specified parameters.
+     * Constructs a new SubjectAreaResponse with the specified parameters.
      * Attempts to parse the ID as a UUID; if invalid, logs an error and leaves the ID unset.
-     * @param id The unique identifier for the topic as a string (expected to be a valid UUID).
-     * @param title The title of the topic.
-     * @param description A detailed description of the topic.
-     * @param subjectArea The subject area associated with the topic.
-     * @param isActive Indicates whether the topic is active.
-     * @param tutorIds A list of tutor IDs associated with this topic.
+     * @param id The unique identifier for the subject area as a string (expected to be a valid UUID).
+     * @param title The title of the subject area.
+     * @param description A detailed description of the subject area.
+     * @param subjectArea The subject area associated with the subject area.
+     * @param isActive Indicates whether the subject area is active.
+     * @param tutorIds A list of tutor IDs associated with this subject area.
      */
-    public TopicApiModel(String id, String title, String description, String subjectArea, boolean isActive, List<String> tutorIds) {
+    public SubjectAreaResponse(String id, String title, String description, String subjectArea, boolean isActive, List<String> tutorIds) {
         super();
         if (id != null) {
             try {
                 setId(UUID.fromString(id));
             } catch (IllegalArgumentException e) {
-                Log.e("TopicApiModel", "Invalid UUID string: " + id, e);
+                Log.e("SubjectAreaResponse", "Invalid UUID string: " + id, e);
             }
         }
         this.title = title;
@@ -41,11 +41,11 @@ public class TopicApiModel extends BaseEntityApiModel {
         this.subjectArea = subjectArea;
         this.isActive = isActive;
         this.tutorIds = tutorIds;
-        Log.d("TopicApiModel", "TopicApiModel created with id: " + id);
+        Log.d("SubjectAreaResponse", "SubjectAreaResponse created with id: " + id);
     }
 
     /**
-     * Gets the title of the topic.
+     * Gets the title of the subject area.
      * @return The title as a string.
      */
     public String getTitle() {
@@ -53,7 +53,7 @@ public class TopicApiModel extends BaseEntityApiModel {
     }
 
     /**
-     * Sets the title of the topic.
+     * Sets the title of the subject area.
      * @param title The new title to set.
      */
     public void setTitle(String title) {
@@ -61,7 +61,7 @@ public class TopicApiModel extends BaseEntityApiModel {
     }
 
     /**
-     * Gets the description of the topic.
+     * Gets the description of the subject area.
      * @return The description as a string.
      */
     public String getDescription() {
@@ -69,7 +69,7 @@ public class TopicApiModel extends BaseEntityApiModel {
     }
 
     /**
-     * Sets the description of the topic.
+     * Sets the description of the subject area.
      * @param description The new description to set.
      */
     public void setDescription(String description) {
@@ -77,7 +77,7 @@ public class TopicApiModel extends BaseEntityApiModel {
     }
 
     /**
-     * Gets the subject area of the topic.
+     * Gets the subject area of the subject area.
      * @return The subject area as a string.
      */
     public String getSubjectArea() {
@@ -85,7 +85,7 @@ public class TopicApiModel extends BaseEntityApiModel {
     }
 
     /**
-     * Sets the subject area of the topic.
+     * Sets the subject area of the subject area.
      * @param subjectArea The new subject area to set.
      */
     public void setSubjectArea(String subjectArea) {
@@ -93,15 +93,15 @@ public class TopicApiModel extends BaseEntityApiModel {
     }
 
     /**
-     * Checks if the topic is active.
-     * @return true if the topic is active, false otherwise.
+     * Checks if the subject area is active.
+     * @return true if the subject area is active, false otherwise.
      */
     public boolean isActive() {
         return isActive;
     }
 
     /**
-     * Sets the active status of the topic.
+     * Sets the active status of the subject area.
      * @param active The new active status to set.
      */
     public void setActive(boolean active) {
@@ -109,7 +109,7 @@ public class TopicApiModel extends BaseEntityApiModel {
     }
 
     /**
-     * Gets the list of tutor IDs associated with this topic.
+     * Gets the list of tutor IDs associated with this subject area.
      * @return A list of tutor IDs as strings.
      */
     public List<String> getTutorIds() {
@@ -117,7 +117,7 @@ public class TopicApiModel extends BaseEntityApiModel {
     }
 
     /**
-     * Sets the list of tutor IDs associated with this topic.
+     * Sets the list of tutor IDs associated with this subject area.
      * @param tutorIds The new list of tutor IDs to set.
      */
     public void setTutorIds(List<String> tutorIds) {

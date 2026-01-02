@@ -15,8 +15,8 @@ public class TutorRepository {
         apiService = ApiClient.getTutorApiService(context);
     }
 
-    public void getTutors(String topicId, String topicName, String name, int page, int pageSize, Callback<TutorsResponse> callback) {
-        Call<TutorsResponse> call = apiService.getTutors(topicId, topicName, name, page, pageSize);
+    public void getTutors(String subjectAreaId, String subjectAreaName, String name, int page, int pageSize, Callback<TutorsResponse> callback) {
+        Call<TutorsResponse> call = apiService.getTutors(subjectAreaId, subjectAreaName, name, page, pageSize);
         call.enqueue(callback);
     }
 

@@ -15,5 +15,6 @@ namespace ApiProject.ApiLogic.Models
         public int? MaxStudents { get; set; }
         
         public DateTime? ExpiresAt { get; set; }
+        public Guid TutorId { get; set; }
     }
 }

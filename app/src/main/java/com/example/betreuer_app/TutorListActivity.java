@@ -10,10 +10,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.betreuer_app.model.TopicApiModel;
-import com.example.betreuer_app.model.TopicsResponse;
+import com.example.betreuer_app.model.SubjectAreaResponse;
+import com.example.betreuer_app.model.SubjectAreaResponsePaginatedResponse;
 import com.example.betreuer_app.model.TutorsResponse;
-import com.example.betreuer_app.repository.TopicRepository;
+import com.example.betreuer_app.repository.SubjectAreaRepository;
 import com.example.betreuer_app.repository.TutorRepository;
 import com.example.betreuer_app.ui.tutorlist.TutorListAdapter;
 import com.google.android.material.chip.Chip;
@@ -40,8 +40,8 @@ public class TutorListActivity extends AppCompatActivity {
     /** Repository for handling tutor-related API operations. */
     private TutorRepository tutorRepository;
 
-    /** Repository for handling topic-related API operations. */
-    private TopicRepository topicRepository;
+    /** Repository for handling subject area-related API operations. */
+    private SubjectAreaRepository subjectAreaRepository;
 
     /** EditText for user input to search tutors by name. */
     private EditText searchInput;
@@ -79,7 +79,7 @@ public class TutorListActivity extends AppCompatActivity {
         topicChipGroup = findViewById(R.id.topic_chip_group);
 
         tutorRepository = new TutorRepository(getApplicationContext());
-        topicRepository = new TopicRepository(getApplicationContext());
+        subjectAreaRepository = new SubjectAreaRepository(getApplicationContext());
 
         loadTopics();
         loadTutors(null);
@@ -109,47 +109,47 @@ public class TutorListActivity extends AppCompatActivity {
      * If the API call fails, an error message is displayed to the user.
      */
     private void loadTopics() {
-        topicRepository.getTopics(1, 10, new Callback<TopicsResponse>() {
+        subjectAreaRepository.getSubjectAreas(1, 10, new Callback<SubjectAreaResponsePaginatedResponse>() {
             @Override
-            public void onResponse(Call<TopicsResponse> call, Response<TopicsResponse> response) {
+            public void onResponse(Call<SubjectAreaResponsePaginatedResponse> call, Response<SubjectAreaResponsePaginatedResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     topicChipGroup.removeAllViews();
                     var items = response.body().getItems();
                     if (items != null) {
-                        for (TopicApiModel topic : items) {
-                            addTopicChip(topic);
+                        for (SubjectAreaResponse subjectArea : items) {
+                            addTopicChip(subjectArea);
                         }
                     }
                 } else {
-                    Toast.makeText(TutorListActivity.this, "Failed to load topics", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TutorListActivity.this, "Failed to load subject areas", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<TopicsResponse> call, Throwable t) {
-                Toast.makeText(TutorListActivity.this, "Failed to load topics: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<SubjectAreaResponsePaginatedResponse> call, Throwable t) {
+                Toast.makeText(TutorListActivity.this, "Failed to load subject areas: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     /**
-     * Creates and adds a Chip to the ChipGroup for the given topic.
+     * Creates and adds a Chip to the ChipGroup for the given subject area.
      * The chip is checkable and triggers a tutor reload when its checked state changes.
-     * @param topic The topic model containing the title and ID for the chip.
+     * @param subjectArea The subject area model containing the title and ID for the chip.
      */
-    private void addTopicChip(TopicApiModel topic) {
+    private void addTopicChip(SubjectAreaResponse subjectArea) {
         Chip chip = new Chip(this);
-        chip.setText(topic.getTitle());
+        chip.setText(subjectArea.getTitle());
         chip.setCheckable(true);
         chip.setClickable(true);
-        if (topic.getId() == null) {
-            Toast.makeText(this, "Ungültige Themen-Daten empfangen: " + topic.getTitle(), Toast.LENGTH_SHORT).show();
+        if (subjectArea.getId() == null) {
+            Toast.makeText(this, "Ungültige Fachbereichs-Daten empfangen: " + subjectArea.getTitle(), Toast.LENGTH_SHORT).show();
         }
-        chip.setTag(topic.getId());
-        
+        chip.setTag(subjectArea.getId());
+
         chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                selectedTopicId = topic.getId() != null ? topic.getId().toString() : null;
+                selectedTopicId = subjectArea.getId() != null ? subjectArea.getId().toString() : null;
             } else {
                 selectedTopicId = null;
             }

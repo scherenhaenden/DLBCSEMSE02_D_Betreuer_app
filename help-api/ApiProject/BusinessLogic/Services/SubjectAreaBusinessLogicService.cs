@@ -70,6 +70,11 @@ namespace ApiProject.BusinessLogic.Services
 
         public async Task<SubjectAreaBusinessLogicModel> CreateSubjectAreaAsync(SubjectAreaCreateRequestBusinessLogicModel request)
         {
+            if (string.IsNullOrWhiteSpace(request.Title))
+            {
+                throw new ArgumentException("Title cannot be empty.", nameof(request.Title));
+            }
+
             foreach (var tutorId in request.TutorIds)
             {
                 if (!await _userBusinessLogicService.UserHasRoleAsync(tutorId, "TUTOR"))
@@ -106,6 +111,11 @@ namespace ApiProject.BusinessLogic.Services
             if (subjectArea == null)
             {
                 throw new KeyNotFoundException("Subject Area not found.");
+            }
+
+            if (request.Title != null && string.IsNullOrWhiteSpace(request.Title))
+            {
+                throw new ArgumentException("Title cannot be empty.", nameof(request.Title));
             }
 
             if (request.Title != null) subjectArea.Title = request.Title.Trim();
