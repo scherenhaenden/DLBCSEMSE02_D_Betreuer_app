@@ -94,7 +94,7 @@ public class ThesisOfferBusinessLogicServiceTests
     }
 
     [Test]
-    public async Task CanCreateThesisOffer()
+    public async Task TutorCreatesThesisOfferShouldPass()
     {
         // Arrange
         var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
@@ -117,6 +117,55 @@ public class ThesisOfferBusinessLogicServiceTests
         Assert.That(createdOffer, Is.Not.Null);
         Assert.That(createdOffer.Title, Is.EqualTo("New Offer"));
         Assert.That(createdOffer.TutorId, Is.EqualTo(tutor.Id));
+    }
+
+    [Test]
+    public async Task StudentCreatesThesisOfferShouldNotPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
+        var subjectArea = _context.SubjectAreas.First();
+
+        var request = new ThesisOfferCreateRequestBusinessLogicModel
+        {
+            Title = "Offer by Student",
+            Description = "Description",
+            SubjectAreaId = subjectArea.Id,
+            TutorId = student.Id, // Student trying to create offer
+            MaxStudents = 2,
+            ExpiresAt = DateTime.UtcNow.AddDays(30)
+        };
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisOfferService.CreateAsync(request));
+        Assert.That(ex.Message, Is.EqualTo("Only tutors can create thesis offers."));
+    }
+
+    [Test]
+    public async Task TutorsForIntotalCreateFiveOthersEachAndEachOneGetsBackOnlyItsOwnOffersWhenOffersGetRequestedByOwnerIDShouldPass()
+    {
+        // Arrange
+        var tutors = new List<UserDataAccessModel>();
+        var offers = new List<ThesisOfferDataAccessModel>();
+        var subjectArea = _context.SubjectAreas.First();
+
+        for (int i = 1; i <= 5; i++)
+        {
+            var tutor = _seeder.SeedUser($"Tutor{i}", "Test", $"tutor{i}@example.com", "password", Roles.Tutor);
+            tutors.Add(tutor);
+
+            var offer = _seeder.SeedThesisOffer($"Offer{i}", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+            offers.Add(offer);
+        }
+
+        // Act & Assert
+        for (int i = 0; i < 5; i++)
+        {
+            var result = await _thesisOfferService.GetAllAsync(1, 10, tutors[i].Id, new List<string> { Roles.Tutor });
+            Assert.That(result.Items.Count, Is.EqualTo(1));
+            Assert.That(result.Items.First().Title, Is.EqualTo($"Offer{i + 1}"));
+        }
     }
 
     [Test]
@@ -180,6 +229,103 @@ public class ThesisOfferBusinessLogicServiceTests
             ThesisOfferId = offer.Id,
             StudentId = student.Id,
             Message = "Message"
+        };
+
+        // Act
+        var (application, error) = await _thesisOfferService.CreateApplicationAsync(request);
+
+        // Assert
+        Assert.That(application, Is.Null);
+        Assert.That(error, Is.EqualTo("Thesis offer does not have open state anymore."));
+    }
+
+    [Test]
+    public async Task UserCreatesApplicationOnExistingThesisOfferShouldPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Applicant", "studentapp@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "Offerer", "tutoroffer@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Open Offer", "Description", subjectArea.Id, tutor.Id, 2, DateTime.UtcNow.AddDays(30));
+
+        var request = new ThesisOfferApplicationCreateRequestBusinessLogicModel
+        {
+            ThesisOfferId = offer.Id,
+            StudentId = student.Id,
+            Message = "I am very interested in this topic."
+        };
+
+        // Act
+        var (application, error) = await _thesisOfferService.CreateApplicationAsync(request);
+
+        // Assert
+        Assert.That(error, Is.Null);
+        Assert.That(application, Is.Not.Null);
+        Assert.That(application.Message, Is.EqualTo("I am very interested in this topic."));
+        Assert.That(application.StudentId, Is.EqualTo(student.Id));
+    }
+
+    [Test]
+    public async Task UserCreatesApplicationOnNonExistingThesisOfferShouldPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Applicant2", "studentapp2@example.com", "password", Roles.Student);
+
+        var request = new ThesisOfferApplicationCreateRequestBusinessLogicModel
+        {
+            ThesisOfferId = Guid.NewGuid(), // Non-existing offer
+            StudentId = student.Id,
+            Message = "Message"
+        };
+
+        // Act
+        var (application, error) = await _thesisOfferService.CreateApplicationAsync(request);
+
+        // Assert
+        Assert.That(application, Is.Null);
+        Assert.That(error, Is.EqualTo("Thesis offer not found."));
+    }
+
+    [Test]
+    public async Task UserCreatesApplicationOnExistingButClosedThesisOfferShouldNotPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Applicant3", "studentapp3@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "Offerer2", "tutoroffer2@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var closedStatus = _context.ThesisOfferStatuses.First(s => s.Name == ThesisOfferStatuses.Closed);
+        var offer = _seeder.SeedThesisOfferWithStatus("Closed Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30), closedStatus.Id);
+
+        var request = new ThesisOfferApplicationCreateRequestBusinessLogicModel
+        {
+            ThesisOfferId = offer.Id,
+            StudentId = student.Id,
+            Message = "I want to apply."
+        };
+
+        // Act
+        var (application, error) = await _thesisOfferService.CreateApplicationAsync(request);
+
+        // Assert
+        Assert.That(application, Is.Null);
+        Assert.That(error, Is.EqualTo("Thesis offer does not have open state anymore."));
+    }
+
+    [Test]
+    public async Task UserCreatesApplicationOnExistingButArchivedThesisOfferShouldNotPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Applicant4", "studentapp4@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "Offerer3", "tutoroffer3@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var archivedStatus = _context.ThesisOfferStatuses.First(s => s.Name == ThesisOfferStatuses.Archived);
+        var offer = _seeder.SeedThesisOfferWithStatus("Archived Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30), archivedStatus.Id);
+
+        var request = new ThesisOfferApplicationCreateRequestBusinessLogicModel
+        {
+            ThesisOfferId = offer.Id,
+            StudentId = student.Id,
+            Message = "I want to apply."
         };
 
         // Act

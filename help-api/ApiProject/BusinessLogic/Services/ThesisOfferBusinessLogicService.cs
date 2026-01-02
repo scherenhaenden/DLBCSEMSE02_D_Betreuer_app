@@ -60,6 +60,12 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
 
     public async Task<ThesisOfferBusinessLogicModel> CreateAsync(ThesisOfferCreateRequestBusinessLogicModel request)
     {
+        var tutorUser = await _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).SingleOrDefaultAsync(u => u.Id == request.TutorId);
+        if (tutorUser == null || !tutorUser.UserRoles.Any(ur => ur.Role.Name == Roles.Tutor))
+        {
+            throw new InvalidOperationException("Only tutors can create thesis offers.");
+        }
+
         var openStatus = await _context.ThesisOfferStatuses.SingleAsync(s => s.Name == ThesisOfferStatuses.Open);
 
         var thesisOffer = new ThesisOfferDataAccessModel
