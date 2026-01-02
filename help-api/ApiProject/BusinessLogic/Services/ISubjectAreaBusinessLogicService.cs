@@ -5,7 +5,7 @@ namespace ApiProject.BusinessLogic.Services
     /// <summary>
     /// Interface for the Subject Area Service, providing CRUD operations for subject areas.
     /// </summary>
-    public interface ISubjectAreaService
+    public interface ISubjectAreaBusinessLogicService
     {
         /// <summary>
         /// Returns all subject areas in a paginated result.

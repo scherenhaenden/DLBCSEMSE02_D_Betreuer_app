@@ -1,6 +1,6 @@
 namespace ApiProject.BusinessLogic.Models
 {
-    public class ThesisUpdateRequestBusinessLogicModel
+    public class ThesisUpdateRequestBusinessLogicModel:  BaseEntityBusinessLogicModel
     {
         public string? Title { get; set; }
         public string? SubjectArea { get; set; }

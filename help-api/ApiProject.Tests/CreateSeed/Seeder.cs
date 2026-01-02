@@ -33,10 +33,10 @@ public class Seeder
         foreach (var roleName in roleNames)
         {
             rolesToSeed.Add(new Faker<RoleDataAccessModel>()
-                .RuleFor(r => r.Id, f => Guid.NewGuid())
+                .RuleFor(r => r.Id, _ => Guid.NewGuid())
                 .RuleFor(r => r.Name, roleName)
                 .RuleFor(r => r.CreatedAt, f => f.Date.Recent())
-                .RuleFor(r => r.UpdatedAt, (f, r) => r.CreatedAt)
+                .RuleFor(r => r.UpdatedAt, (_, r) => r.CreatedAt)
                 .Generate());
         }
 
@@ -46,10 +46,10 @@ public class Seeder
         foreach (var statusName in billingStatusNames)
         {
             billingStatusesToSeed.Add(new Faker<BillingStatusDataAccessModel>()
-                .RuleFor(b => b.Id, f => Guid.NewGuid())
+                .RuleFor(b => b.Id, _ => Guid.NewGuid())
                 .RuleFor(b => b.Name, statusName)
                 .RuleFor(b => b.CreatedAt, f => f.Date.Recent())
-                .RuleFor(b => b.UpdatedAt, (f, b) => b.CreatedAt)
+                .RuleFor(b => b.UpdatedAt, (_, b) => b.CreatedAt)
                 .Generate());
         }
 
@@ -59,10 +59,10 @@ public class Seeder
         foreach (var statusName in thesisStatusNames)
         {
             thesisStatusesToSeed.Add(new Faker<ThesisStatusDataAccessModel>()
-                .RuleFor(t => t.Id, f => Guid.NewGuid())
+                .RuleFor(t => t.Id, _ => Guid.NewGuid())
                 .RuleFor(t => t.Name, statusName)
                 .RuleFor(t => t.CreatedAt, f => f.Date.Recent())
-                .RuleFor(t => t.UpdatedAt, (f, t) => t.CreatedAt)
+                .RuleFor(t => t.UpdatedAt, (_, t) => t.CreatedAt)
                 .Generate());
         }
 
@@ -85,11 +85,11 @@ public class Seeder
         foreach (var topicItem in topicsFromMethod)
         {
             topicsToSeed.Add(new Faker<SubjectAreaDataAccessModel>()
-                .RuleFor(t => t.Id, f => Guid.NewGuid())
+                .RuleFor(t => t.Id, _ => Guid.NewGuid())
                 .RuleFor(t => t.Title, topicItem.Title)
                 .RuleFor(t => t.Description, topicItem.Description)
                 .RuleFor(t => t.CreatedAt, f => f.Date.Recent())
-                .RuleFor(t => t.UpdatedAt, (f, t) => t.CreatedAt)
+                .RuleFor(t => t.UpdatedAt, (_, t) => t.CreatedAt)
                 .Generate());
         }
 
@@ -99,8 +99,8 @@ public class Seeder
             .RuleFor(u => u.LastName, f => f.Name.LastName())
             .RuleFor(u => u.Email, f => f.Internet.Email())
             .RuleFor(u => u.Password, f => f.Internet.Password())
-            .RuleFor(u => u.PasswordHash, (f, u) => BCrypt.Net.BCrypt.HashPassword(u.Password, workFactor: 4))
-            .RuleFor(u => u.Id, f => Guid.NewGuid())
+            .RuleFor(u => u.PasswordHash, (_, u) => BCrypt.Net.BCrypt.HashPassword(u.Password, workFactor: 4))
+            .RuleFor(u => u.Id, _ => Guid.NewGuid())
             .RuleFor(u => u.CreatedAt, f => f.Date.Past())
             .RuleFor(u => u.UpdatedAt, f => f.Date.Recent());
         
@@ -182,23 +182,23 @@ public class Seeder
         var thesisDocumentsToSeed = new List<ThesisDocumentDataAccessModel>();
 
         var thesisFaker = new Faker<ThesisDataAccessModel>()
-            .RuleFor(t => t.Id, f => Guid.NewGuid())
+            .RuleFor(t => t.Id, _ => Guid.NewGuid())
             .RuleFor(t => t.Title, f => f.Lorem.Sentence(3))
             .RuleFor(t => t.BillingStatusId, f => f.PickRandom(billingStatusesToSeed).Id)
             .RuleFor(t => t.CreatedAt, f => f.Date.Past())
             .RuleFor(t => t.UpdatedAt, f => f.Date.Recent());
 
         var thesisRequestFaker = new Faker<ThesisRequestDataAccessModel>()
-            .RuleFor(tr => tr.Id, f => Guid.NewGuid())
+            .RuleFor(tr => tr.Id, _ => Guid.NewGuid())
             .RuleFor(tr => tr.Message, f => f.Lorem.Sentence())
             .RuleFor(tr => tr.CreatedAt, f => f.Date.Past())
             .RuleFor(tr => tr.UpdatedAt, f => f.Date.Recent());
 
         var thesisDocumentFaker = new Faker<ThesisDocumentDataAccessModel>()
-            .RuleFor(td => td.Id, f => Guid.NewGuid())
+            .RuleFor(td => td.Id, _ => Guid.NewGuid())
             .RuleFor(td => td.FileName, f => f.System.FileName("pdf"))
             .RuleFor(td => td.ContentType, "application/pdf")
-            .RuleFor(td => td.Content, f => Encoding.UTF8.GetBytes("This is a thesis."))
+            .RuleFor(td => td.Content, _ => Encoding.UTF8.GetBytes("This is a thesis."))
             .RuleFor(td => td.CreatedAt, f => f.Date.Past())
             .RuleFor(td => td.UpdatedAt, f => f.Date.Recent());
 
@@ -298,21 +298,96 @@ public class Seeder
                 }
             }
         }
+        
+        // --- X. Thesis Offer Statuses ---
+        var thesisOfferStatusesToSeed = new List<ThesisOfferStatusDataAccessModel>
+        {
+            new() { Id = Guid.NewGuid(), Name = "OPEN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = "CLOSED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = "ARCHIVED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+        };
+        
+        var openOfferStatusId = thesisOfferStatusesToSeed.First(s => s.Name == "OPEN").Id;
+        var tutorsWithOffers = tutors
+            .Where(_ => faker.Random.Bool(0.35f))
+            .ToList();
+        
+        var thesisOffersToSeed = new List<ThesisOfferDataAccessModel>();
+        
+        foreach (var tutor in tutorsWithOffers)
+        {
+            // Subject areas this tutor supervises
+            var tutorAreas = userTopicAssignments
+                .Where(ut => ut.UserId == tutor.Id)
+                .Select(ut => ut.TopicId)
+                .ToList();
+
+            if (!tutorAreas.Any())
+                continue;
+
+            // Each tutor offers 1–3 topics
+            var offerCount = faker.Random.Int(1, 3);
+
+            for (int i = 0; i < offerCount; i++)
+            {
+                thesisOffersToSeed.Add(new ThesisOfferDataAccessModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = faker.Lorem.Sentence(5),
+                    Description = faker.Lorem.Paragraph(),
+                    TutorId = tutor.Id,
+                    SubjectAreaId = faker.PickRandom(tutorAreas),
+                    ThesisOfferStatusId = openOfferStatusId,
+                    MaxStudents = 1,
+                    CreatedAt = DateTime.UtcNow.AddDays(-faker.Random.Int(1, 120)),
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+        
+        var thesisOfferApplicationsToSeed = new List<ThesisOfferApplicationDataAccessModel>();
+
+        foreach (var offer in thesisOffersToSeed)
+        {
+            // 0–4 students apply
+            var applicants = faker.PickRandom(students, faker.Random.Int(0, 4));
+
+            foreach (var student in applicants)
+            {
+                thesisOfferApplicationsToSeed.Add(new ThesisOfferApplicationDataAccessModel
+                {
+                    Id = Guid.NewGuid(),
+                    ThesisOfferId = offer.Id,
+                    StudentId = student.Id,
+                    RequestStatusId = faker.PickRandom(
+                        requestStatusesToSeed.Where(rs =>
+                            rs.Name == "PENDING" || rs.Name == "REJECTED"
+                        )).Id,
+                    Message = faker.Lorem.Sentence(),
+                    CreatedAt = DateTime.UtcNow.AddDays(-faker.Random.Int(1, 30)),
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
 
         // --- 13. Serialize and Save ---
-        var seedData = new { 
-            Users = users, 
-            Roles = rolesToSeed, 
-            UserRoles = userRolesToSeed, 
-            BillingStatuses = billingStatusesToSeed, 
-            ThesisStatuses = thesisStatusesToSeed, 
-            Topics = topicsToSeed, 
-            UserTopics = userTopicsToSeed, 
-            Theses = thesesToSeed, 
-            ThesisDocuments = thesisDocumentsToSeed, 
-            ThesisRequests = thesisRequestsToSeed, 
-            RequestTypes = requestTypesToSeed, 
-            RequestStatuses = requestStatusesToSeed 
+        var seedData = new
+        {
+            Users = users,
+            Roles = rolesToSeed,
+            UserRoles = userRolesToSeed,
+            BillingStatuses = billingStatusesToSeed,
+            ThesisStatuses = thesisStatusesToSeed,
+            Topics = topicsToSeed,
+            UserTopics = userTopicsToSeed,
+            ThesisOffers = thesisOffersToSeed,
+            ThesisOfferStatuses = thesisOfferStatusesToSeed,
+            ThesisOfferApplications = thesisOfferApplicationsToSeed,
+            Theses = thesesToSeed,
+            ThesisDocuments = thesisDocumentsToSeed,
+            ThesisRequests = thesisRequestsToSeed,
+            RequestTypes = requestTypesToSeed,
+            RequestStatuses = requestStatusesToSeed
         };
         
         var json = JsonSerializer.Serialize(seedData, new JsonSerializerOptions { WriteIndented = true });
@@ -321,7 +396,7 @@ public class Seeder
 
     public List<SubjectAreaDataAccessModel> TopicForSeeding()
     {
-        return SeederTopic.TopicForSeeding();
+        return SeederSubjectArea.TopicForSeeding();
 
     }
     

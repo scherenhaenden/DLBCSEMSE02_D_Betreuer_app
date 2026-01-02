@@ -2,7 +2,7 @@ using ApiProject.DatabaseAccess.Entities;
 
 namespace ApiProject.Tests.CreateSeed;
 
-public class SeederTopic
+public class SeederSubjectArea
 {
         public static List<SubjectAreaDataAccessModel> TopicForSeeding()
         {

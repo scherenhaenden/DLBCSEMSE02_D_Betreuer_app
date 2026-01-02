@@ -9,17 +9,17 @@ namespace ApiProject.ApiLogic.Controllers
     [Route("subject-areas")]
     public sealed class SubjectAreaController : ControllerBase
     {
-        private readonly ISubjectAreaService _subjectAreaService;
+        private readonly ISubjectAreaBusinessLogicService _subjectAreaBusinessLogicService;
 
-        public SubjectAreaController(ISubjectAreaService subjectAreaService)
+        public SubjectAreaController(ISubjectAreaBusinessLogicService subjectAreaBusinessLogicService)
         {
-            _subjectAreaService = subjectAreaService;
+            _subjectAreaBusinessLogicService = subjectAreaBusinessLogicService;
         }
 
         [HttpGet]
         public async Task<ActionResult<PaginatedResponse<SubjectAreaResponse>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _subjectAreaService.GetAllAsync(page, pageSize);
+            var result = await _subjectAreaBusinessLogicService.GetAllAsync(page, pageSize);
             var response = new PaginatedResponse<SubjectAreaResponse>
             {
                 Items = result.Items.Select(MapToResponse).ToList(),
@@ -33,7 +33,7 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<PaginatedResponse<SubjectAreaResponse>>> Search([FromQuery] string q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _subjectAreaService.SearchAsync(q, page, pageSize);
+            var result = await _subjectAreaBusinessLogicService.SearchAsync(q, page, pageSize);
             var response = new PaginatedResponse<SubjectAreaResponse>
             {
                 Items = result.Items.Select(MapToResponse).ToList(),
@@ -47,7 +47,7 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<SubjectAreaResponse>> GetById(Guid id)
         {
-            var subjectArea = await _subjectAreaService.GetByIdAsync(id);
+            var subjectArea = await _subjectAreaBusinessLogicService.GetByIdAsync(id);
             if (subjectArea == null)
             {
                 return NotFound();
@@ -60,7 +60,7 @@ namespace ApiProject.ApiLogic.Controllers
         {
             try
             {
-                var created = await _subjectAreaService.CreateSubjectAreaAsync(new BL.SubjectAreaCreateRequestBusinessLogicModel
+                var created = await _subjectAreaBusinessLogicService.CreateSubjectAreaAsync(new BL.SubjectAreaCreateRequestBusinessLogicModel
                 {
                     Title = request.Title,
                     Description = request.Description,
@@ -80,7 +80,7 @@ namespace ApiProject.ApiLogic.Controllers
         {
             try
             {
-                var updated = await _subjectAreaService.UpdateSubjectAreaAsync(id, new BL.SubjectAreaUpdateRequestBusinessLogicModel
+                var updated = await _subjectAreaBusinessLogicService.UpdateSubjectAreaAsync(id, new BL.SubjectAreaUpdateRequestBusinessLogicModel
                 {
                     Title = request.Title,
                     Description = request.Description,
@@ -103,7 +103,7 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            var deleted = await _subjectAreaService.DeleteSubjectAreaAsync(id);
+            var deleted = await _subjectAreaBusinessLogicService.DeleteSubjectAreaAsync(id);
             if (!deleted)
             {
                 return NotFound();

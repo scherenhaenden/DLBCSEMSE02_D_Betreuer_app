@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiProject.BusinessLogic.Services
 {
-    public sealed class SubjectAreaService : ISubjectAreaService
+    public sealed class SubjectAreaBusinessLogicService : ISubjectAreaBusinessLogicService
     {
         private readonly ThesisDbContext _context;
         private readonly IUserBusinessLogicService _userBusinessLogicService;
 
-        public SubjectAreaService(ThesisDbContext context, IUserBusinessLogicService userBusinessLogicService)
+        public SubjectAreaBusinessLogicService(ThesisDbContext context, IUserBusinessLogicService userBusinessLogicService)
         {
             _context = context;
             _userBusinessLogicService = userBusinessLogicService;
