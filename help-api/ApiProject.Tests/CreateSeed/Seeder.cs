@@ -7,6 +7,8 @@ using System.Linq.Expressions;
 using BCrypt.Net;
 using System.Text;
 using ApiProject.Constants;
+using Microsoft.EntityFrameworkCore;
+using ApiProject.DatabaseAccess.Context;
 
 namespace ApiProject.Tests.CreateSeed;
 
@@ -19,13 +21,36 @@ public class UserSeed: UserDataAccessModel
     public required string Password { get; set; }
 }
 
+public class SeedData
+{
+    public List<RoleDataAccessModel> Roles { get; set; }
+    public List<BillingStatusDataAccessModel> BillingStatuses { get; set; }
+    public List<ThesisStatusDataAccessModel> ThesisStatuses { get; set; }
+    public List<RequestTypeDataAccessModel> RequestTypes { get; set; }
+    public List<RequestStatusDataAccessModel> RequestStatuses { get; set; }
+    public List<ThesisOfferStatusDataAccessModel> ThesisOfferStatuses { get; set; }
+    public List<SubjectAreaDataAccessModel> Topics { get; set; }
+    public List<UserSeed> Users { get; set; }
+    public List<UserRoleDataAccessModel> UserRoles { get; set; }
+    public List<UserToSubjectAreas> UserTopics { get; set; }
+    public List<ThesisOfferDataAccessModel> ThesisOffers { get; set; }
+    public List<ThesisOfferApplicationDataAccessModel> ThesisOfferApplications { get; set; }
+    public List<ThesisDataAccessModel> Theses { get; set; }
+    public List<ThesisDocumentDataAccessModel> ThesisDocuments { get; set; }
+    public List<ThesisRequestDataAccessModel> ThesisRequests { get; set; }
+}
+
+
 [TestFixture]
 public class Seeder
 {
-    [Test]
-    public void CreateSeed()
+   public List<ThesisRequestDataAccessModel> ThesisRequests { get; set; }
+    
+
+    //[Test]
+    public Object CreateSeed()
     {
-        string directory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        
         ICreateSeedOfObject createSeedOfObject = new CreateSeedOfObject();
         
         // --- 1. Roles ---
@@ -98,7 +123,7 @@ public class Seeder
         var userFaker = new Faker<UserSeed>()
             .RuleFor(u => u.FirstName, f => f.Name.FirstName())
             .RuleFor(u => u.LastName, f => f.Name.LastName())
-            .RuleFor(u => u.Email, f => f.Internet.Email())
+            .RuleFor(u => u.Email, f => $"user{f.IndexFaker}@example.com")
             .RuleFor(u => u.Password, f => f.Internet.Password())
             .RuleFor(u => u.PasswordHash, (_, u) => BCrypt.Net.BCrypt.HashPassword(u.Password, workFactor: 4))
             .RuleFor(u => u.Id, _ => Guid.NewGuid())
@@ -371,8 +396,9 @@ public class Seeder
             }
         }
 
-        // --- 13. Serialize and Save ---
-        var seedData = new
+        // --- 13. Seed into Database ---
+        
+        var seedData = new SeedData
         {
             Roles = rolesToSeed,
             BillingStatuses = billingStatusesToSeed,
@@ -391,8 +417,221 @@ public class Seeder
             ThesisRequests = thesisRequestsToSeed
         };
         
+        
         var json = JsonSerializer.Serialize(seedData, new JsonSerializerOptions { WriteIndented = true });
+        //File.WriteAllText(Path.Combine(directory, "seed.json"), json);
+        return seedData;
+
+
+    }
+
+    [Test]
+    public void CreateSeedJson()
+    {
+        
+        var json = JsonSerializer.Serialize(CreateSeed(), new JsonSerializerOptions { WriteIndented = true });
+        string directory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         File.WriteAllText(Path.Combine(directory, "seed.json"), json);
+        
+    }
+
+    [Test]
+    public void CheckOnDb()
+    {
+        var seedData = (SeedData)CreateSeed();
+        var json = JsonSerializer.Serialize(seedData, new JsonSerializerOptions { WriteIndented = true });
+        
+          var options = new DbContextOptionsBuilder<ThesisDbContext>()
+            .UseSqlite("Data Source=ThesisManagement.db")
+            .Options;
+
+        using (var context = new ThesisDbContext(options))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            try
+            {
+                context.Roles.AddRange(seedData.Roles);
+                context.SaveChanges();
+                Console.WriteLine($"Roles seeded successfully: {seedData.Roles.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding roles: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.BillingStatuses.AddRange(seedData.BillingStatuses);
+                context.SaveChanges();
+                Console.WriteLine($"Billing statuses seeded successfully: {seedData.BillingStatuses.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding billing statuses: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.ThesisStatuses.AddRange(seedData.ThesisStatuses);
+                context.SaveChanges();
+                Console.WriteLine($"Thesis statuses seeded successfully: {seedData.ThesisStatuses.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding thesis statuses: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.RequestTypes.AddRange(seedData.RequestTypes);
+                context.SaveChanges();
+                Console.WriteLine($"Request types seeded successfully: {seedData.RequestTypes.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding request types: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.RequestStatuses.AddRange(seedData.RequestStatuses);
+                context.SaveChanges();
+                Console.WriteLine($"Request statuses seeded successfully: {seedData.RequestStatuses.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding request statuses: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.ThesisOfferStatuses.AddRange(seedData.ThesisOfferStatuses);
+                context.SaveChanges();
+                Console.WriteLine($"Thesis offer statuses seeded successfully: {seedData.ThesisOfferStatuses.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding thesis offer statuses: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.SubjectAreas.AddRange(seedData.Topics);
+                context.SaveChanges();
+                Console.WriteLine($"Subject areas seeded successfully: {seedData.Topics.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding subject areas: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.Users.AddRange(seedData.Users);
+                context.SaveChanges();
+                Console.WriteLine($"Users seeded successfully: {seedData.Users.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding users: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.UserRoles.AddRange(seedData.UserRoles);
+                context.SaveChanges();
+                Console.WriteLine($"User roles seeded successfully: {seedData.UserRoles.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding user roles: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.UserToSubjectAreas.AddRange(seedData.UserTopics);
+                context.SaveChanges();
+                Console.WriteLine($"User to subject areas seeded successfully: {seedData.UserTopics.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding user to subject areas: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.Theses.AddRange(seedData.Theses);
+                context.SaveChanges();
+                Console.WriteLine($"Theses seeded successfully: {seedData.Theses.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding theses: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.ThesisDocuments.AddRange(seedData.ThesisDocuments);
+                context.SaveChanges();
+                Console.WriteLine($"Thesis documents seeded successfully: {seedData.ThesisDocuments.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding thesis documents: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.ThesisRequests.AddRange(seedData.ThesisRequests);
+                context.SaveChanges();
+                Console.WriteLine($"Thesis requests seeded successfully: {seedData.ThesisRequests.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding thesis requests: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.ThesisOffers.AddRange(seedData.ThesisOffers);
+                context.SaveChanges();
+                Console.WriteLine($"Thesis offers seeded successfully: {seedData.ThesisOffers.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding thesis offers: {ex.Message}");
+                throw;
+            }
+
+            try
+            {
+                context.ThesisOfferApplications.AddRange(seedData.ThesisOfferApplications);
+                context.SaveChanges();
+                Console.WriteLine($"Thesis offer applications seeded successfully: {seedData.ThesisOfferApplications.Count} items.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding thesis offer applications: {ex.Message}");
+                throw;
+            }
+
+            Console.WriteLine("All seeding completed successfully!");
+        }
     }
 
     public List<SubjectAreaDataAccessModel> TopicForSeeding()
@@ -401,5 +640,60 @@ public class Seeder
 
     }
     
-    
+    public static void SeedDatabase(ThesisDbContext context, SeedData seedData)
+    {
+        // Ensure database is created
+        context.Database.EnsureCreated();
+
+        // Seed in correct order to avoid FK violations
+        context.Roles.AddRange(seedData.Roles);
+        context.SaveChanges();
+
+        context.BillingStatuses.AddRange(seedData.BillingStatuses);
+        context.SaveChanges();
+
+        context.ThesisStatuses.AddRange(seedData.ThesisStatuses);
+        context.SaveChanges();
+
+        context.RequestTypes.AddRange(seedData.RequestTypes);
+        context.SaveChanges();
+
+        context.RequestStatuses.AddRange(seedData.RequestStatuses);
+        context.SaveChanges();
+
+        context.ThesisOfferStatuses.AddRange(seedData.ThesisOfferStatuses);
+        context.SaveChanges();
+
+        context.SubjectAreas.AddRange(seedData.Topics);
+        context.SaveChanges();
+
+        context.Users.AddRange(seedData.Users);
+        context.SaveChanges();
+
+        context.UserRoles.AddRange(seedData.UserRoles);
+        context.SaveChanges();
+
+        context.UserToSubjectAreas.AddRange(seedData.UserTopics);
+        context.SaveChanges();
+
+        context.Theses.AddRange(seedData.Theses);
+        context.SaveChanges();
+
+        context.ThesisDocuments.AddRange(seedData.ThesisDocuments);
+        context.SaveChanges();
+
+        context.ThesisRequests.AddRange(seedData.ThesisRequests);
+        context.SaveChanges();
+
+        context.ThesisOffers.AddRange(seedData.ThesisOffers);
+        context.SaveChanges();
+
+        context.ThesisOfferApplications.AddRange(seedData.ThesisOfferApplications);
+        context.SaveChanges();
+
+        Console.WriteLine("Database seeded successfully!");
+    }
 }
+
+
+
