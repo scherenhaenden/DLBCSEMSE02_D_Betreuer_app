@@ -26,7 +26,7 @@ namespace ApiProject.BusinessLogic.Services
             var requester = await _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).SingleAsync(u => u.Id == requesterId);
             var receiver = await _context.Users
                 .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
-                .Include(u => u.UserTopics) // Include topics to validate expertise
+                .Include(u => u.UserToSubjectAreas) // Include topics to validate expertise
                 .SingleAsync(u => u.Id == receiverId);
 
             var requestTypeEntity = await _context.RequestTypes.SingleOrDefaultAsync(rt => rt.Name == requestType.ToUpper());
@@ -37,7 +37,7 @@ namespace ApiProject.BusinessLogic.Services
                 throw new InvalidOperationException("The receiver of a request must be a TUTOR.");
 
             // Validate Topic Expertise (Constraint 2.3)
-            if (thesis.TopicId.HasValue && !receiver.UserTopics.Any(ut => ut.TopicId == thesis.TopicId.Value))
+            if (thesis.SubjectAreaId.HasValue && !receiver.UserToSubjectAreas.Any(ut => ut.UserToSubjectAreaId == thesis.SubjectAreaId.Value))
             {
                 throw new InvalidOperationException("The selected tutor does not cover the topic of this thesis.");
             }

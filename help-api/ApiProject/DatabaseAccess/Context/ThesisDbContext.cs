@@ -11,8 +11,8 @@ public class ThesisDbContext : DbContext
     public DbSet<RoleDataAccessModel> Roles { get; set; }
     public DbSet<UserRoleDataAccessModel> UserRoles { get; set; }
     public DbSet<ThesisDataAccessModel> Theses { get; set; }
-    public DbSet<TopicDataAccessModel> Topics { get; set; }
-    public DbSet<UserTopicDataAccessModel> UserTopics { get; set; }
+    public DbSet<SubjectAreaDataAccessModel> Topics { get; set; }
+    public DbSet<UserToSubjectAreas> UserTopics { get; set; }
     public DbSet<ThesisStatusDataAccessModel> ThesisStatuses { get; set; }
     public DbSet<BillingStatusDataAccessModel> BillingStatuses { get; set; }
     public DbSet<ThesisDocumentDataAccessModel> ThesisDocuments { get; set; }
@@ -26,7 +26,7 @@ public class ThesisDbContext : DbContext
 
         // --- Composite Keys ---
         modelBuilder.Entity<UserRoleDataAccessModel>().HasKey(ur => new { ur.UserId, ur.RoleId });
-        modelBuilder.Entity<UserTopicDataAccessModel>().HasKey(ut => new { ut.UserId, ut.TopicId });
+        modelBuilder.Entity<UserToSubjectAreas>().HasKey(ut => new { ut.UserId, TopicId = ut.UserToSubjectAreaId });
 
         // --- Relationships ---
         modelBuilder.Entity<UserRoleDataAccessModel>()
@@ -39,15 +39,15 @@ public class ThesisDbContext : DbContext
             .WithMany(r => r.UserRoles)
             .HasForeignKey(ur => ur.RoleId);
 
-        modelBuilder.Entity<UserTopicDataAccessModel>()
+        modelBuilder.Entity<UserToSubjectAreas>()
             .HasOne(ut => ut.User)
-            .WithMany(u => u.UserTopics)
+            .WithMany(u => u.UserToSubjectAreas)
             .HasForeignKey(ut => ut.UserId);
 
-        modelBuilder.Entity<UserTopicDataAccessModel>()
-            .HasOne(ut => ut.Topic)
-            .WithMany(t => t.UserTopics)
-            .HasForeignKey(ut => ut.TopicId);
+        modelBuilder.Entity<UserToSubjectAreas>()
+            .HasOne(ut => ut.SubjectArea)
+            .WithMany(t => t.UserToSubjectAreas)
+            .HasForeignKey(ut => ut.UserToSubjectAreaId);
 
         modelBuilder.Entity<ThesisDataAccessModel>()
             .HasOne(t => t.Owner)

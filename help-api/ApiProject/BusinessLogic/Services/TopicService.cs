@@ -21,7 +21,7 @@ namespace ApiProject.BusinessLogic.Services
         public async Task<PaginatedResultBusinessLogicModel<TopicBusinessLogicModel>> GetAllAsync(int page, int pageSize)
         {
             var query = _context.Topics
-                .Include(t => t.UserTopics);
+                .Include(t => t.UserToSubjectAreas);
 
             var totalCount = await query.CountAsync();
             var items = await query
@@ -41,7 +41,7 @@ namespace ApiProject.BusinessLogic.Services
         public async Task<TopicBusinessLogicModel?> GetByIdAsync(Guid id)
         {
             var topic = await _context.Topics
-                .Include(t => t.UserTopics)
+                .Include(t => t.UserToSubjectAreas)
                 .SingleOrDefaultAsync(t => t.Id == id);
 
             return TopicBusinessLogicMapper.ToBusinessModel(topic);
@@ -50,7 +50,7 @@ namespace ApiProject.BusinessLogic.Services
         public async Task<PaginatedResultBusinessLogicModel<TopicBusinessLogicModel>> SearchAsync(string searchTerm, int page, int pageSize)
         {
             var query = _context.Topics
-                .Include(t => t.UserTopics)
+                .Include(t => t.UserToSubjectAreas)
                 .Where(t => t.Title.Contains(searchTerm) );
 
             var totalCount = await query.CountAsync();
@@ -78,7 +78,7 @@ namespace ApiProject.BusinessLogic.Services
                 }
             }
 
-            var topic = new TopicDataAccessModel
+            var topic = new SubjectAreaDataAccessModel
             {
                 Title = request.Title.Trim(),
                 Description = request.Description.Trim(),
@@ -87,7 +87,7 @@ namespace ApiProject.BusinessLogic.Services
 
             foreach (var tutorId in request.TutorIds)
             {
-                topic.UserTopics.Add(new UserTopicDataAccessModel { Topic = topic, UserId = tutorId });
+                topic.UserToSubjectAreas.Add(new UserToSubjectAreas { SubjectArea = topic, UserId = tutorId });
             }
 
             _context.Topics.Add(topic);
@@ -100,7 +100,7 @@ namespace ApiProject.BusinessLogic.Services
         public async Task<TopicBusinessLogicModel> UpdateTopicAsync(Guid id, TopicUpdateRequestBusinessLogicModel request)
         {
             var topic = await _context.Topics
-                .Include(t => t.UserTopics)
+                .Include(t => t.UserToSubjectAreas)
                 .SingleOrDefaultAsync(t => t.Id == id);
 
             if (topic == null)
@@ -122,10 +122,10 @@ namespace ApiProject.BusinessLogic.Services
                     }
                 }
                 
-                topic.UserTopics.Clear();
+                topic.UserToSubjectAreas.Clear();
                 foreach (var tutorId in request.TutorIds)
                 {
-                    topic.UserTopics.Add(new UserTopicDataAccessModel { TopicId = topic.Id, UserId = tutorId });
+                    topic.UserToSubjectAreas.Add(new UserToSubjectAreas { UserToSubjectAreaId = topic.Id, UserId = tutorId });
                 }
             }
 

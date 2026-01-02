@@ -117,7 +117,7 @@ public class ThesisDbContextTests
     [Test]
     public void CanAddTopic()
     {
-        var topic = new TopicDataAccessModel
+        var topic = new SubjectAreaDataAccessModel
         {
             Id = Guid.NewGuid(),
             Title = "Test Topic",

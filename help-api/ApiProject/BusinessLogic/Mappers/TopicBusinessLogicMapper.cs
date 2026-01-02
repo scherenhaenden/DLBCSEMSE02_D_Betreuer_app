@@ -5,7 +5,7 @@ namespace ApiProject.BusinessLogic.Mappers;
 
 public static class TopicBusinessLogicMapper
 {
-    public static TopicBusinessLogicModel ToBusinessModel(TopicDataAccessModel dataAccessModel)
+    public static TopicBusinessLogicModel ToBusinessModel(SubjectAreaDataAccessModel dataAccessModel)
     {
         if (dataAccessModel == null)
         {
@@ -18,7 +18,7 @@ public static class TopicBusinessLogicMapper
             Title = dataAccessModel.Title,
             Description = dataAccessModel.Description,
             IsActive = dataAccessModel.IsActive,
-            TutorIds = dataAccessModel.UserTopics.Select(ut => ut.UserId).ToList()
+            TutorIds = dataAccessModel.UserToSubjectAreas.Select(ut => ut.UserId).ToList()
         };
     }
 }
