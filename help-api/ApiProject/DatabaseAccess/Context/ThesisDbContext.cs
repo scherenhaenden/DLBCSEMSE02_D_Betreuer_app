@@ -19,6 +19,9 @@ public class ThesisDbContext : DbContext
     public DbSet<ThesisRequestDataAccessModel> ThesisRequests { get; set; }
     public DbSet<RequestTypeDataAccessModel> RequestTypes { get; set; }
     public DbSet<RequestStatusDataAccessModel> RequestStatuses { get; set; }
+    public DbSet<ThesisOfferDataAccessModel> ThesisOffers { get; set; }
+    public DbSet<ThesisOfferStatusDataAccessModel> ThesisOfferStatuses { get; set; }
+    public DbSet<ThesisOfferApplicationDataAccessModel> ThesisOfferApplications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,6 +87,30 @@ public class ThesisDbContext : DbContext
             .HasForeignKey(tr => tr.ThesisId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<ThesisOfferDataAccessModel>()
+            .HasOne(to => to.SubjectArea)
+            .WithMany()
+            .HasForeignKey(to => to.SubjectAreaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ThesisOfferDataAccessModel>()
+            .HasOne(to => to.Tutor)
+            .WithMany()
+            .HasForeignKey(to => to.TutorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ThesisOfferDataAccessModel>()
+            .HasOne(to => to.ThesisOfferStatus)
+            .WithMany(tos => tos.ThesisOffers)
+            .HasForeignKey(to => to.ThesisOfferStatusId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ThesisOfferDataAccessModel>()
+            .HasMany(to => to.Applications)
+            .WithOne(toa => toa.ThesisOffer)
+            .HasForeignKey(toa => toa.ThesisOfferId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // --- Seed Data ---
         modelBuilder.Entity<RoleDataAccessModel>().HasData(
             new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "STUDENT", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
@@ -113,6 +140,12 @@ public class ThesisDbContext : DbContext
             new RequestStatusDataAccessModel { Id = Guid.NewGuid(), Name = "PENDING", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
             new RequestStatusDataAccessModel { Id = Guid.NewGuid(), Name = "ACCEPTED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
             new RequestStatusDataAccessModel { Id = Guid.NewGuid(), Name = "REJECTED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+        );
+
+        modelBuilder.Entity<ThesisOfferStatusDataAccessModel>().HasData(
+            new ThesisOfferStatusDataAccessModel { Id = Guid.NewGuid(), Name = "OPEN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new ThesisOfferStatusDataAccessModel { Id = Guid.NewGuid(), Name = "CLOSED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new ThesisOfferStatusDataAccessModel { Id = Guid.NewGuid(), Name = "ARCHIVED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
         );
     }
 }

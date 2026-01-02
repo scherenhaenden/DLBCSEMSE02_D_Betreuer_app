@@ -4,5 +4,5 @@ namespace ApiProject.BusinessLogic.Services;
 
 public interface IThesisOfferBusinessLogicService
 {
-    Task<PaginatedResultBusinessLogicModel<SubjectAreaBusinessLogicModel>> GetAllAsync(int page, int pageSize);
+    Task<PaginatedResultBusinessLogicModel<ThesisOfferBusinessLogicModel>> GetAllAsync(int page, int pageSize);
 }

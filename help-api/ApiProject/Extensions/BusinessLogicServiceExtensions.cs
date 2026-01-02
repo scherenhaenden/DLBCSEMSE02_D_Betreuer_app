@@ -10,6 +10,7 @@ namespace ApiProject.Extensions
             services.AddScoped<IThesisService, ThesisService>();
             services.AddScoped<ISubjectAreaBusinessLogicService, SubjectAreaBusinessLogicService>();
             services.AddScoped<IThesisRequestService, ThesisRequestService>();
+            services.AddScoped<IThesisOfferBusinessLogicService, ThesisOfferBusinessLogicService>();
         }
     }
 }
