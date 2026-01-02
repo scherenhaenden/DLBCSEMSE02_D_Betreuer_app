@@ -102,4 +102,13 @@ public class TestDataSeeder
         _context.SaveChanges();
         return thesis;
     }
+
+    public void SeedUserToSubjectArea(Guid userId, Guid subjectAreaId)
+    {
+        if (!_context.UserToSubjectAreas.Any(ut => ut.UserId == userId && ut.SubjectAreaId == subjectAreaId))
+        {
+            _context.UserToSubjectAreas.Add(new UserToSubjectAreas { UserId = userId, SubjectAreaId = subjectAreaId });
+            _context.SaveChanges();
+        }
+    }
 }

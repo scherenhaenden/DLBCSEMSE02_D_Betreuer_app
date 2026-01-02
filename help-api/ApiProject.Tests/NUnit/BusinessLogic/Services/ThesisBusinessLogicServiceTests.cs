@@ -3,6 +3,8 @@ using ApiProject.DatabaseAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using ApiProject.BusinessLogic.Models;
+using ApiProject.Constants;
+using ApiProject.DatabaseAccess.Entities;
 
 namespace ApiProject.Tests.NUnit.BusinessLogic.Services;
 
@@ -28,6 +30,7 @@ public class ThesisBusinessLogicServiceTests
         _seeder.SeedBillingStatuses();
         _seeder.SeedThesisStatuses();
         _seeder.SeedSubjectAreas();
+        _context.SaveChanges();
 
         _userService = new UserBusinessLogicService(_context);
         _thesisService = new ThesisBusinessLogicService(_context, _userService);
@@ -44,8 +47,8 @@ public class ThesisBusinessLogicServiceTests
     public async Task CanGetAllTheses()
     {
         // Arrange
-        var student = _seeder.SeedUser("John", "Doe", "john@example.com", "password", "STUDENT");
-        var tutor = _seeder.SeedUser("Jane", "Smith", "jane@example.com", "password", "TUTOR");
+        var student = _seeder.SeedUser("John", "Doe", "john@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Jane", "Smith", "jane@example.com", "password", Roles.Tutor);
         var subjectArea = _context.SubjectAreas.First();
         var status = _context.ThesisStatuses.First();
         var billingStatus = _context.BillingStatuses.First();
@@ -54,7 +57,7 @@ public class ThesisBusinessLogicServiceTests
         var thesis2 = _seeder.SeedThesis("Thesis 2", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
 
         // Act
-        var result = await _thesisService.GetAllAsync(1, 10, student.Id, new List<string> { "STUDENT" });
+        var result = await _thesisService.GetAllAsync(1, 10, student.Id, new List<string> { Roles.Student });
 
         // Assert
         Assert.That(result.Items.Count, Is.EqualTo(2));
@@ -66,7 +69,7 @@ public class ThesisBusinessLogicServiceTests
     public async Task CanGetThesisById()
     {
         // Arrange
-        var student = _seeder.SeedUser("Alice", "Wonder", "alice@example.com", "password", "STUDENT");
+        var student = _seeder.SeedUser("Alice", "Wonder", "alice@example.com", "password", Roles.Student);
         var subjectArea = _context.SubjectAreas.First();
         var status = _context.ThesisStatuses.First();
         var billingStatus = _context.BillingStatuses.First();
@@ -86,9 +89,12 @@ public class ThesisBusinessLogicServiceTests
     public async Task CanCreateThesis()
     {
         // Arrange
-        var student = _seeder.SeedUser("Bob", "Builder", "bob@example.com", "password", "STUDENT");
-        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", "TUTOR");
+        var student = _seeder.SeedUser("Bob", "Builder", "bob@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
         var subjectArea = _context.SubjectAreas.First();
+
+        // Assign tutor to subject area
+        _seeder.SeedUserToSubjectArea(tutor.Id, subjectArea.Id);
 
         var request = new ThesisCreateRequestBusinessLogicModel
         {
@@ -107,13 +113,17 @@ public class ThesisBusinessLogicServiceTests
         Assert.That(createdThesis.Title, Is.EqualTo("New Thesis"));
         Assert.That(createdThesis.OwnerId, Is.EqualTo(student.Id));
         Assert.That(createdThesis.TutorId, Is.EqualTo(tutor.Id));
+
+        // Ensure no document is created
+        var documents = _context.ThesisDocuments.Where(d => d.ThesisId == createdThesis.Id).ToList();
+        Assert.That(documents.Count, Is.EqualTo(0));
     }
 
     [Test]
     public async Task CanUpdateThesis()
     {
         // Arrange
-        var student = _seeder.SeedUser("Charlie", "Brown", "charlie@example.com", "password", "STUDENT");
+        var student = _seeder.SeedUser("Charlie", "Brown", "charlie@example.com", "password", Roles.Student);
         var subjectArea = _context.SubjectAreas.First();
         var status = _context.ThesisStatuses.First();
         var billingStatus = _context.BillingStatuses.First();
@@ -136,7 +146,7 @@ public class ThesisBusinessLogicServiceTests
     public async Task CanDeleteThesis()
     {
         // Arrange
-        var student = _seeder.SeedUser("Dave", "Jones", "dave@example.com", "password", "STUDENT");
+        var student = _seeder.SeedUser("Dave", "Jones", "dave@example.com", "password", Roles.Student);
         var subjectArea = _context.SubjectAreas.First();
         var status = _context.ThesisStatuses.First();
         var billingStatus = _context.BillingStatuses.First();
@@ -150,5 +160,54 @@ public class ThesisBusinessLogicServiceTests
         Assert.That(deleted, Is.True);
         var retrieved = await _thesisService.GetByIdAsync(thesis.Id);
         Assert.That(retrieved, Is.Null);
+    }
+
+    [Test]
+    public async Task CanCreateThesisWithDocument()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Eve", "Builder", "eve@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "Two", "tutor2@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+
+        // Assign tutor to subject area
+        _seeder.SeedUserToSubjectArea(tutor.Id, subjectArea.Id);
+
+        var request = new ThesisCreateRequestBusinessLogicModel
+        {
+            Title = "New Thesis with Document",
+            SubjectArea = subjectArea.Title,
+            OwnerId = student.Id,
+            TutorId = tutor.Id,
+            SubjectAreaId = subjectArea.Id
+        };
+
+        // Act
+        var createdThesis = await _thesisService.CreateThesisAsync(request);
+
+        // Add a document manually for testing
+        var document = new ThesisDocumentDataAccessModel
+        {
+            Id = Guid.NewGuid(),
+            ThesisId = createdThesis.Id,
+            FileName = "thesis.pdf",
+            ContentType = "application/pdf",
+            Content = System.Text.Encoding.UTF8.GetBytes("Sample thesis content"),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        _context.ThesisDocuments.Add(document);
+        await _context.SaveChangesAsync();
+
+        // Assert
+        Assert.That(createdThesis, Is.Not.Null);
+        Assert.That(createdThesis.Title, Is.EqualTo("New Thesis with Document"));
+        Assert.That(createdThesis.OwnerId, Is.EqualTo(student.Id));
+        Assert.That(createdThesis.TutorId, Is.EqualTo(tutor.Id));
+
+        // Ensure a document is created
+        var documents = _context.ThesisDocuments.Where(d => d.ThesisId == createdThesis.Id).ToList();
+        Assert.That(documents.Count, Is.EqualTo(1));
+        Assert.That(documents.First().FileName, Is.EqualTo("thesis.pdf"));
     }
 }

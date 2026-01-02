@@ -6,6 +6,7 @@ using Bogus;
 using System.Linq.Expressions;
 using BCrypt.Net;
 using System.Text;
+using ApiProject.Constants;
 
 namespace ApiProject.Tests.CreateSeed;
 
@@ -28,7 +29,7 @@ public class Seeder
         ICreateSeedOfObject createSeedOfObject = new CreateSeedOfObject();
         
         // --- 1. Roles ---
-        var roleNames = new[] { "STUDENT", "TUTOR", "ADMIN" };
+        var roleNames = new[] { Roles.Student, Roles.Tutor, Roles.Admin };
         var rolesToSeed = new List<RoleDataAccessModel>();
         foreach (var roleName in roleNames)
         {
@@ -41,7 +42,7 @@ public class Seeder
         }
 
         // --- 2. Billing Statuses ---
-        var billingStatusNames = new[] { "NONE", "ISSUED", "PAID" };
+        var billingStatusNames = new[] { BillingStatuses.None, BillingStatuses.Issued, BillingStatuses.Paid };
         var billingStatusesToSeed = new List<BillingStatusDataAccessModel>();
         foreach (var statusName in billingStatusNames)
         {
@@ -54,7 +55,7 @@ public class Seeder
         }
 
         // --- 3. Thesis Statuses ---
-        var thesisStatusNames = new[] { "IN_DISCUSSION", "REGISTERED", "SUBMITTED", "DEFENDED" };
+        var thesisStatusNames = new[] { ThesisStatuses.InDiscussion, ThesisStatuses.Registered, ThesisStatuses.Submitted, ThesisStatuses.Defended };
         var thesisStatusesToSeed = new List<ThesisStatusDataAccessModel>();
         foreach (var statusName in thesisStatusNames)
         {
@@ -69,14 +70,14 @@ public class Seeder
         // --- 4. Request Types & Statuses ---
         var requestTypesToSeed = new List<RequestTypeDataAccessModel>
         {
-            new() { Id = Guid.NewGuid(), Name = "SUPERVISION", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Name = "CO_SUPERVISION", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            new() { Id = Guid.NewGuid(), Name = RequestTypes.Supervision, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = RequestTypes.CoSupervision, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
         };
         var requestStatusesToSeed = new List<RequestStatusDataAccessModel>
         {
-            new() { Id = Guid.NewGuid(), Name = "PENDING", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Name = "ACCEPTED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Name = "REJECTED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            new() { Id = Guid.NewGuid(), Name = RequestStatuses.Pending, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = RequestStatuses.Accepted, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = RequestStatuses.Rejected, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
         };
 
         // --- 5. Topics ---
@@ -139,7 +140,7 @@ public class Seeder
         }
         
         // --- 8. Tutors & Topics Assignment ---
-        var tutorRole = rolesToSeed.First(r => r.Name == "TUTOR");
+        var tutorRole = rolesToSeed.First(r => r.Name == Roles.Tutor);
         var tutorUserIds = userRolesToSeed.Where(ur => ur.RoleId == tutorRole.Id).Select(ur => ur.UserId);
         
         var tutors = users.Where(u => tutorUserIds.Contains(u.Id)).ToList();
@@ -173,7 +174,7 @@ public class Seeder
             .ToList();
         
         // --- 9. Theses & Requests Generation ---
-        var studentRole = rolesToSeed.First(r => r.Name == "STUDENT");
+        var studentRole = rolesToSeed.First(r => r.Name == Roles.Student);
         var studentUserIds = userRolesToSeed.Where(ur => ur.RoleId == studentRole.Id).Select(ur => ur.UserId);
         var students = users.Where(u => studentUserIds.Contains(u.Id)).ToList();
         
@@ -213,7 +214,7 @@ public class Seeder
         {
             var thesis = thesisFaker.Generate();
             thesis.OwnerId = faker.PickRandom(students).Id;
-            thesis.StatusId = faker.PickRandom(thesisStatusesToSeed.Where(s => s.Name != "IN_DISCUSSION")).Id;
+            thesis.StatusId = faker.PickRandom(thesisStatusesToSeed.Where(s => s.Name != ThesisStatuses.InDiscussion)).Id;
             
             var topic = faker.PickRandom(topicsToSeed);
             thesis.SubjectAreaId = topic.Id;
@@ -239,8 +240,8 @@ public class Seeder
             req.RequesterId = thesis.OwnerId;
             req.ReceiverId = thesis.TutorId.Value;
             req.ThesisId = thesis.Id;
-            req.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == "SUPERVISION").Id;
-            req.StatusId = requestStatusesToSeed.First(rs => rs.Name == "ACCEPTED").Id;
+            req.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == RequestTypes.Supervision).Id;
+            req.StatusId = requestStatusesToSeed.First(rs => rs.Name == RequestStatuses.Accepted).Id;
             thesisRequestsToSeed.Add(req);
 
             if (thesis.SecondSupervisorId.HasValue)
@@ -249,8 +250,8 @@ public class Seeder
                 coReq.RequesterId = thesis.TutorId.Value;
                 coReq.ReceiverId = thesis.SecondSupervisorId.Value;
                 coReq.ThesisId = thesis.Id;
-                coReq.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == "CO_SUPERVISION").Id;
-                coReq.StatusId = requestStatusesToSeed.First(rs => rs.Name == "ACCEPTED").Id;
+                coReq.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == RequestTypes.CoSupervision).Id;
+                coReq.StatusId = requestStatusesToSeed.First(rs => rs.Name == RequestStatuses.Accepted).Id;
                 thesisRequestsToSeed.Add(coReq);
             }
         }
@@ -260,7 +261,7 @@ public class Seeder
         {
             var thesis = thesisFaker.Generate();
             thesis.OwnerId = faker.PickRandom(students).Id;
-            thesis.StatusId = thesisStatusesToSeed.First(s => s.Name == "IN_DISCUSSION").Id;
+            thesis.StatusId = thesisStatusesToSeed.First(s => s.Name == ThesisStatuses.InDiscussion).Id;
             thesis.TutorId = null; // CORRECTED: TutorId is null until request is accepted
             
             var topic = faker.PickRandom(topicsToSeed);
@@ -275,8 +276,8 @@ public class Seeder
             req.RequesterId = thesis.OwnerId;
             req.ReceiverId = proposedTutor.Id;
             req.ThesisId = thesis.Id;
-            req.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == "SUPERVISION").Id;
-            req.StatusId = requestStatusesToSeed.First(rs => rs.Name == "PENDING").Id;
+            req.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == RequestTypes.Supervision).Id;
+            req.StatusId = requestStatusesToSeed.First(rs => rs.Name == RequestStatuses.Pending).Id;
             req.Message = "Dear Professor, I would like to write my thesis about " + topic.Title;
             thesisRequestsToSeed.Add(req);
 
@@ -290,8 +291,8 @@ public class Seeder
                     rejectedReq.RequesterId = thesis.OwnerId;
                     rejectedReq.ReceiverId = rejectedTutor.Id;
                     rejectedReq.ThesisId = thesis.Id;
-                    rejectedReq.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == "SUPERVISION").Id;
-                    rejectedReq.StatusId = requestStatusesToSeed.First(rs => rs.Name == "REJECTED").Id;
+                    rejectedReq.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == RequestTypes.Supervision).Id;
+                    rejectedReq.StatusId = requestStatusesToSeed.First(rs => rs.Name == RequestStatuses.Rejected).Id;
                     rejectedReq.Message = "I am interested in your topic.";
                     rejectedReq.CreatedAt = DateTime.Now.AddMonths(-1);
                     thesisRequestsToSeed.Add(rejectedReq);
@@ -302,12 +303,12 @@ public class Seeder
         // --- X. Thesis Offer Statuses ---
         var thesisOfferStatusesToSeed = new List<ThesisOfferStatusDataAccessModel>
         {
-            new() { Id = Guid.NewGuid(), Name = "OPEN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Name = "CLOSED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Name = "ARCHIVED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            new() { Id = Guid.NewGuid(), Name = ThesisOfferStatuses.Open, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = ThesisOfferStatuses.Closed, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = ThesisOfferStatuses.Archived, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
         };
         
-        var openOfferStatusId = thesisOfferStatusesToSeed.First(s => s.Name == "OPEN").Id;
+        var openOfferStatusId = thesisOfferStatusesToSeed.First(s => s.Name == ThesisOfferStatuses.Open).Id;
         var tutorsWithOffers = tutors
             .Where(_ => faker.Random.Bool(0.35f))
             .ToList();
@@ -361,7 +362,7 @@ public class Seeder
                     StudentId = student.Id,
                     RequestStatusId = faker.PickRandom(
                         requestStatusesToSeed.Where(rs =>
-                            rs.Name == "PENDING" || rs.Name == "REJECTED"
+                            rs.Name == RequestStatuses.Pending || rs.Name == RequestStatuses.Rejected
                         )).Id,
                     Message = faker.Lorem.Sentence(),
                     CreatedAt = DateTime.UtcNow.AddDays(-faker.Random.Int(1, 30)),

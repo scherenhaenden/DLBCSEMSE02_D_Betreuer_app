@@ -1,4 +1,5 @@
 using ApiProject.BusinessLogic.Services;
+using ApiProject.Constants;
 using ApiProject.DatabaseAccess.Context;
 using ApiProject.DatabaseAccess.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -45,8 +46,8 @@ public class UserBusinessLogicServiceTests
     public async Task CanGetAllUsers()
     {
         // Arrange
-        var user1 = await _userService.CreateUserAsync("John", "Doe", "john@example.com", "password123", new[] { "STUDENT" });
-        var user2 = await _userService.CreateUserAsync("Jane", "Smith", "jane@example.com", "password456", new[] { "TUTOR" });
+        var user1 = await _userService.CreateUserAsync("John", "Doe", "john@example.com", "password123", new[] { Roles.Student });
+        var user2 = await _userService.CreateUserAsync("Jane", "Smith", "jane@example.com", "password456", new[] { Roles.Tutor });
 
         // Act
         var result = await _userService.GetAllAsync(1, 10);
@@ -66,7 +67,7 @@ public class UserBusinessLogicServiceTests
     public async Task CanGetUserById()
     {
         // Arrange
-        var createdUser = await _userService.CreateUserAsync("Alice", "Wonder", "alice@example.com", "password", new[] { "STUDENT" });
+        var createdUser = await _userService.CreateUserAsync("Alice", "Wonder", "alice@example.com", "password", new[] { Roles.Student });
 
         // Act
         var retrievedUser = await _userService.GetByIdAsync(createdUser.Id);
@@ -86,7 +87,7 @@ public class UserBusinessLogicServiceTests
     public async Task CanGetUserByEmail()
     {
         // Arrange
-        await _userService.CreateUserAsync("Bob", "Builder", "bob@example.com", "password", new[] { "TUTOR" });
+        await _userService.CreateUserAsync("Bob", "Builder", "bob@example.com", "password", new[] { Roles.Tutor });
 
         // Act
         var retrievedUser = await _userService.GetByEmailAsync("bob@example.com");
@@ -105,14 +106,14 @@ public class UserBusinessLogicServiceTests
     public async Task CanCreateUser()
     {
         // Act
-        var createdUser = await _userService.CreateUserAsync("Charlie", "Brown", "charlie@example.com", "password", new[] { "STUDENT", "TUTOR" });
+        var createdUser = await _userService.CreateUserAsync("Charlie", "Brown", "charlie@example.com", "password", new[] { Roles.Student, Roles.Tutor });
 
         // Assert
         Assert.That(createdUser, Is.Not.Null);
         Assert.That(createdUser.Email, Is.EqualTo("charlie@example.com"));
         Assert.That(createdUser.Roles.Count, Is.EqualTo(2));
-        Assert.That(createdUser.Roles.Contains("STUDENT"), Is.True);
-        Assert.That(createdUser.Roles.Contains("TUTOR"), Is.True);
+        Assert.That(createdUser.Roles.Contains(Roles.Student), Is.True);
+        Assert.That(createdUser.Roles.Contains(Roles.Tutor), Is.True);
     }
 
     /// <summary>
@@ -124,11 +125,11 @@ public class UserBusinessLogicServiceTests
     public async Task CreateUser_FailsIfEmailExists()
     {
         // Arrange
-        await _userService.CreateUserAsync("Dave", "Jones", "dave@example.com", "password", new[] { "STUDENT" });
+        await _userService.CreateUserAsync("Dave", "Jones", "dave@example.com", "password", new[] { Roles.Student });
 
         // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _userService.CreateUserAsync("Dave2", "Jones2", "dave@example.com", "password2", new[] { "TUTOR" }));
+            await _userService.CreateUserAsync("Dave2", "Jones2", "dave@example.com", "password2", new[] { Roles.Tutor }));
     }
 
     /// <summary>
@@ -140,7 +141,7 @@ public class UserBusinessLogicServiceTests
     public async Task CanVerifyPassword()
     {
         // Arrange
-        await _userService.CreateUserAsync("Eve", "Adams", "eve@example.com", "secret123", new[] { "ADMIN" });
+        await _userService.CreateUserAsync("Eve", "Adams", "eve@example.com", "secret123", new[] { Roles.Admin });
 
         // Act
         var isValid = await _userService.VerifyPasswordAsync("eve@example.com", "secret123");
@@ -182,14 +183,14 @@ public class UserBusinessLogicServiceTests
     public async Task GetAllUsers_WithFilters()
     {
         // Arrange
-        await _userService.CreateUserAsync("Grace", "Hopper", "grace@example.com", "password", new[] { "TUTOR" });
-        await _userService.CreateUserAsync("Hank", "Hill", "hank@example.com", "password", new[] { "STUDENT" });
-        await _userService.CreateUserAsync("Ian", "Admin", "ian@example.com", "password", new[] { "ADMIN" });
+        await _userService.CreateUserAsync("Grace", "Hopper", "grace@example.com", "password", new[] { Roles.Tutor });
+        await _userService.CreateUserAsync("Hank", "Hill", "hank@example.com", "password", new[] { Roles.Student });
+        await _userService.CreateUserAsync("Ian", "Admin", "ian@example.com", "password", new[] { Roles.Admin });
 
         // Act
-        var tutors = await _userService.GetAllAsync(1, 10, role: "TUTOR");
-        var students = await _userService.GetAllAsync(1, 10, role: "STUDENT");
-        var admins = await _userService.GetAllAsync(1, 10, role: "ADMIN");
+        var tutors = await _userService.GetAllAsync(1, 10, role: Roles.Tutor);
+        var students = await _userService.GetAllAsync(1, 10, role: Roles.Student);
+        var admins = await _userService.GetAllAsync(1, 10, role: Roles.Admin);
 
         // Assert
         Assert.That(tutors.Items.Count, Is.EqualTo(1));
@@ -209,9 +210,9 @@ public class UserBusinessLogicServiceTests
     public async Task CanGetTutors()
     {
         // Arrange
-        var tutor1 = await _userService.CreateUserAsync("Tutor1", "One", "tutor1@example.com", "password", new[] { "TUTOR" });
-        var tutor2 = await _userService.CreateUserAsync("Tutor2", "Two", "tutor2@example.com", "password", new[] { "TUTOR" });
-        await _userService.CreateUserAsync("Student1", "One", "student1@example.com", "password", new[] { "STUDENT" });
+        var tutor1 = await _userService.CreateUserAsync("Tutor1", "One", "tutor1@example.com", "password", new[] { Roles.Tutor });
+        var tutor2 = await _userService.CreateUserAsync("Tutor2", "Two", "tutor2@example.com", "password", new[] { Roles.Tutor });
+        await _userService.CreateUserAsync("Student1", "One", "student1@example.com", "password", new[] { Roles.Student });
 
         // Act
         var tutors = await _userService.GetTutorsAsync(null, null, null, 1, 10);
@@ -231,7 +232,7 @@ public class UserBusinessLogicServiceTests
     public async Task CanGetTutorById()
     {
         // Arrange
-        var tutor = await _userService.CreateUserAsync("Tutor", "Test", "tutor@example.com", "password", new[] { "TUTOR" });
+        var tutor = await _userService.CreateUserAsync("Tutor", "Test", "tutor@example.com", "password", new[] { Roles.Tutor });
 
         // Act
         var retrievedTutor = await _userService.GetTutorByIdAsync(tutor.Id);
