@@ -7,8 +7,8 @@ start
 :Login to the system;
 :Search for subject areas by name (e.g., "Design");
 :Receives a list of subject areas;
-:Selects a subject areas;
-:Searches for tutors covering the selected subject areas;
+:Selects a subject area;
+:Searches for tutors covering the selected subject area;
 :Receives a list of tutors;
 :Selects a tutor and views their profile;
 :Contacts tutor and agrees on a thesis;
