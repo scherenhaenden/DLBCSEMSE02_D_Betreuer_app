@@ -12,6 +12,6 @@ namespace ApiProject.DatabaseAccess.Entities
 
         public ICollection<UserRoleDataAccessModel> UserRoles { get; set; } = new List<UserRoleDataAccessModel>();
 
-        public ICollection<UserTopicDataAccessModel> UserTopics { get; set; } = new List<UserTopicDataAccessModel>();
+        public ICollection<UserToSubjectAreas> UserToSubjectAreas { get; set; } = new List<UserToSubjectAreas>();
     }
 }

@@ -56,7 +56,7 @@ namespace ApiProject.ApiLogic.Controllers
             {
                 Title = request.Title,
                 OwnerId = ownerId,
-                TopicId = request.TopicId
+                SubjectAreaId = request.SubjectAreaId
             });
 
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, _thesisApiMapper.MapToResponse(created));
@@ -70,7 +70,7 @@ namespace ApiProject.ApiLogic.Controllers
                 var updated = await _thesisService.UpdateThesisAsync(id, new ThesisUpdateRequestBusinessLogicModel
                 {
                     Title = request.Title,
-                    TopicId = request.TopicId
+                    SubjectAreaId = request.SubjectAreaId
                 });
                 return Ok(_thesisApiMapper.MapToResponse(updated));
             }

@@ -4,12 +4,12 @@ using NUnit.Framework;
 namespace ApiProject.Tests.NUnit.DataAccess.Entities;
 
 [TestFixture]
-public class UserTopicDataAccessModelTests
+public class UserToSubjectAreasTests
 {
     [Test]
     public void CanCreateUserTopicDataAccessModel()
     {
-        var model = new UserTopicDataAccessModel();
+        var model = new UserToSubjectAreas();
         Assert.That(model, Is.Not.Null);
     }
 
@@ -17,7 +17,7 @@ public class UserTopicDataAccessModelTests
     public void CanSetUserId()
     {
         var userId = Guid.NewGuid();
-        var model = new UserTopicDataAccessModel { UserId = userId };
+        var model = new UserToSubjectAreas { UserId = userId };
         Assert.That(model.UserId, Is.EqualTo(userId));
     }
 
@@ -25,7 +25,7 @@ public class UserTopicDataAccessModelTests
     public void CanSetTopicId()
     {
         var topicId = Guid.NewGuid();
-        var model = new UserTopicDataAccessModel { TopicId = topicId };
-        Assert.That(model.TopicId, Is.EqualTo(topicId));
+        var model = new UserToSubjectAreas { UserToSubjectAreaId = topicId };
+        Assert.That(model.UserToSubjectAreaId, Is.EqualTo(topicId));
     }
 }

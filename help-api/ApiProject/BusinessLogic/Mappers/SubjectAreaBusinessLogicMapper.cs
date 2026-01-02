@@ -3,22 +3,22 @@ using ApiProject.DatabaseAccess.Entities;
 
 namespace ApiProject.BusinessLogic.Mappers;
 
-public static class TopicBusinessLogicMapper
+public static class SubjectAreaBusinessLogicMapper
 {
-    public static TopicBusinessLogicModel ToBusinessModel(TopicDataAccessModel dataAccessModel)
+    public static SubjectAreaBusinessLogicModel ToBusinessModel(SubjectAreaDataAccessModel dataAccessModel)
     {
         if (dataAccessModel == null)
         {
             return null;
         }
 
-        return new TopicBusinessLogicModel
+        return new SubjectAreaBusinessLogicModel
         {
             Id = dataAccessModel.Id,
             Title = dataAccessModel.Title,
             Description = dataAccessModel.Description,
             IsActive = dataAccessModel.IsActive,
-            TutorIds = dataAccessModel.UserTopics.Select(ut => ut.UserId).ToList()
+            TutorIds = dataAccessModel.UserToSubjectAreas.Select(ut => ut.UserId).ToList()
         };
     }
 }

@@ -147,23 +147,23 @@ namespace ApiProject.BusinessLogic.Services
             return user.UserRoles.Any(ur => ur.Role.Name == normalizedRole);
         }
 
-        public async Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? topicId, string? topicName, string? name, int page, int pageSize)
+        public async Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? subjectAreaId, string? subjectAreaName, string? name, int page, int pageSize)
         {
             var query = _context.Users
                 .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
-                .Include(u => u.UserTopics)
-                .ThenInclude(ut => ut.Topic)
+                .Include(u => u.UserToSubjectAreas)
+                .ThenInclude(ut => ut.SubjectArea)
                 .Where(u => u.UserRoles.Any(ur => ur.Role.Name == "TUTOR"));
 
-            if (topicId.HasValue)
+            if (subjectAreaId.HasValue)
             {
-                query = query.Where(u => u.UserTopics.Any(ut => ut.TopicId == topicId.Value));
+                query = query.Where(u => u.UserToSubjectAreas.Any(ut => ut.UserToSubjectAreaId == subjectAreaId.Value));
             }
 
-            if (!string.IsNullOrWhiteSpace(topicName))
+            if (!string.IsNullOrWhiteSpace(subjectAreaName))
             {
-                query = query.Where(u => u.UserTopics.Any(ut => ut.Topic.Title.ToLower().Contains(topicName.ToLower())));
+                query = query.Where(u => u.UserToSubjectAreas.Any(ut => ut.SubjectArea.Title.ToLower().Contains(subjectAreaName.ToLower())));
             }
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -183,11 +183,11 @@ namespace ApiProject.BusinessLogic.Services
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Email = u.Email,
-                Topics = u.UserTopics.Select(ut => new TopicResponse
+                SubjectAreas = u.UserToSubjectAreas.Select(ut => new SubjectAreaResponse
                 {
-                    Id = ut.Topic.Id,
-                    Title = ut.Topic.Title,
-                    Description = ut.Topic.Description
+                    Id = ut.SubjectArea.Id,
+                    Title = ut.SubjectArea.Title,
+                    Description = ut.SubjectArea.Description
                 }).ToList()
             }).ToList();
 
@@ -205,8 +205,8 @@ namespace ApiProject.BusinessLogic.Services
             var user = await _context.Users
                 .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
-                .Include(u => u.UserTopics)
-                .ThenInclude(ut => ut.Topic)
+                .Include(u => u.UserToSubjectAreas)
+                .ThenInclude(ut => ut.SubjectArea)
                 .Where(u => u.Id == id && u.UserRoles.Any(ur => ur.Role.Name == "TUTOR"))
                 .SingleOrDefaultAsync();
 
@@ -221,11 +221,11 @@ namespace ApiProject.BusinessLogic.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                Topics = user.UserTopics.Select(ut => new TopicResponse
+                SubjectAreas = user.UserToSubjectAreas.Select(ut => new SubjectAreaResponse
                 {
-                    Id = ut.Topic.Id,
-                    Title = ut.Topic.Title,
-                    Description = ut.Topic.Description
+                    Id = ut.SubjectArea.Id,
+                    Title = ut.SubjectArea.Title,
+                    Description = ut.SubjectArea.Description
                 }).ToList()
             };
         }

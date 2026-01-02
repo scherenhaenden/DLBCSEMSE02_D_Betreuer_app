@@ -8,6 +8,6 @@ namespace ApiProject.BusinessLogic.Models
         public string? BillingStatusName { get; set; }
         public Guid? TutorId { get; set; }
         public Guid? SecondSupervisorId { get; set; }
-        public Guid? TopicId { get; set; }
+        public Guid? SubjectAreaId { get; set; }
     }
 }

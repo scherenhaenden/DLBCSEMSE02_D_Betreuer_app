@@ -9,7 +9,7 @@ namespace ApiProject.BusinessLogic.Models
         public Guid OwnerId { get; set; }
         public Guid? TutorId { get; set; }
         public Guid? SecondSupervisorId { get; set; }
-        public Guid? TopicId { get; set; }
+        public Guid? SubjectAreaId { get; set; }
         public string? DocumentFileName { get; set; }
     }
 }
