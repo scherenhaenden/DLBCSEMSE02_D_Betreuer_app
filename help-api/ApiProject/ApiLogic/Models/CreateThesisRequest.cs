@@ -9,6 +9,6 @@ namespace ApiProject.ApiLogic.Models
         
         // OwnerId will be taken from the authenticated user's claims
 
-        public Guid? TopicId { get; set; }
+        public Guid? SubjectAreaId { get; set; }
     }
 }

@@ -147,7 +147,7 @@ namespace ApiProject.BusinessLogic.Services
             return user.UserRoles.Any(ur => ur.Role.Name == normalizedRole);
         }
 
-        public async Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? topicId, string? topicName, string? name, int page, int pageSize)
+        public async Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? subjectAreaId, string? subjectAreaName, string? name, int page, int pageSize)
         {
             var query = _context.Users
                 .Include(u => u.UserRoles)
@@ -156,14 +156,14 @@ namespace ApiProject.BusinessLogic.Services
                 .ThenInclude(ut => ut.SubjectArea)
                 .Where(u => u.UserRoles.Any(ur => ur.Role.Name == "TUTOR"));
 
-            if (topicId.HasValue)
+            if (subjectAreaId.HasValue)
             {
-                query = query.Where(u => u.UserToSubjectAreas.Any(ut => ut.UserToSubjectAreaId == topicId.Value));
+                query = query.Where(u => u.UserToSubjectAreas.Any(ut => ut.UserToSubjectAreaId == subjectAreaId.Value));
             }
 
-            if (!string.IsNullOrWhiteSpace(topicName))
+            if (!string.IsNullOrWhiteSpace(subjectAreaName))
             {
-                query = query.Where(u => u.UserToSubjectAreas.Any(ut => ut.SubjectArea.Title.ToLower().Contains(topicName.ToLower())));
+                query = query.Where(u => u.UserToSubjectAreas.Any(ut => ut.SubjectArea.Title.ToLower().Contains(subjectAreaName.ToLower())));
             }
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -183,7 +183,7 @@ namespace ApiProject.BusinessLogic.Services
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Email = u.Email,
-                Topics = u.UserToSubjectAreas.Select(ut => new TopicResponse
+                SubjectAreas = u.UserToSubjectAreas.Select(ut => new SubjectAreaResponse
                 {
                     Id = ut.SubjectArea.Id,
                     Title = ut.SubjectArea.Title,
@@ -221,7 +221,7 @@ namespace ApiProject.BusinessLogic.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                Topics = user.UserToSubjectAreas.Select(ut => new TopicResponse
+                SubjectAreas = user.UserToSubjectAreas.Select(ut => new SubjectAreaResponse
                 {
                     Id = ut.SubjectArea.Id,
                     Title = ut.SubjectArea.Title,

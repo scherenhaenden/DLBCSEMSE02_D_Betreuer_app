@@ -18,7 +18,7 @@ namespace ApiProject.ApiLogic.Mappers
                 OwnerId = thesis.OwnerId,
                 TutorId = thesis.TutorId,
                 SecondSupervisorId = thesis.SecondSupervisorId,
-                TopicId = thesis.SubjectAreaId,
+                SubjectAreaId = thesis.SubjectAreaId,
                 DocumentFileName = thesis.DocumentFileName
             };
         }

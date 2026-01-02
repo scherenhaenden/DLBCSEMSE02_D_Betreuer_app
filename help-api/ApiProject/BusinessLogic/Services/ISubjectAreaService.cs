@@ -3,38 +3,38 @@ using ApiProject.BusinessLogic.Models;
 namespace ApiProject.BusinessLogic.Services
 {
     /// <summary>
-    /// Interface for the Topic Service, providing CRUD operations for topics.
+    /// Interface for the Subject Area Service, providing CRUD operations for subject areas.
     /// </summary>
     public interface ISubjectAreaService
     {
         /// <summary>
-        /// Returns all topics in a paginated result.
+        /// Returns all subject areas in a paginated result.
         /// </summary>
         Task<PaginatedResultBusinessLogicModel<SubjectAreaBusinessLogicModel>> GetAllAsync(int page, int pageSize);
 
         /// <summary>
-        /// Returns a topic by its ID.
+        /// Returns a subject area by its ID.
         /// </summary>
         Task<SubjectAreaBusinessLogicModel?> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Searches for topics by title or subject area.
+        /// Searches for subject areas by title or subject area.
         /// </summary>
         Task<PaginatedResultBusinessLogicModel<SubjectAreaBusinessLogicModel>> SearchAsync(string searchTerm, int page, int pageSize);
 
         /// <summary>
-        /// Creates a new topic.
+        /// Creates a new subject area.
         /// </summary>
-        Task<SubjectAreaBusinessLogicModel> CreateTopicAsync(SubjectAreaCreateRequestBusinessLogicModel request);
+        Task<SubjectAreaBusinessLogicModel> CreateSubjectAreaAsync(SubjectAreaCreateRequestBusinessLogicModel request);
 
         /// <summary>
-        /// Updates an existing topic.
+        /// Updates an existing subject area.
         /// </summary>
-        Task<SubjectAreaBusinessLogicModel> UpdateTopicAsync(Guid id, SubjectAreaUpdateRequestBusinessLogicModel request);
+        Task<SubjectAreaBusinessLogicModel> UpdateSubjectAreaAsync(Guid id, SubjectAreaUpdateRequestBusinessLogicModel request);
 
         /// <summary>
-        /// Deletes a topic by its ID.
+        /// Deletes a subject area by its ID.
         /// </summary>
-        Task<bool> DeleteTopicAsync(Guid id);
+        Task<bool> DeleteSubjectAreaAsync(Guid id);
     }
 }

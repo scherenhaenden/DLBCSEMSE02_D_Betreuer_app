@@ -1,6 +1,6 @@
 namespace ApiProject.ApiLogic.Models
 {
-    public class TopicResponse
+    public class SubjectAreaResponse
     {
         public Guid Id { get; set; }
         public string Title { get; set; }

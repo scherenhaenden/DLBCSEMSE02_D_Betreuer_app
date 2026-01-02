@@ -1,6 +1,6 @@
 namespace ApiProject.ApiLogic.Models
 {
-    public class UpdateTopicRequest
+    public class UpdateSubjectAreaRequest
     {
         public string? Title { get; set; }
         public string? Description { get; set; }

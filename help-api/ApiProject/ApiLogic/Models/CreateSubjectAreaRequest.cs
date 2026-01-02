@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApiProject.ApiLogic.Models
 {
-    public class CreateTopicRequest
+    public class CreateSubjectAreaRequest
     {
         [Required]
         public string Title { get; set; }

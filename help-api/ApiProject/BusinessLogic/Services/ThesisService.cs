@@ -80,7 +80,7 @@ namespace ApiProject.BusinessLogic.Services
             {
                 Title = request.Title.Trim(),
                 OwnerId = request.OwnerId,
-                SubjectAreaId = request.TopicId,
+                SubjectAreaId = request.SubjectAreaId,
                 StatusId = initialStatus.Id,
                 BillingStatusId = initialBillingStatus.Id,
                 TutorId = null, // Tutors are assigned via requests
@@ -110,7 +110,7 @@ namespace ApiProject.BusinessLogic.Services
             }
 
             if (request.Title != null) thesis.Title = request.Title.Trim();
-            if (request.TopicId.HasValue) thesis.SubjectAreaId = request.TopicId.Value;
+            if (request.SubjectAreaId.HasValue) thesis.SubjectAreaId = request.SubjectAreaId.Value;
 
             await _context.SaveChangesAsync();
             

@@ -40,11 +40,11 @@ namespace ApiProject.BusinessLogic.Services
 
         public async Task<SubjectAreaBusinessLogicModel?> GetByIdAsync(Guid id)
         {
-            var topic = await _context.SubjectAreas
+            var subjectArea = await _context.SubjectAreas
                 .Include(t => t.UserToSubjectAreas)
                 .SingleOrDefaultAsync(t => t.Id == id);
 
-            return SubjectAreaBusinessLogicMapper.ToBusinessModel(topic);
+            return SubjectAreaBusinessLogicMapper.ToBusinessModel(subjectArea);
         }
 
         public async Task<PaginatedResultBusinessLogicModel<SubjectAreaBusinessLogicModel>> SearchAsync(string searchTerm, int page, int pageSize)
@@ -68,7 +68,7 @@ namespace ApiProject.BusinessLogic.Services
             };
         }
 
-        public async Task<SubjectAreaBusinessLogicModel> CreateTopicAsync(SubjectAreaCreateRequestBusinessLogicModel request)
+        public async Task<SubjectAreaBusinessLogicModel> CreateSubjectAreaAsync(SubjectAreaCreateRequestBusinessLogicModel request)
         {
             foreach (var tutorId in request.TutorIds)
             {
@@ -78,7 +78,7 @@ namespace ApiProject.BusinessLogic.Services
                 }
             }
 
-            var topic = new SubjectAreaDataAccessModel
+            var subjectArea = new SubjectAreaDataAccessModel
             {
                 Title = request.Title.Trim(),
                 Description = request.Description.Trim(),
@@ -87,30 +87,30 @@ namespace ApiProject.BusinessLogic.Services
 
             foreach (var tutorId in request.TutorIds)
             {
-                topic.UserToSubjectAreas.Add(new UserToSubjectAreas { SubjectArea = topic, UserId = tutorId });
+                subjectArea.UserToSubjectAreas.Add(new UserToSubjectAreas { SubjectArea = subjectArea, UserId = tutorId });
             }
 
-            _context.SubjectAreas.Add(topic);
+            _context.SubjectAreas.Add(subjectArea);
             await _context.SaveChangesAsync();
 
-            var createdTopic = await GetByIdAsync(topic.Id);
-            return createdTopic!;
+            var createdSubjectArea = await GetByIdAsync(subjectArea.Id);
+            return createdSubjectArea!;
         }
 
-        public async Task<SubjectAreaBusinessLogicModel> UpdateTopicAsync(Guid id, SubjectAreaUpdateRequestBusinessLogicModel request)
+        public async Task<SubjectAreaBusinessLogicModel> UpdateSubjectAreaAsync(Guid id, SubjectAreaUpdateRequestBusinessLogicModel request)
         {
-            var topic = await _context.SubjectAreas
+            var subjectArea = await _context.SubjectAreas
                 .Include(t => t.UserToSubjectAreas)
                 .SingleOrDefaultAsync(t => t.Id == id);
 
-            if (topic == null)
+            if (subjectArea == null)
             {
-                throw new KeyNotFoundException("Topic not found.");
+                throw new KeyNotFoundException("Subject Area not found.");
             }
 
-            if (request.Title != null) topic.Title = request.Title.Trim();
-            if (request.Description != null) topic.Description = request.Description.Trim();
-            if (request.IsActive.HasValue) topic.IsActive = request.IsActive.Value;
+            if (request.Title != null) subjectArea.Title = request.Title.Trim();
+            if (request.Description != null) subjectArea.Description = request.Description.Trim();
+            if (request.IsActive.HasValue) subjectArea.IsActive = request.IsActive.Value;
 
             if (request.TutorIds != null)
             {
@@ -122,28 +122,28 @@ namespace ApiProject.BusinessLogic.Services
                     }
                 }
                 
-                topic.UserToSubjectAreas.Clear();
+                subjectArea.UserToSubjectAreas.Clear();
                 foreach (var tutorId in request.TutorIds)
                 {
-                    topic.UserToSubjectAreas.Add(new UserToSubjectAreas { UserToSubjectAreaId = topic.Id, UserId = tutorId });
+                    subjectArea.UserToSubjectAreas.Add(new UserToSubjectAreas { UserToSubjectAreaId = subjectArea.Id, UserId = tutorId });
                 }
             }
 
             await _context.SaveChangesAsync();
             
-            var updatedTopic = await GetByIdAsync(id);
-            return updatedTopic!;
+            var updatedSubjectArea = await GetByIdAsync(id);
+            return updatedSubjectArea!;
         }
 
-        public async Task<bool> DeleteTopicAsync(Guid id)
+        public async Task<bool> DeleteSubjectAreaAsync(Guid id)
         {
-            var topic = await _context.SubjectAreas.SingleOrDefaultAsync(t => t.Id == id);
-            if (topic == null)
+            var subjectArea = await _context.SubjectAreas.SingleOrDefaultAsync(t => t.Id == id);
+            if (subjectArea == null)
             {
                 return false;
             }
 
-            _context.SubjectAreas.Remove(topic);
+            _context.SubjectAreas.Remove(subjectArea);
             await _context.SaveChangesAsync();
             return true;
         }
