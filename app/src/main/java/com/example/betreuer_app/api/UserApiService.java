@@ -2,7 +2,6 @@ package com.example.betreuer_app.api;
 
 import com.example.betreuer_app.model.LoginRequest;
 import com.example.betreuer_app.model.LoginResponse;
-import com.example.betreuer_app.model.ThesesResponse;
 import com.example.betreuer_app.model.UsersResponse;
 
 import retrofit2.Call;
@@ -17,7 +16,4 @@ public interface UserApiService {
 
     @POST("auth/login")
     Call<LoginResponse> login(@Body LoginRequest request);
-
-    @GET("theses")
-    Call<ThesesResponse> getTheses(@Query("page") int page, @Query("pageSize") int pageSize);
 }
