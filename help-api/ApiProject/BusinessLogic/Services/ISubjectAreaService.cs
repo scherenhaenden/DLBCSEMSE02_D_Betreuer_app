@@ -5,32 +5,32 @@ namespace ApiProject.BusinessLogic.Services
     /// <summary>
     /// Interface for the Topic Service, providing CRUD operations for topics.
     /// </summary>
-    public interface ITopicService
+    public interface ISubjectAreaService
     {
         /// <summary>
         /// Returns all topics in a paginated result.
         /// </summary>
-        Task<PaginatedResultBusinessLogicModel<TopicBusinessLogicModel>> GetAllAsync(int page, int pageSize);
+        Task<PaginatedResultBusinessLogicModel<SubjectAreaBusinessLogicModel>> GetAllAsync(int page, int pageSize);
 
         /// <summary>
         /// Returns a topic by its ID.
         /// </summary>
-        Task<TopicBusinessLogicModel?> GetByIdAsync(Guid id);
+        Task<SubjectAreaBusinessLogicModel?> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Searches for topics by title or subject area.
         /// </summary>
-        Task<PaginatedResultBusinessLogicModel<TopicBusinessLogicModel>> SearchAsync(string searchTerm, int page, int pageSize);
+        Task<PaginatedResultBusinessLogicModel<SubjectAreaBusinessLogicModel>> SearchAsync(string searchTerm, int page, int pageSize);
 
         /// <summary>
         /// Creates a new topic.
         /// </summary>
-        Task<TopicBusinessLogicModel> CreateTopicAsync(TopicCreateRequestBusinessLogicModel request);
+        Task<SubjectAreaBusinessLogicModel> CreateTopicAsync(SubjectAreaCreateRequestBusinessLogicModel request);
 
         /// <summary>
         /// Updates an existing topic.
         /// </summary>
-        Task<TopicBusinessLogicModel> UpdateTopicAsync(Guid id, TopicUpdateRequestBusinessLogicModel request);
+        Task<SubjectAreaBusinessLogicModel> UpdateTopicAsync(Guid id, SubjectAreaUpdateRequestBusinessLogicModel request);
 
         /// <summary>
         /// Deletes a topic by its ID.

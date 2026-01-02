@@ -9,17 +9,17 @@ namespace ApiProject.ApiLogic.Controllers
     [Route("topics")]
     public sealed class TopicController : ControllerBase
     {
-        private readonly ITopicService _topicService;
+        private readonly ISubjectAreaService _subjectAreaService;
 
-        public TopicController(ITopicService topicService)
+        public TopicController(ISubjectAreaService subjectAreaService)
         {
-            _topicService = topicService;
+            _subjectAreaService = subjectAreaService;
         }
 
         [HttpGet]
         public async Task<ActionResult<PaginatedResponse<TopicResponse>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _topicService.GetAllAsync(page, pageSize);
+            var result = await _subjectAreaService.GetAllAsync(page, pageSize);
             var response = new PaginatedResponse<TopicResponse>
             {
                 Items = result.Items.Select(MapToResponse).ToList(),
@@ -33,7 +33,7 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<PaginatedResponse<TopicResponse>>> Search([FromQuery] string q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _topicService.SearchAsync(q, page, pageSize);
+            var result = await _subjectAreaService.SearchAsync(q, page, pageSize);
             var response = new PaginatedResponse<TopicResponse>
             {
                 Items = result.Items.Select(MapToResponse).ToList(),
@@ -47,7 +47,7 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TopicResponse>> GetById(Guid id)
         {
-            var topic = await _topicService.GetByIdAsync(id);
+            var topic = await _subjectAreaService.GetByIdAsync(id);
             if (topic == null)
             {
                 return NotFound();
@@ -60,7 +60,7 @@ namespace ApiProject.ApiLogic.Controllers
         {
             try
             {
-                var created = await _topicService.CreateTopicAsync(new BL.TopicCreateRequestBusinessLogicModel
+                var created = await _subjectAreaService.CreateTopicAsync(new BL.SubjectAreaCreateRequestBusinessLogicModel
                 {
                     Title = request.Title,
                     Description = request.Description,
@@ -80,7 +80,7 @@ namespace ApiProject.ApiLogic.Controllers
         {
             try
             {
-                var updated = await _topicService.UpdateTopicAsync(id, new BL.TopicUpdateRequestBusinessLogicModel
+                var updated = await _subjectAreaService.UpdateTopicAsync(id, new BL.SubjectAreaUpdateRequestBusinessLogicModel
                 {
                     Title = request.Title,
                     Description = request.Description,
@@ -103,7 +103,7 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            var deleted = await _topicService.DeleteTopicAsync(id);
+            var deleted = await _subjectAreaService.DeleteTopicAsync(id);
             if (!deleted)
             {
                 return NotFound();
@@ -111,15 +111,15 @@ namespace ApiProject.ApiLogic.Controllers
             return NoContent();
         }
 
-        private static TopicResponse MapToResponse(BL.TopicBusinessLogicModel topic)
+        private static TopicResponse MapToResponse(BL.SubjectAreaBusinessLogicModel subjectArea)
         {
             return new TopicResponse
             {
-                Id = topic.Id,
-                Title = topic.Title,
-                Description = topic.Description,
-                IsActive = topic.IsActive,
-                TutorIds = topic.TutorIds
+                Id = subjectArea.Id,
+                Title = subjectArea.Title,
+                Description = subjectArea.Description,
+                IsActive = subjectArea.IsActive,
+                TutorIds = subjectArea.TutorIds
             };
         }
     }
