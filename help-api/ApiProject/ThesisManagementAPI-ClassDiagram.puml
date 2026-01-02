@@ -10,7 +10,7 @@ package "Entities" {
         + string Email
         + string PasswordHash
         + ICollection<UserRoleDataAccessModel> UserRoles
-        + ICollection<UserSubjectAreaDataAccessModel> UserSubjectAreas
+        + ICollection<UserToSubjectAreas> UserToSubjectAreas
     }
 
     class RoleDataAccessModel {
@@ -40,12 +40,12 @@ package "Entities" {
         + string Title
         + string Description
         + bool IsActive
-        + ICollection<UserSubjectAreaDataAccessModel> UserSubjectAreas
+        + ICollection<UserToSubjectAreas> UserToSubjectAreas
     }
 
-    class UserSubjectAreaDataAccessModel {
+    class UserToSubjectAreas {
         + Guid UserId
-        + Guid SubjectAreaId
+        + Guid UserToSubjectAreaId
     }
 
     class BaseEntity {
@@ -61,8 +61,8 @@ package "Entities" {
 
     UserRoleDataAccessModel --> UserDataAccessModel
     UserRoleDataAccessModel --> RoleDataAccessModel
-    UserSubjectAreaDataAccessModel --> UserDataAccessModel
-    UserSubjectAreaDataAccessModel --> SubjectAreaDataAccessModel
+    UserToSubjectAreas --> UserDataAccessModel
+    UserToSubjectAreas --> SubjectAreaDataAccessModel
     ThesisDataAccessModel --> UserDataAccessModel : "Owner"
     ThesisDataAccessModel --> UserDataAccessModel : "Tutor"
     ThesisDataAccessModel --> UserDataAccessModel : "SecondSupervisor"
@@ -76,7 +76,7 @@ package "DataAccess" {
         + DbSet<UserRoleDataAccessModel> UserRoles
         + DbSet<ThesisDataAccessModel> Theses
         + DbSet<SubjectAreaDataAccessModel> SubjectAreas
-        + DbSet<UserSubjectAreaDataAccessModel> UserSubjectAreas
+        + DbSet<UserToSubjectAreas> UserToSubjectAreas
     }
 }
 
@@ -88,7 +88,7 @@ package "Services" {
         + Task<UserBusinessLogicModel> CreateUserAsync(...)
         + Task<bool> VerifyPasswordAsync(string email, string password)
         + Task<bool> UserHasRoleAsync(Guid userId, string roleName)
-        + Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? SubjectAreaId, string? SubjectAreaName, int page, int pageSize)
+        + Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? subjectAreaId, string? subjectAreaName, int page, int pageSize)
         + Task<TutorProfileResponse> GetTutorByIdAsync(Guid id)
     }
 
@@ -127,7 +127,7 @@ package "Controllers" {
         + Task<IActionResult> Create(CreateUserRequest request)
     }
     class TutorController {
-        + Task<IActionResult> GetTutors(Guid? SubjectAreaId, string? SubjectAreaName, int page, int pageSize)
+        + Task<IActionResult> GetTutors(Guid? subjectAreaId, string? subjectAreaName, int page, int pageSize)
         + Task<IActionResult> GetTutorById(Guid id)
     }
     class SubjectAreaController {
