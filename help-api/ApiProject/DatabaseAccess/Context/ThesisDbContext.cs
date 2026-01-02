@@ -11,8 +11,8 @@ public class ThesisDbContext : DbContext
     public DbSet<RoleDataAccessModel> Roles { get; set; }
     public DbSet<UserRoleDataAccessModel> UserRoles { get; set; }
     public DbSet<ThesisDataAccessModel> Theses { get; set; }
-    public DbSet<SubjectAreaDataAccessModel> Topics { get; set; }
-    public DbSet<UserToSubjectAreas> UserTopics { get; set; }
+    public DbSet<SubjectAreaDataAccessModel> SubjectAreas { get; set; }
+    public DbSet<UserToSubjectAreas> UserToSubjectAreas { get; set; }
     public DbSet<ThesisStatusDataAccessModel> ThesisStatuses { get; set; }
     public DbSet<BillingStatusDataAccessModel> BillingStatuses { get; set; }
     public DbSet<ThesisDocumentDataAccessModel> ThesisDocuments { get; set; }
@@ -26,7 +26,7 @@ public class ThesisDbContext : DbContext
 
         // --- Composite Keys ---
         modelBuilder.Entity<UserRoleDataAccessModel>().HasKey(ur => new { ur.UserId, ur.RoleId });
-        modelBuilder.Entity<UserToSubjectAreas>().HasKey(ut => new { ut.UserId, TopicId = ut.UserToSubjectAreaId });
+        modelBuilder.Entity<UserToSubjectAreas>().HasKey(ut => new { ut.UserId, SubjectAreaId = ut.UserToSubjectAreaId });
 
         // --- Relationships ---
         modelBuilder.Entity<UserRoleDataAccessModel>()
