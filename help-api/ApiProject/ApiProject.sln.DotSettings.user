@@ -26,14 +26,18 @@
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7b23d039_002D5a04_002D4d9c_002D93c2_002D9806d528c926/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;And&gt;
-    &lt;TestAncestor&gt;
-      &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.ThesisBusinessLogicServiceTests&lt;/TestId&gt;
-    &lt;/TestAncestor&gt;
-    &lt;TestAncestor&gt;
-      &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.ThesisBusinessLogicServiceTests.CanCreateThesis&lt;/TestId&gt;
-    &lt;/TestAncestor&gt;
-  &lt;/And&gt;
+  &lt;Or&gt;
+    &lt;And&gt;
+      &lt;TestAncestor&gt;
+        &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.ThesisBusinessLogicServiceTests&lt;/TestId&gt;
+      &lt;/TestAncestor&gt;
+      &lt;TestAncestor&gt;
+        &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.ThesisBusinessLogicServiceTests.CanCreateThesis&lt;/TestId&gt;
+      &lt;/TestAncestor&gt;
+    &lt;/And&gt;
+    &lt;ProjectFolder&gt;D5FCE5C1-2E43-44B0-A353-4C5E219DB668/d:NUnit/d:DataAccess&lt;/ProjectFolder&gt;
+    &lt;ProjectFile&gt;D5FCE5C1-2E43-44B0-A353-4C5E219DB668/d:NUnit/d:BusinessLogic/d:Services/f:ThesisBusinessLogicServiceTests.cs&lt;/ProjectFile&gt;
+  &lt;/Or&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=bdd47eb1_002Dee12_002D424b_002D8561_002D433098b5ddf0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Seeder" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Project Location="/home/edward/Development/DLBCSEMSE02_D_Betreuet_app/help-api/ApiProject.Tests" Presentation="&amp;lt;ApiProject.Tests&amp;gt;" /&gt;

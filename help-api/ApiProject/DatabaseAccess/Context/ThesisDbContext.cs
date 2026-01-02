@@ -112,7 +112,7 @@ public class ThesisDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         // --- Seed Data ---
-        modelBuilder.Entity<RoleDataAccessModel>().HasData(
+        /*modelBuilder.Entity<RoleDataAccessModel>().HasData(
             new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "STUDENT", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
             new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "TUTOR", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
             new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "ADMIN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
@@ -146,6 +146,6 @@ public class ThesisDbContext : DbContext
             new ThesisOfferStatusDataAccessModel { Id = new Guid("11111111-1111-1111-1111-111111111111"), Name = "OPEN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
             new ThesisOfferStatusDataAccessModel { Id = new Guid("22222222-2222-2222-2222-222222222222"), Name = "CLOSED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
             new ThesisOfferStatusDataAccessModel { Id = new Guid("33333333-3333-3333-3333-333333333333"), Name = "ARCHIVED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
-        );
+        );*/
     }
 }

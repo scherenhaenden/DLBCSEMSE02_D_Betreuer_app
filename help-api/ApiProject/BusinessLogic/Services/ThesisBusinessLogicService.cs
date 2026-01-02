@@ -73,9 +73,7 @@ namespace ApiProject.BusinessLogic.Services
             {
                 throw new InvalidOperationException("Owner must have the STUDENT role.");
             }
-
-            var values = await _context.ThesisStatuses.ToListAsync();
-
+            
             var initialStatus = await _context.ThesisStatuses.FirstAsync(s => s.Name == ThesisStatuses.Registered);
             var initialBillingStatus = await _context.BillingStatuses.FirstAsync(b => b.Name == BillingStatuses.None);
 
@@ -86,7 +84,6 @@ namespace ApiProject.BusinessLogic.Services
                 SubjectAreaId = request.SubjectAreaId,
                 StatusId = initialStatus.Id,
                 BillingStatusId = initialBillingStatus.Id,
-                TutorId = null, // Tutors are assigned via requests
                 SecondSupervisorId = null
             };
 
@@ -107,6 +104,7 @@ namespace ApiProject.BusinessLogic.Services
             }
 
             var createdThesis = await GetByIdAsync(thesis.Id);
+            
             return createdThesis!;
         }
 
@@ -120,9 +118,14 @@ namespace ApiProject.BusinessLogic.Services
 
             // Only allow updates in early stages
             var currentStatus = await _context.ThesisStatuses.FindAsync(thesis.StatusId);
-            if (currentStatus.Name != ThesisStatuses.InDiscussion)
+            if (currentStatus.Name == ThesisStatuses.Submitted || currentStatus.Name == ThesisStatuses.Defended)
             {
-                throw new InvalidOperationException("Thesis can only be modified while in discussion.");
+                throw new InvalidOperationException("Thesis cannot be modified after submission or defense.");
+            }
+
+            if (currentStatus.Name == ThesisStatuses.Registered && request.SubjectAreaId.HasValue)
+            {
+                throw new InvalidOperationException("Cannot change subject area after registration.");
             }
 
             if (request.Title != null) thesis.Title = request.Title.Trim();

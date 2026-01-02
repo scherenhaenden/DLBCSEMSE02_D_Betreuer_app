@@ -2,6 +2,7 @@ using ApiProject.DatabaseAccess.Context;
 using ApiProject.DatabaseAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using ApiProject.Constants;
 
 namespace ApiProject.Tests.NUnit.BusinessLogic.Services;
 
@@ -19,9 +20,9 @@ public class TestDataSeeder
         if (!_context.Roles.Any())
         {
             _context.Roles.AddRange(
-                new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "STUDENT" },
-                new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "TUTOR" },
-                new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "ADMIN" }
+                new RoleDataAccessModel { Id = Guid.NewGuid(), Name = Roles.Student },
+                new RoleDataAccessModel { Id = Guid.NewGuid(), Name = Roles.Tutor },
+                new RoleDataAccessModel { Id = Guid.NewGuid(), Name = Roles.Admin }
             );
             _context.SaveChanges();
         }

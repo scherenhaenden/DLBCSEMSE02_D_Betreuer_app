@@ -3,6 +3,7 @@ using ApiProject.BusinessLogic.Models;
 using ApiProject.DatabaseAccess.Context;
 using ApiProject.DatabaseAccess.Entities;
 using Microsoft.EntityFrameworkCore;
+using ApiProject.Constants;
 
 namespace ApiProject.BusinessLogic.Services;
 
@@ -21,9 +22,9 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
             .Include(to => to.ThesisOfferStatus)
             .AsQueryable();
 
-        if (!userRoles.Contains("ADMIN"))
+        if (!userRoles.Contains(Roles.Admin))
         {
-            if (userRoles.Contains("TUTOR"))
+            if (userRoles.Contains(Roles.Tutor))
             {
                 query = query.Where(to => to.TutorId == userId);
             }

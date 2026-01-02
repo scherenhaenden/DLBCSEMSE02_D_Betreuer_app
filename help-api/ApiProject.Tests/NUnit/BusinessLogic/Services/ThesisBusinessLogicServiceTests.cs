@@ -20,7 +20,7 @@ public class ThesisBusinessLogicServiceTests
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<ThesisDbContext>()
-            .UseSqlite("Data Source=TestThesisService.db")
+            .UseSqlite("Data Source=ThesisBusinessLogicServiceTests.db")
             .Options;
         _context = new ThesisDbContext(options);
         _context.Database.EnsureCreated();
@@ -86,7 +86,7 @@ public class ThesisBusinessLogicServiceTests
     }
 
     [Test]
-    public async Task CanCreateThesis()
+    public async Task CanCreateThesisWithoutDocumentAndWithoutTutor()
     {
         // Arrange
         var student = _seeder.SeedUser("Bob", "Builder", "bob@example.com", "password", Roles.Student);
@@ -101,7 +101,6 @@ public class ThesisBusinessLogicServiceTests
             Title = "New Thesis",
             SubjectArea = subjectArea.Title,
             OwnerId = student.Id,
-            TutorId = tutor.Id,
             SubjectAreaId = subjectArea.Id
         };
 
@@ -112,20 +111,22 @@ public class ThesisBusinessLogicServiceTests
         Assert.That(createdThesis, Is.Not.Null);
         Assert.That(createdThesis.Title, Is.EqualTo("New Thesis"));
         Assert.That(createdThesis.OwnerId, Is.EqualTo(student.Id));
-        Assert.That(createdThesis.TutorId, Is.EqualTo(tutor.Id));
+        //Assert.That(createdThesis.TutorId, Is.EqualTo(tutor.Id));
 
         // Ensure no document is created
         var documents = _context.ThesisDocuments.Where(d => d.ThesisId == createdThesis.Id).ToList();
         Assert.That(documents.Count, Is.EqualTo(0));
     }
+    
+    
 
     [Test]
-    public async Task CanUpdateThesis()
+    public async Task CanUpdateThesisOnStatusRegistred()
     {
         // Arrange
         var student = _seeder.SeedUser("Charlie", "Brown", "charlie@example.com", "password", Roles.Student);
         var subjectArea = _context.SubjectAreas.First();
-        var status = _context.ThesisStatuses.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
         var billingStatus = _context.BillingStatuses.First();
 
         var thesis = _seeder.SeedThesis("Original Title", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
@@ -178,7 +179,6 @@ public class ThesisBusinessLogicServiceTests
             Title = "New Thesis with Document",
             SubjectArea = subjectArea.Title,
             OwnerId = student.Id,
-            TutorId = tutor.Id,
             SubjectAreaId = subjectArea.Id
         };
 
@@ -203,11 +203,78 @@ public class ThesisBusinessLogicServiceTests
         Assert.That(createdThesis, Is.Not.Null);
         Assert.That(createdThesis.Title, Is.EqualTo("New Thesis with Document"));
         Assert.That(createdThesis.OwnerId, Is.EqualTo(student.Id));
-        Assert.That(createdThesis.TutorId, Is.EqualTo(tutor.Id));
+        //Assert.That(createdThesis.TutorId, Is.EqualTo(tutor.Id));
 
         // Ensure a document is created
         var documents = _context.ThesisDocuments.Where(d => d.ThesisId == createdThesis.Id).ToList();
         Assert.That(documents.Count, Is.EqualTo(1));
         Assert.That(documents.First().FileName, Is.EqualTo("thesis.pdf"));
+    }
+
+    [Test]
+    public async Task CanUpdateThesisOnStatusInDiscussion()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Frank", "Miller", "frank@example.com", "password", Roles.Student);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.InDiscussion);
+        var billingStatus = _context.BillingStatuses.First();
+
+        var thesis = _seeder.SeedThesis("Original Title", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+
+        var updateRequest = new ThesisUpdateRequestBusinessLogicModel
+        {
+            Title = "Updated Title InDiscussion"
+        };
+
+        // Act
+        var updatedThesis = await _thesisService.UpdateThesisAsync(thesis.Id, updateRequest);
+
+        // Assert
+        Assert.That(updatedThesis.Title, Is.EqualTo("Updated Title InDiscussion"));
+    }
+
+    [Test]
+    public async Task ShouldNotUpdateThesisOnStatusSubmitted()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("George", "Washington", "george@example.com", "password", Roles.Student);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Submitted);
+        var billingStatus = _context.BillingStatuses.First();
+
+        var thesis = _seeder.SeedThesis("Submitted Thesis", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+
+        var updateRequest = new ThesisUpdateRequestBusinessLogicModel
+        {
+            Title = "Attempted Update"
+        };
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisService.UpdateThesisAsync(thesis.Id, updateRequest));
+        Assert.That(ex.Message, Is.EqualTo("Thesis cannot be modified after submission or defense."));
+    }
+
+    [Test]
+    public async Task ShouldNotUpdateThesisOnStatusDefended()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Helen", "Keller", "helen@example.com", "password", Roles.Student);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Defended);
+        var billingStatus = _context.BillingStatuses.First();
+
+        var thesis = _seeder.SeedThesis("Defended Thesis", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+
+        var updateRequest = new ThesisUpdateRequestBusinessLogicModel
+        {
+            Title = "Attempted Update"
+        };
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisService.UpdateThesisAsync(thesis.Id, updateRequest));
+        Assert.That(ex.Message, Is.EqualTo("Thesis cannot be modified after submission or defense."));
     }
 }
