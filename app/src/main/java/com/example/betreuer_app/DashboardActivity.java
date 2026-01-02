@@ -3,6 +3,7 @@ package com.example.betreuer_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ public class DashboardActivity extends AppCompatActivity {
         TextView lecturerThesisCountTextView = findViewById(R.id.lecturerThesisCountTextView);
         MaterialCardView studentThesisCard = findViewById(R.id.student_thesis_card);
         MaterialCardView lecturerThesisCard = findViewById(R.id.lecturer_thesis_card);
+        Button btnCreateNewThesis = findViewById(R.id.btn_create_new_thesis);
 
         String userName = getIntent().getStringExtra("USER_NAME");
         String userRole = getIntent().getStringExtra("USER_ROLE");
@@ -52,6 +54,11 @@ public class DashboardActivity extends AppCompatActivity {
         studentThesisCard.setOnClickListener(openThesisList);
         lecturerThesisCard.setOnClickListener(openThesisList);
 
+        btnCreateNewThesis.setOnClickListener(v -> {
+            Intent intent = new Intent(DashboardActivity.this, CreateThesisActivity.class);
+            startActivity(intent);
+        });
+
         if (userRole != null) {
             if (userRole.equalsIgnoreCase("student")) {
                 studentDashboardTitle.setText("Dein Dashboard als (Student)");
@@ -65,6 +72,20 @@ public class DashboardActivity extends AppCompatActivity {
         }
 
         // Fetch the thesis count
+        loadThesisCount(userRole, studentThesisCountTextView, lecturerThesisCountTextView);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload thesis count when returning, e.g., after creating a thesis
+        String userRole = getIntent().getStringExtra("USER_ROLE");
+        TextView studentThesisCountTextView = findViewById(R.id.studentThesisCountTextView);
+        TextView lecturerThesisCountTextView = findViewById(R.id.lecturerThesisCountTextView);
+        loadThesisCount(userRole, studentThesisCountTextView, lecturerThesisCountTextView);
+    }
+
+    private void loadThesisCount(String userRole, TextView studentThesisCountTextView, TextView lecturerThesisCountTextView) {
         thesisRepository.getTheses(1, 1, new Callback<ThesesResponse>() {
             @Override
             public void onResponse(Call<ThesesResponse> call, Response<ThesesResponse> response) {
