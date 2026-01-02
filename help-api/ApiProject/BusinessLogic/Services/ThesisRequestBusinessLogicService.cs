@@ -10,11 +10,11 @@ using ApiProject.Constants;
 
 namespace ApiProject.BusinessLogic.Services
 {
-    public class ThesisBusinessLogicRequestService : IThesisBusinessLogicRequestService
+    public class ThesisRequestBusinessLogicService : IThesisRequestBusinessLogicService
     {
         private readonly ThesisDbContext _context;
 
-        public ThesisBusinessLogicRequestService(ThesisDbContext context)
+        public ThesisRequestBusinessLogicService(ThesisDbContext context)
         {
             _context = context;
         }

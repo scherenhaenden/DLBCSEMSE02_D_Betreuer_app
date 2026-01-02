@@ -9,10 +9,10 @@ using ApiProject.DatabaseAccess.Entities;
 namespace ApiProject.Tests.NUnit.BusinessLogic.Services;
 
 [TestFixture]
-public class ThesisBusinessLogicRequestServiceTests
+public class ThesisRequestBusinessLogicServiceTests
 {
     private ThesisDbContext _context;
-    private IThesisBusinessLogicRequestService _thesisRequestService;
+    private IThesisRequestBusinessLogicService _thesisRequestService;
     private TestDataSeeder _seeder;
 
     [SetUp]
@@ -33,7 +33,7 @@ public class ThesisBusinessLogicRequestServiceTests
         _seeder.SeedBillingStatuses();
         _context.SaveChanges();
 
-        _thesisRequestService = new ThesisBusinessLogicRequestService(_context);
+        _thesisRequestService = new ThesisRequestBusinessLogicService(_context);
     }
 
     [TearDown]
@@ -122,5 +122,137 @@ public class ThesisBusinessLogicRequestServiceTests
         // Assert
         Assert.That(retrievedRequest, Is.Not.Null);
         Assert.That(retrievedRequest.Message, Is.EqualTo("Request message"));
+    }
+
+    [Test]
+    public async Task StudentCreatesRequestSupervisionShouldPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Requester", "studentreq@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "Receiver", "tutorreceiver@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        _seeder.SeedUserToSubjectArea(tutor.Id, subjectArea.Id);
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Request", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+
+        // Act
+        var createdRequest = await _thesisRequestService.CreatedStudentRequestForTutor(student.Id, tutor.Id, thesis.Id, "Please supervise my thesis.");
+
+        // Assert
+        Assert.That(createdRequest, Is.Not.Null);
+        Assert.That(createdRequest.Message, Is.EqualTo("Please supervise my thesis."));
+        Assert.That(createdRequest.Requester.Id, Is.EqualTo(student.Id));
+        Assert.That(createdRequest.Receiver.Id, Is.EqualTo(tutor.Id));
+        Assert.That(createdRequest.RequestType, Is.EqualTo(RequestTypes.Supervision));
+
+        // Verify the request exists in the database
+        var retrievedRequest = await _thesisRequestService.GetRequestByIdAsync(createdRequest.Id);
+        Assert.That(retrievedRequest, Is.Not.Null);
+        Assert.That(retrievedRequest.Message, Is.EqualTo("Please supervise my thesis."));
+    }
+
+    [Test]
+    public async Task StudentCreatesRequestSupervisionForTutorWithDifferentSubjectAreaShouldNotPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Requester", "studentreq2@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "Receiver", "tutorreceiver2@example.com", "password", Roles.Tutor);
+        var subjectArea1 = _context.SubjectAreas.First();
+        var subjectArea2 = _context.SubjectAreas.Skip(1).First();
+        _seeder.SeedUserToSubjectArea(tutor.Id, subjectArea2.Id); // Assign tutor to different subject area
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Request", student.Id, subjectArea1.Id, status.Id, billingStatus.Id); // Thesis has subjectArea1
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisRequestService.CreatedStudentRequestForTutor(student.Id, tutor.Id, thesis.Id, "Please supervise my thesis."));
+        Assert.That(ex.Message, Is.EqualTo("The selected tutor does not cover the subject area of this thesis."));
+    }
+
+    [Test]
+    public async Task StudentCreatesRequestsWithNonExistingTutorShouldNotPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Requester", "studentreq3@example.com", "password", Roles.Student);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Request", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        var nonExistingTutorId = Guid.NewGuid();
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisRequestService.CreatedStudentRequestForTutor(student.Id, nonExistingTutorId, thesis.Id, "Please supervise."));
+        Assert.That(ex.Message, Does.Contain("Sequence contains no elements")); // Or similar
+    }
+
+    [Test]
+    public async Task StudentCreatesRequestsWithExistingButNotTutorTutorShouldNotPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Requester", "studentreq4@example.com", "password", Roles.Student);
+        var nonTutor = _seeder.SeedUser("NonTutor", "User", "nontutor@example.com", "password", Roles.Student); // Not a tutor
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Request", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisRequestService.CreatedStudentRequestForTutor(student.Id, nonTutor.Id, thesis.Id, "Please supervise."));
+        Assert.That(ex.Message, Is.EqualTo("The receiver of a request must be a TUTOR."));
+    }
+
+    [Test]
+    public async Task TutorCreatesRequestToAnotherTutorForRevisionShouldPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Owner", "studentowner@example.com", "password", Roles.Student);
+        var mainTutor = _seeder.SeedUser("Main", "Tutor", "maintutor@example.com", "password", Roles.Tutor);
+        var secondTutor = _seeder.SeedUser("Second", "Tutor", "secondtutor@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        _seeder.SeedUserToSubjectArea(mainTutor.Id, subjectArea.Id);
+        _seeder.SeedUserToSubjectArea(secondTutor.Id, subjectArea.Id);
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Co-Supervision", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        // Set main tutor
+        thesis.TutorId = mainTutor.Id;
+        _context.SaveChanges();
+
+        // Act
+        var createdRequest = await _thesisRequestService.CreatedTutorRequestForSecondSupervisor(mainTutor.Id, secondTutor.Id, thesis.Id, "Please co-supervise.");
+
+        // Assert
+        Assert.That(createdRequest, Is.Not.Null);
+        Assert.That(createdRequest.Message, Is.EqualTo("Please co-supervise."));
+        Assert.That(createdRequest.Requester.Id, Is.EqualTo(mainTutor.Id));
+        Assert.That(createdRequest.Receiver.Id, Is.EqualTo(secondTutor.Id));
+        Assert.That(createdRequest.RequestType, Is.EqualTo(RequestTypes.CoSupervision));
+    }
+
+    [Test]
+    public async Task TutorCreatesRequestToAnotherTutorForRevisionWithDifferentAreaShouldNotPass()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Owner", "studentowner2@example.com", "password", Roles.Student);
+        var mainTutor = _seeder.SeedUser("Main", "Tutor", "maintutor2@example.com", "password", Roles.Tutor);
+        var secondTutor = _seeder.SeedUser("Second", "Tutor", "secondtutor2@example.com", "password", Roles.Tutor);
+        var subjectArea1 = _context.SubjectAreas.First();
+        var subjectArea2 = _context.SubjectAreas.Skip(1).First();
+        _seeder.SeedUserToSubjectArea(mainTutor.Id, subjectArea1.Id);
+        _seeder.SeedUserToSubjectArea(secondTutor.Id, subjectArea2.Id); // Different area
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Co-Supervision", student.Id, subjectArea1.Id, status.Id, billingStatus.Id);
+        thesis.TutorId = mainTutor.Id;
+        _context.SaveChanges();
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisRequestService.CreatedTutorRequestForSecondSupervisor(mainTutor.Id, secondTutor.Id, thesis.Id, "Please co-supervise."));
+        Assert.That(ex.Message, Is.EqualTo("The selected tutor does not cover the subject area of this thesis."));
     }
 }

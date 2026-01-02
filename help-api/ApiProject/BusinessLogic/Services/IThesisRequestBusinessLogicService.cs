@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ApiProject.BusinessLogic.Services
 {
-    public interface IThesisBusinessLogicRequestService
+    public interface IThesisRequestBusinessLogicService
     {
         Task<ThesisRequestResponse> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message);
         Task<ThesisRequestResponse> CreatedStudentRequestForTutor(Guid studentId, Guid tutorId, Guid thesisId, string? message);

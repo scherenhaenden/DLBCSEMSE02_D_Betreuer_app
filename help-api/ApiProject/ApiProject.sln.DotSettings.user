@@ -25,7 +25,7 @@
     &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.ThesisBusinessLogicServiceTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7b23d039_002D5a04_002D4d9c_002D93c2_002D9806d528c926/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7b23d039_002D5a04_002D4d9c_002D93c2_002D9806d528c926/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Or&gt;
     &lt;And&gt;
       &lt;TestAncestor&gt;
@@ -50,4 +50,10 @@
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d46977f5_002D2f7a_002D4c1e_002D84ef_002D3e16e91dd3b2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;ApiProject.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Project Location="/home/edward/Development/DLBCSEMSE02_D_Betreuet_app/help-api/ApiProject.Tests" Presentation="&amp;lt;ApiProject.Tests&amp;gt;" /&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f98ad6fa_002Dc8ce_002D4a13_002Dad90_002Df0b48c06c031/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="StudentCreatesRequestSupervisionShouldPass" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.ThesisRequestBusinessLogicServiceTests.StudentCreatesRequestSupervisionShouldPass&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.ThesisRequestBusinessLogicServiceTests.StudentCreatesRequestSupervisionForTutorWithDifferentSubjectAreaShouldNotPass&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
