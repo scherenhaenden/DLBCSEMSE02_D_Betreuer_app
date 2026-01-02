@@ -20,6 +20,22 @@ namespace ApiProject.BusinessLogic.Services
             _userBusinessLogicService = userBusinessLogicService;
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of theses based on user roles and permissions.
+        /// This method supports role-based access control, allowing admins to see all theses, tutors to see theses they supervise, and students to see their own theses.
+        /// 
+        /// What: Fetches theses with their status, billing status, and document information, filtered by user permissions.
+        /// How: Builds a queryable starting from Theses table, includes related entities for eager loading.
+        /// Applies role-based filters: admins see all, tutors see theses where they are primary or secondary supervisor, students see their owned theses, others see none.
+        /// Counts total matching theses for pagination, skips and takes the appropriate page, maps to business models.
+        /// Why: Essential for thesis management interfaces, ensuring users only access theses relevant to them.
+        /// Supports secure data access and efficient pagination for large datasets.
+        /// </summary>
+        /// <param name="page">The page number to retrieve (1-based).</param>
+        /// <param name="pageSize">The number of theses per page.</param>
+        /// <param name="userId">The ID of the user making the request.</param>
+        /// <param name="userRoles">The list of roles assigned to the user.</param>
+        /// <returns>A paginated result containing the list of theses and metadata.</returns>
         public async Task<PaginatedResultBusinessLogicModel<ThesisBusinessLogicModel>> GetAllAsync(int page, int pageSize, Guid userId, List<string> userRoles)
         {
             var query = _context.Theses
@@ -56,6 +72,18 @@ namespace ApiProject.BusinessLogic.Services
             };
         }
 
+        /// <summary>
+        /// Retrieves a single thesis by its unique identifier, including related status, billing status, and document information.
+        /// 
+        /// What: Fetches detailed information about a specific thesis from the database.
+        /// How: Queries the Theses table with eager loading of Status, BillingStatus, and Document entities to include all necessary related data.
+        /// Uses SingleOrDefaultAsync to find the thesis by ID, returning null if not found.
+        /// Maps the data access model to the business model using ThesisBusinessLogicMapper.
+        /// Why: Allows detailed viewing of thesis information for authorized users, such as owners, supervisors, or administrators.
+        /// Ensures all related data is loaded efficiently to avoid additional database queries.
+        /// </summary>
+        /// <param name="id">The unique GUID identifier of the thesis.</param>
+        /// <returns>The thesis business model if found, otherwise null.</returns>
         public async Task<ThesisBusinessLogicModel?> GetByIdAsync(Guid id)
         {
             var thesis = await _context.Theses
@@ -67,6 +95,22 @@ namespace ApiProject.BusinessLogic.Services
             return ThesisBusinessLogicMapper.ToBusinessModel(thesis);
         }
 
+        /// <summary>
+        /// Creates a new thesis with the specified details, ensuring the owner is a student and setting initial statuses.
+        /// 
+        /// What: Creates a new thesis record in the database with provided title, owner, subject area, and optional document.
+        /// How: Validates that the owner has the STUDENT role using the user service.
+        /// Retrieves initial statuses (Registered for thesis, None for billing) from the database.
+        /// Creates a new ThesisDataAccessModel with trimmed title, assigned IDs, and null supervisors (assigned via requests).
+        /// Saves the thesis, then optionally creates and saves a document if provided.
+        /// Fetches and returns the created thesis with all related data populated.
+        /// Why: Enables students to initiate thesis proposals in the system.
+        /// Ensures data integrity by validating roles and setting appropriate initial states.
+        /// Supports optional document attachment for initial submissions.
+        /// </summary>
+        /// <param name="request">The request model containing thesis creation details.</param>
+        /// <returns>The created thesis business model with populated data.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the owner is not a student.</exception>
         public async Task<ThesisBusinessLogicModel> CreateThesisAsync(ThesisCreateRequestBusinessLogicModel request)
         {
             if (!await _userBusinessLogicService.UserHasRoleAsync(request.OwnerId, Roles.Student))
@@ -108,6 +152,24 @@ namespace ApiProject.BusinessLogic.Services
             return createdThesis!;
         }
 
+        /// <summary>
+        /// Updates an existing thesis with new details, enforcing status-based restrictions on modifications.
+        /// 
+        /// What: Modifies a thesis's title, subject area, or document based on the current thesis status.
+        /// How: Retrieves the thesis by ID, throws if not found.
+        /// Checks the current status: blocks updates if Submitted or Defended.
+        /// For Registered status, blocks subject area changes.
+        /// Applies updates conditionally: trims title, assigns subject area if allowed, handles document creation or update.
+        /// Saves changes and returns the updated thesis with populated data.
+        /// Why: Allows thesis owners to refine their work during early stages while preventing unauthorized changes later.
+        /// Enforces business rules to maintain integrity of the thesis process.
+        /// Supports document management for drafts and revisions.
+        /// </summary>
+        /// <param name="id">The unique GUID identifier of the thesis to update.</param>
+        /// <param name="request">The request model containing update details.</param>
+        /// <returns>The updated thesis business model with populated data.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the thesis is not found.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if updates are not allowed based on status.</exception>
         public async Task<ThesisBusinessLogicModel> UpdateThesisAsync(Guid id, ThesisUpdateRequestBusinessLogicModel request)
         {
             var thesis = await _context.Theses.SingleOrDefaultAsync(t => t.Id == id);
@@ -161,6 +223,19 @@ namespace ApiProject.BusinessLogic.Services
             return updatedThesis!;
         }
 
+        /// <summary>
+        /// Deletes a thesis from the database by its unique identifier.
+        /// 
+        /// What: Removes a thesis record and its associated data from the system.
+        /// How: Queries the Theses table to find the thesis by ID.
+        /// If found, removes the thesis entity from the context and saves changes to the database.
+        /// Returns true if deletion was successful, false if the thesis was not found.
+        /// Why: Allows authorized users (typically administrators or thesis owners) to remove theses that are no longer needed.
+        /// Supports data cleanup and management in the thesis system.
+        /// Cascading deletes should be handled by the database or EF configuration for related entities.
+        /// </summary>
+        /// <param name="id">The unique GUID identifier of the thesis to delete.</param>
+        /// <returns>True if the thesis was deleted, false if it was not found.</returns>
         public async Task<bool> DeleteThesisAsync(Guid id)
         {
             var thesis = await _context.Theses.SingleOrDefaultAsync(t => t.Id == id);

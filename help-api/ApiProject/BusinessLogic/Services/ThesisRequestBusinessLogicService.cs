@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace ApiProject.BusinessLogic.Services
 {
-    public class ThesisRequestService : IThesisRequestService
+    public class ThesisRequestBusinessLogicService : IThesisRequestService
     {
         private readonly ThesisDbContext _context;
 
-        public ThesisRequestService(ThesisDbContext context)
+        public ThesisRequestBusinessLogicService(ThesisDbContext context)
         {
             _context = context;
         }
