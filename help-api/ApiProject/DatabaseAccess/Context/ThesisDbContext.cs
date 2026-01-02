@@ -29,7 +29,7 @@ public class ThesisDbContext : DbContext
 
         // --- Composite Keys ---
         modelBuilder.Entity<UserRoleDataAccessModel>().HasKey(ur => new { ur.UserId, ur.RoleId });
-        modelBuilder.Entity<UserToSubjectAreas>().HasKey(ut => new { ut.UserId, SubjectAreaId = ut.UserToSubjectAreaId });
+        modelBuilder.Entity<UserToSubjectAreas>().HasKey(ut => new { ut.UserId, ut.SubjectAreaId });
 
         // --- Relationships ---
         modelBuilder.Entity<UserRoleDataAccessModel>()
@@ -50,7 +50,7 @@ public class ThesisDbContext : DbContext
         modelBuilder.Entity<UserToSubjectAreas>()
             .HasOne(ut => ut.SubjectArea)
             .WithMany(t => t.UserToSubjectAreas)
-            .HasForeignKey(ut => ut.UserToSubjectAreaId);
+            .HasForeignKey(ut => ut.SubjectAreaId);
 
         modelBuilder.Entity<ThesisDataAccessModel>()
             .HasOne(t => t.Owner)

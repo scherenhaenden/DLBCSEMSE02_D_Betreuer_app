@@ -169,7 +169,7 @@ public class Seeder
         }
 
         var userTopicsToSeed = userTopicAssignments
-            .Select(ut => new UserToSubjectAreas { UserId = ut.UserId, UserToSubjectAreaId = ut.TopicId })
+            .Select(ut => new UserToSubjectAreas { UserId = ut.UserId, SubjectAreaId = ut.TopicId })
             .ToList();
         
         // --- 9. Theses & Requests Generation ---
@@ -373,21 +373,21 @@ public class Seeder
         // --- 13. Serialize and Save ---
         var seedData = new
         {
-            Users = users,
             Roles = rolesToSeed,
-            UserRoles = userRolesToSeed,
             BillingStatuses = billingStatusesToSeed,
             ThesisStatuses = thesisStatusesToSeed,
+            RequestTypes = requestTypesToSeed,
+            RequestStatuses = requestStatusesToSeed,
+            ThesisOfferStatuses = thesisOfferStatusesToSeed,
             Topics = topicsToSeed,
+            Users = users,
+            UserRoles = userRolesToSeed,
             UserTopics = userTopicsToSeed,
             ThesisOffers = thesisOffersToSeed,
-            ThesisOfferStatuses = thesisOfferStatusesToSeed,
             ThesisOfferApplications = thesisOfferApplicationsToSeed,
             Theses = thesesToSeed,
             ThesisDocuments = thesisDocumentsToSeed,
-            ThesisRequests = thesisRequestsToSeed,
-            RequestTypes = requestTypesToSeed,
-            RequestStatuses = requestStatusesToSeed
+            ThesisRequests = thesisRequestsToSeed
         };
         
         var json = JsonSerializer.Serialize(seedData, new JsonSerializerOptions { WriteIndented = true });

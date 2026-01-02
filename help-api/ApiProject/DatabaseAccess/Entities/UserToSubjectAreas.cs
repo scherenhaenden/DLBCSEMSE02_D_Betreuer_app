@@ -8,7 +8,7 @@ namespace ApiProject.DatabaseAccess.Entities
         public Guid UserId { get; set; }
         public UserDataAccessModel User { get; set; }
 
-        public Guid UserToSubjectAreaId { get; set; }
+        public Guid SubjectAreaId { get; set; }
         public SubjectAreaDataAccessModel SubjectArea { get; set; }
     }
 }

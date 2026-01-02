@@ -7,7 +7,7 @@ namespace ApiProject.Extensions
         public static void AddBusinessLogicServices(this IServiceCollection services)
         {
             services.AddScoped<IUserBusinessLogicService, UserBusinessLogicService>();
-            services.AddScoped<IThesisService, ThesisService>();
+            services.AddScoped<IThesisBusinessLogicService, ThesisBusinessLogicService>();
             services.AddScoped<ISubjectAreaBusinessLogicService, SubjectAreaBusinessLogicService>();
             services.AddScoped<IThesisRequestService, ThesisRequestService>();
             services.AddScoped<IThesisOfferBusinessLogicService, ThesisOfferBusinessLogicService>();

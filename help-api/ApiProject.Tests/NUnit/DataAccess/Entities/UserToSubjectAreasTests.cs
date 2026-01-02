@@ -25,7 +25,7 @@ public class UserToSubjectAreasTests
     public void CanSetTopicId()
     {
         var topicId = Guid.NewGuid();
-        var model = new UserToSubjectAreas { UserToSubjectAreaId = topicId };
-        Assert.That(model.UserToSubjectAreaId, Is.EqualTo(topicId));
+        var model = new UserToSubjectAreas { SubjectAreaId = topicId };
+        Assert.That(model.SubjectAreaId, Is.EqualTo(topicId));
     }
 }

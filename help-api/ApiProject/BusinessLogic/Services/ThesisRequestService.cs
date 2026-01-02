@@ -37,7 +37,7 @@ namespace ApiProject.BusinessLogic.Services
                 throw new InvalidOperationException("The receiver of a request must be a TUTOR.");
 
             // Validate subject area Expertise (Constraint 2.3)
-            if (thesis.SubjectAreaId.HasValue && !receiver.UserToSubjectAreas.Any(ut => ut.UserToSubjectAreaId == thesis.SubjectAreaId.Value))
+            if (thesis.SubjectAreaId.HasValue && !receiver.UserToSubjectAreas.Any(ut => ut.SubjectAreaId == thesis.SubjectAreaId.Value))
             {
                 throw new InvalidOperationException("The selected tutor does not cover the subject area of this thesis.");
             }

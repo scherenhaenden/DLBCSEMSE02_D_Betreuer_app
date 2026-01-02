@@ -158,7 +158,7 @@ namespace ApiProject.BusinessLogic.Services
 
             if (subjectAreaId.HasValue)
             {
-                query = query.Where(u => u.UserToSubjectAreas.Any(ut => ut.UserToSubjectAreaId == subjectAreaId.Value));
+                query = query.Where(u => u.UserToSubjectAreas.Any(ut => ut.SubjectAreaId == subjectAreaId.Value));
             }
 
             if (!string.IsNullOrWhiteSpace(subjectAreaName))

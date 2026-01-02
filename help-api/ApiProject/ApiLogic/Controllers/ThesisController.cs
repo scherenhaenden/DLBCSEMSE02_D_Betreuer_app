@@ -14,12 +14,12 @@ namespace ApiProject.ApiLogic.Controllers
     [Authorize]
     public sealed class ThesisController : ControllerBase
     {
-        private readonly IThesisService _thesisService;
+        private readonly IThesisBusinessLogicService _thesisBusinessLogicService;
         private readonly IThesisApiMapper _thesisApiMapper;
 
-        public ThesisController(IThesisService thesisService, IThesisApiMapper thesisApiMapper)
+        public ThesisController(IThesisBusinessLogicService thesisBusinessLogicService, IThesisApiMapper thesisApiMapper)
         {
-            _thesisService = thesisService;
+            _thesisBusinessLogicService = thesisBusinessLogicService;
             _thesisApiMapper = thesisApiMapper;
         }
 
@@ -29,7 +29,7 @@ namespace ApiProject.ApiLogic.Controllers
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
 
-            var result = await _thesisService.GetAllAsync(page, pageSize, userId, userRoles);
+            var result = await _thesisBusinessLogicService.GetAllAsync(page, pageSize, userId, userRoles);
             
             var response = new PaginatedResponse<ThesisResponse>
             {
@@ -44,7 +44,7 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ThesisResponse>> GetById(Guid id)
         {
-            var thesis = await _thesisService.GetByIdAsync(id);
+            var thesis = await _thesisBusinessLogicService.GetByIdAsync(id);
             if (thesis == null) return NotFound();
             return Ok(_thesisApiMapper.MapToResponse(thesis));
         }
@@ -68,7 +68,7 @@ namespace ApiProject.ApiLogic.Controllers
                 content = memoryStream.ToArray();
             }
 
-            var created = await _thesisService.CreateThesisAsync(new ThesisCreateRequestBusinessLogicModel
+            var created = await _thesisBusinessLogicService.CreateThesisAsync(new ThesisCreateRequestBusinessLogicModel
             {
                 Title = request.Title,
                 OwnerId = ownerId,
@@ -99,7 +99,7 @@ namespace ApiProject.ApiLogic.Controllers
 
             try
             {
-                var updated = await _thesisService.UpdateThesisAsync(id, new ThesisUpdateRequestBusinessLogicModel
+                var updated = await _thesisBusinessLogicService.UpdateThesisAsync(id, new ThesisUpdateRequestBusinessLogicModel
                 {
                     Title = request.Title,
                     SubjectAreaId = request.SubjectAreaId,
@@ -122,7 +122,7 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            var deleted = await _thesisService.DeleteThesisAsync(id);
+            var deleted = await _thesisBusinessLogicService.DeleteThesisAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
         }

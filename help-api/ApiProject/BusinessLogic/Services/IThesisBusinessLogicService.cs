@@ -6,7 +6,7 @@ namespace ApiProject.BusinessLogic.Services
     /// <summary>
     /// Interface for the Thesis Service, providing CRUD operations for theses.
     /// </summary>
-    public interface IThesisService
+    public interface IThesisBusinessLogicService
     {
         /// <summary>
         /// Returns all theses in a paginated result, filtered by user roles and ID.

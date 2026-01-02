@@ -8,12 +8,12 @@ using System.Linq;
 
 namespace ApiProject.BusinessLogic.Services
 {
-    public sealed class ThesisService : IThesisService
+    public sealed class ThesisBusinessLogicService : IThesisBusinessLogicService
     {
         private readonly ThesisDbContext _context;
         private readonly IUserBusinessLogicService _userBusinessLogicService;
 
-        public ThesisService(ThesisDbContext context, IUserBusinessLogicService userBusinessLogicService)
+        public ThesisBusinessLogicService(ThesisDbContext context, IUserBusinessLogicService userBusinessLogicService)
         {
             _context = context;
             _userBusinessLogicService = userBusinessLogicService;

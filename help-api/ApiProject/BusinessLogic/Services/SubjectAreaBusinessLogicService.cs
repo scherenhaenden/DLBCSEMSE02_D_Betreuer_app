@@ -125,7 +125,7 @@ namespace ApiProject.BusinessLogic.Services
                 subjectArea.UserToSubjectAreas.Clear();
                 foreach (var tutorId in request.TutorIds)
                 {
-                    subjectArea.UserToSubjectAreas.Add(new UserToSubjectAreas { UserToSubjectAreaId = subjectArea.Id, UserId = tutorId });
+                    subjectArea.UserToSubjectAreas.Add(new UserToSubjectAreas { SubjectAreaId = subjectArea.Id, UserId = tutorId });
                 }
             }
 
