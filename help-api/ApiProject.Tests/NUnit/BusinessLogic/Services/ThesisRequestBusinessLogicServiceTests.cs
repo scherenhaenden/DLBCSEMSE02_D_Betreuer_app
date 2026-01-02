@@ -62,27 +62,7 @@ public class ThesisRequestBusinessLogicServiceTests
         Assert.That(result.Count(), Is.EqualTo(1));
         Assert.That(result.First().Message, Is.EqualTo("Request message"));
     }
-
-    [Test]
-    public async Task CanCreateThesisRequest()
-    {
-        // Arrange
-        var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
-        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
-        var subjectArea = _context.SubjectAreas.First();
-        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
-        var billingStatus = _context.BillingStatuses.First();
-        var thesis = _seeder.SeedThesis("Test Thesis", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
-
-        // Act
-        var createdRequest = await _thesisRequestService.CreateRequestAsync(student.Id, thesis.Id, tutor.Id, "SUPERVISION", "I would like supervision.");
-
-        // Assert
-        Assert.That(createdRequest, Is.Not.Null);
-        Assert.That(createdRequest.Message, Is.EqualTo("I would like supervision."));
-        Assert.That(createdRequest.Requester.Id, Is.EqualTo(student.Id));
-        Assert.That(createdRequest.Receiver.Id, Is.EqualTo(tutor.Id));
-    }
+  
 
     [Test]
     public async Task CanRespondToRequest()

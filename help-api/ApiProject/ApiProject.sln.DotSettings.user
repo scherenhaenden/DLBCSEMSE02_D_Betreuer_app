@@ -52,8 +52,5 @@
   &lt;Project Location="/home/edward/Development/DLBCSEMSE02_D_Betreuet_app/help-api/ApiProject.Tests" Presentation="&amp;lt;ApiProject.Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f98ad6fa_002Dc8ce_002D4a13_002Dad90_002Df0b48c06c031/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="StudentCreatesRequestSupervisionShouldPass" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.ThesisRequestBusinessLogicServiceTests.StudentCreatesRequestSupervisionShouldPass&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.BusinessLogic.Services.ThesisRequestBusinessLogicServiceTests.StudentCreatesRequestSupervisionForTutorWithDifferentSubjectAreaShouldNotPass&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+  &lt;Project Location="/home/edward/Development/DLBCSEMSE02_D_Betreuet_app/help-api/ApiProject.Tests" Presentation="&amp;lt;ApiProject.Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
