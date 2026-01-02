@@ -60,7 +60,7 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
 
     public async Task<ThesisOfferBusinessLogicModel> CreateAsync(ThesisOfferCreateRequestBusinessLogicModel request)
     {
-        var openStatus = await _context.ThesisOfferStatuses.SingleAsync(s => s.Name == "OPEN");
+        var openStatus = await _context.ThesisOfferStatuses.SingleAsync(s => s.Name == ThesisOfferStatuses.Open);
 
         var thesisOffer = new ThesisOfferDataAccessModel
         {
@@ -90,12 +90,12 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
             return (null, "Thesis offer not found.");
         }
 
-        if (thesisOffer.ThesisOfferStatus?.Name != "OPEN")
+        if (thesisOffer.ThesisOfferStatus?.Name != ThesisOfferStatuses.Open)
         {
             return (null, "Thesis offer does not have open state anymore.");
         }
 
-        var pendingStatus = await _context.RequestStatuses.SingleAsync(s => s.Name == "PENDING");
+        var pendingStatus = await _context.RequestStatuses.SingleAsync(s => s.Name == RequestStatuses.Pending);
 
         var application = new ThesisOfferApplicationDataAccessModel
         {

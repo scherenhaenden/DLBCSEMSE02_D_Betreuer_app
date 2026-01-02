@@ -37,6 +37,7 @@
     &lt;/And&gt;
     &lt;ProjectFolder&gt;D5FCE5C1-2E43-44B0-A353-4C5E219DB668/d:NUnit/d:DataAccess&lt;/ProjectFolder&gt;
     &lt;ProjectFile&gt;D5FCE5C1-2E43-44B0-A353-4C5E219DB668/d:NUnit/d:BusinessLogic/d:Services/f:ThesisBusinessLogicServiceTests.cs&lt;/ProjectFile&gt;
+    &lt;ProjectFolder&gt;D5FCE5C1-2E43-44B0-A353-4C5E219DB668/d:NUnit/d:BusinessLogic/d:Services&lt;/ProjectFolder&gt;
   &lt;/Or&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=bdd47eb1_002Dee12_002D424b_002D8561_002D433098b5ddf0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Seeder" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;

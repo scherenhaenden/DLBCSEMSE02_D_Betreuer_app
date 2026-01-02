@@ -112,4 +112,89 @@ public class TestDataSeeder
             _context.SaveChanges();
         }
     }
+
+    public void SeedThesisOfferStatuses()
+    {
+        if (!_context.ThesisOfferStatuses.Any())
+        {
+            _context.ThesisOfferStatuses.AddRange(
+                new ThesisOfferStatusDataAccessModel { Id = Guid.NewGuid(), Name = ThesisOfferStatuses.Open, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new ThesisOfferStatusDataAccessModel { Id = Guid.NewGuid(), Name = ThesisOfferStatuses.Closed, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new ThesisOfferStatusDataAccessModel { Id = Guid.NewGuid(), Name = ThesisOfferStatuses.Archived, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            );
+            _context.SaveChanges();
+        }
+    }
+
+    public void SeedRequestStatuses()
+    {
+        if (!_context.RequestStatuses.Any())
+        {
+            _context.RequestStatuses.AddRange(
+                new RequestStatusDataAccessModel { Id = Guid.NewGuid(), Name = RequestStatuses.Pending, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new RequestStatusDataAccessModel { Id = Guid.NewGuid(), Name = RequestStatuses.Accepted, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new RequestStatusDataAccessModel { Id = Guid.NewGuid(), Name = RequestStatuses.Rejected, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            );
+            _context.SaveChanges();
+        }
+    }
+
+    public ThesisOfferDataAccessModel SeedThesisOffer(string title, string description, Guid subjectAreaId, Guid tutorId, int maxStudents, DateTime expiresAt)
+    {
+        var openStatus = _context.ThesisOfferStatuses.First(s => s.Name == ThesisOfferStatuses.Open);
+        var offer = new ThesisOfferDataAccessModel
+        {
+            Id = Guid.NewGuid(),
+            Title = title,
+            Description = description,
+            SubjectAreaId = subjectAreaId,
+            TutorId = tutorId,
+            ThesisOfferStatusId = openStatus.Id,
+            MaxStudents = maxStudents,
+            ExpiresAt = expiresAt,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        _context.ThesisOffers.Add(offer);
+        _context.SaveChanges();
+        return offer;
+    }
+
+    public ThesisOfferDataAccessModel SeedThesisOfferWithStatus(string title, string description, Guid subjectAreaId, Guid tutorId, int maxStudents, DateTime expiresAt, Guid statusId)
+    {
+        var offer = new ThesisOfferDataAccessModel
+        {
+            Id = Guid.NewGuid(),
+            Title = title,
+            Description = description,
+            SubjectAreaId = subjectAreaId,
+            TutorId = tutorId,
+            ThesisOfferStatusId = statusId,
+            MaxStudents = maxStudents,
+            ExpiresAt = expiresAt,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        _context.ThesisOffers.Add(offer);
+        _context.SaveChanges();
+        return offer;
+    }
+
+    public ThesisOfferApplicationDataAccessModel SeedThesisOfferApplication(Guid offerId, Guid studentId, string message)
+    {
+        var pendingStatus = _context.RequestStatuses.First(s => s.Name == RequestStatuses.Pending);
+        var application = new ThesisOfferApplicationDataAccessModel
+        {
+            Id = Guid.NewGuid(),
+            ThesisOfferId = offerId,
+            StudentId = studentId,
+            RequestStatusId = pendingStatus.Id,
+            Message = message,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        _context.ThesisOfferApplications.Add(application);
+        _context.SaveChanges();
+        return application;
+    }
 }
