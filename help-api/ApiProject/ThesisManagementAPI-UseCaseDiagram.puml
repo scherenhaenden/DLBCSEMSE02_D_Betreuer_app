@@ -11,7 +11,7 @@ actor "External Application" as App
 
 rectangle "Thesis Management System" {
     usecase "Login" as UC_LOGIN
-    usecase "Search for Tutors by Topic" as UC_SEARCH_TUTORS
+    usecase "Search for Tutors by Subject Area" as UC_SEARCH_TUTORS
     usecase "View Tutor Profile" as UC_VIEW_TUTOR
     
     usecase "View Own Theses" as UC_VIEW_OWN_THESES
@@ -21,7 +21,7 @@ rectangle "Thesis Management System" {
     usecase "Update Thesis" as UC_UPDATE_THESIS
     
     usecase "Manage All Users" as UC_MANAGE_USERS
-    usecase "Manage All Topics" as UC_MANAGE_TOPICS
+    usecase "Manage All Subject Areas" as UC_MANAGE_SUBJECT_AREAS
     usecase "Manage All Theses" as UC_MANAGE_THESES
 }
 
@@ -36,7 +36,7 @@ Tutor -> UC_VIEW_ASSIGNED_THESES
 Tutor -> UC_UPDATE_THESIS
 
 Admin -> UC_MANAGE_USERS
-Admin -> UC_MANAGE_TOPICS
+Admin -> UC_MANAGE_SUBJECT_AREAS
 Admin -> UC_MANAGE_THESES
 
 @enduml
