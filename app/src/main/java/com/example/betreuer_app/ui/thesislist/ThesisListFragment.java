@@ -25,7 +25,7 @@ public class ThesisListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_thesis_list, container, false);
-        recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView = view.findViewById(R.id.thesesRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return view;
     }
@@ -38,7 +38,7 @@ public class ThesisListFragment extends Fragment {
         viewModel.getTheses().observe(getViewLifecycleOwner(), new Observer<ThesesResponse>() {
             @Override
             public void onChanged(ThesesResponse thesesResponse) {
-                if (thesesResponse != null) {
+                if (thesesResponse != null && thesesResponse.getItems() != null) {
                     adapter = new ThesisListAdapter(thesesResponse.getItems());
                     recyclerView.setAdapter(adapter);
                 }
