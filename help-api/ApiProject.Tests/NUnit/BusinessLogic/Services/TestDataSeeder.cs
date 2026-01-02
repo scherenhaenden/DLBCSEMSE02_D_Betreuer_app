@@ -139,6 +139,18 @@ public class TestDataSeeder
         }
     }
 
+    public void SeedRequestTypes()
+    {
+        if (!_context.RequestTypes.Any())
+        {
+            _context.RequestTypes.AddRange(
+                new RequestTypeDataAccessModel { Id = Guid.NewGuid(), Name = RequestTypes.Supervision, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                new RequestTypeDataAccessModel { Id = Guid.NewGuid(), Name = RequestTypes.CoSupervision, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            );
+            _context.SaveChanges();
+        }
+    }
+
     public ThesisOfferDataAccessModel SeedThesisOffer(string title, string description, Guid subjectAreaId, Guid tutorId, int maxStudents, DateTime expiresAt)
     {
         var openStatus = _context.ThesisOfferStatuses.First(s => s.Name == ThesisOfferStatuses.Open);
@@ -196,5 +208,26 @@ public class TestDataSeeder
         _context.ThesisOfferApplications.Add(application);
         _context.SaveChanges();
         return application;
+    }
+
+    public ThesisRequestDataAccessModel SeedThesisRequest(Guid requesterId, Guid receiverId, Guid thesisId, string requestType, string status, string message)
+    {
+        var requestTypeEntity = _context.RequestTypes.First(rt => rt.Name == requestType);
+        var statusEntity = _context.RequestStatuses.First(rs => rs.Name == status);
+        var request = new ThesisRequestDataAccessModel
+        {
+            Id = Guid.NewGuid(),
+            RequesterId = requesterId,
+            ReceiverId = receiverId,
+            ThesisId = thesisId,
+            RequestTypeId = requestTypeEntity.Id,
+            StatusId = statusEntity.Id,
+            Message = message,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        _context.ThesisRequests.Add(request);
+        _context.SaveChanges();
+        return request;
     }
 }

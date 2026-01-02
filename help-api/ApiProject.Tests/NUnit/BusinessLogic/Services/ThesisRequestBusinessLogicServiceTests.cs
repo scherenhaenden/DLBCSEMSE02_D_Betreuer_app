@@ -9,17 +9,17 @@ using ApiProject.DatabaseAccess.Entities;
 namespace ApiProject.Tests.NUnit.BusinessLogic.Services;
 
 [TestFixture]
-public class ThesisRequestBusinessLogicServiceTests
+public class ThesisBusinessLogicRequestServiceTests
 {
     private ThesisDbContext _context;
-    private IThesisRequestBusinessLogicService _thesisRequestService;
+    private IThesisBusinessLogicRequestService _thesisRequestService;
     private TestDataSeeder _seeder;
 
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<ThesisDbContext>()
-            .UseSqlite("Data Source=ThesisRequestBusinessLogicServiceTests.db")
+            .UseSqlite("Data Source=ThesisBusinessLogicRequestServiceTests.db")
             .Options;
         _context = new ThesisDbContext(options);
         _context.Database.EnsureCreated();
@@ -27,10 +27,13 @@ public class ThesisRequestBusinessLogicServiceTests
         _seeder = new TestDataSeeder(_context);
         _seeder.SeedRoles();
         _seeder.SeedRequestStatuses();
+        _seeder.SeedRequestTypes();
         _seeder.SeedSubjectAreas();
+        _seeder.SeedThesisStatuses();
+        _seeder.SeedBillingStatuses();
         _context.SaveChanges();
 
-        _thesisRequestService = new ThesisRequestBusinessLogicService(_context);
+        _thesisRequestService = new ThesisBusinessLogicRequestService(_context);
     }
 
     [TearDown]
@@ -41,39 +44,23 @@ public class ThesisRequestBusinessLogicServiceTests
     }
 
     [Test]
-    public async Task CanGetAllThesisRequests()
+    public async Task CanGetRequestsForUser()
     {
         // Arrange
         var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
         var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
         var subjectArea = _context.SubjectAreas.First();
-        var request = _seeder.SeedThesisRequest(student.Id, tutor.Id, subjectArea.Id, "Request message");
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Test Thesis", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        var request = _seeder.SeedThesisRequest(student.Id, tutor.Id, thesis.Id, RequestTypes.Supervision, RequestStatuses.Pending, "Request message");
 
         // Act
-        var result = await _thesisRequestService.GetAllAsync(1, 10, Guid.NewGuid(), new List<string> { Roles.Admin });
+        var result = await _thesisRequestService.GetRequestsForUserAsync(student.Id);
 
         // Assert
-        Assert.That(result.Items.Count, Is.EqualTo(1));
-        Assert.That(result.Items.First().Message, Is.EqualTo("Request message"));
-    }
-
-    [Test]
-    public async Task CanGetThesisRequestsForStudent()
-    {
-        // Arrange
-        var student1 = _seeder.SeedUser("Student1", "One", "student1@example.com", "password", Roles.Student);
-        var student2 = _seeder.SeedUser("Student2", "Two", "student2@example.com", "password", Roles.Student);
-        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
-        var subjectArea = _context.SubjectAreas.First();
-        var request1 = _seeder.SeedThesisRequest(student1.Id, tutor.Id, subjectArea.Id, "Message1");
-        var request2 = _seeder.SeedThesisRequest(student2.Id, tutor.Id, subjectArea.Id, "Message2");
-
-        // Act
-        var result = await _thesisRequestService.GetRequestsForUserAsync(student1.Id, 1, 10);
-
-        // Assert
-        Assert.That(result.Items.Count, Is.EqualTo(1));
-        Assert.That(result.Items.First().Message, Is.EqualTo("Message1"));
+        Assert.That(result.Count(), Is.EqualTo(1));
+        Assert.That(result.First().Message, Is.EqualTo("Request message"));
     }
 
     [Test]
@@ -83,61 +70,57 @@ public class ThesisRequestBusinessLogicServiceTests
         var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
         var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
         var subjectArea = _context.SubjectAreas.First();
-
-        var request = new ThesisRequestCreateRequestBusinessLogicModel
-        {
-            StudentId = student.Id,
-            TutorId = tutor.Id,
-            SubjectAreaId = subjectArea.Id,
-            Message = "I would like supervision."
-        };
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Test Thesis", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
 
         // Act
-        var createdRequest = await _thesisRequestService.CreateAsync(request);
+        var createdRequest = await _thesisRequestService.CreateRequestAsync(student.Id, thesis.Id, tutor.Id, "SUPERVISION", "I would like supervision.");
 
         // Assert
         Assert.That(createdRequest, Is.Not.Null);
         Assert.That(createdRequest.Message, Is.EqualTo("I would like supervision."));
-        Assert.That(createdRequest.StudentId, Is.EqualTo(student.Id));
-        Assert.That(createdRequest.TutorId, Is.EqualTo(tutor.Id));
+        Assert.That(createdRequest.Requester.Id, Is.EqualTo(student.Id));
+        Assert.That(createdRequest.Receiver.Id, Is.EqualTo(tutor.Id));
     }
 
     [Test]
-    public async Task CanUpdateThesisRequest()
+    public async Task CanRespondToRequest()
     {
         // Arrange
         var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
         var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
         var subjectArea = _context.SubjectAreas.First();
-        var thesisRequest = _seeder.SeedThesisRequest(student.Id, tutor.Id, subjectArea.Id, "Original message");
-
-        var updateRequest = new ThesisRequestUpdateRequestBusinessLogicModel
-        {
-            Message = "Updated message"
-        };
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Test Thesis", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        var request = _seeder.SeedThesisRequest(student.Id, tutor.Id, thesis.Id, RequestTypes.Supervision, RequestStatuses.Pending, "Request message");
 
         // Act
-        var updatedRequest = await _thesisRequestService.UpdateAsync(thesisRequest.Id, updateRequest);
+        await _thesisRequestService.RespondToRequestAsync(request.Id, tutor.Id, true, "Accepted");
 
         // Assert
-        Assert.That(updatedRequest.Message, Is.EqualTo("Updated message"));
+        var updatedRequest = await _thesisRequestService.GetRequestByIdAsync(request.Id);
+        Assert.That(updatedRequest.Status, Is.EqualTo("ACCEPTED"));
     }
 
     [Test]
-    public async Task CanDeleteThesisRequest()
+    public async Task CanGetRequestById()
     {
         // Arrange
         var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
         var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
         var subjectArea = _context.SubjectAreas.First();
-        var thesisRequest = _seeder.SeedThesisRequest(student.Id, tutor.Id, subjectArea.Id, "Message");
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Test Thesis", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        var request = _seeder.SeedThesisRequest(student.Id, tutor.Id, thesis.Id, RequestTypes.Supervision, RequestStatuses.Pending, "Request message");
 
         // Act
-        var deleted = await _thesisRequestService.DeleteAsync(thesisRequest.Id);
+        var retrievedRequest = await _thesisRequestService.GetRequestByIdAsync(request.Id);
 
         // Assert
-        Assert.That(deleted, Is.True);
-        var retrieved = await _thesisRequestService.GetByIdAsync(thesisRequest.Id);
-        Assert.That(retrieved, Is.Null);
+        Assert.That(retrievedRequest, Is.Not.Null);
+        Assert.That(retrievedRequest.Message, Is.EqualTo("Request message"));
     }
 }

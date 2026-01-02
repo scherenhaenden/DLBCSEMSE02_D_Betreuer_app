@@ -11,18 +11,18 @@ namespace ApiProject.ApiLogic.Controllers
     [Authorize]
     public class ThesisRequestController : ControllerBase
     {
-        private readonly IThesisRequestService _requestService;
+        private readonly IThesisBusinessLogicRequestService _businessLogicRequestService;
 
-        public ThesisRequestController(IThesisRequestService requestService)
+        public ThesisRequestController(IThesisBusinessLogicRequestService businessLogicRequestService)
         {
-            _requestService = requestService;
+            _businessLogicRequestService = businessLogicRequestService;
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateRequest([FromBody] CreateThesisRequestRequest request)
         {
             var requesterId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var createdRequest = await _requestService.CreateRequestAsync(requesterId, request.ThesisId, request.ReceiverId, request.RequestType, request.Message);
+            var createdRequest = await _businessLogicRequestService.CreateRequestAsync(requesterId, request.ThesisId, request.ReceiverId, request.RequestType, request.Message);
             return CreatedAtAction(nameof(GetRequestById), new { id = createdRequest.Id }, createdRequest);
         }
 
@@ -30,14 +30,14 @@ namespace ApiProject.ApiLogic.Controllers
         public async Task<ActionResult<IEnumerable<ThesisRequestResponse>>> GetMyRequests()
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var requests = await _requestService.GetRequestsForUserAsync(userId);
+            var requests = await _businessLogicRequestService.GetRequestsForUserAsync(userId);
             return Ok(requests);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ThesisRequestResponse>> GetRequestById(Guid id)
         {
-            var request = await _requestService.GetRequestByIdAsync(id);
+            var request = await _businessLogicRequestService.GetRequestByIdAsync(id);
             if (request == null) return NotFound();
             return Ok(request);
         }
@@ -46,7 +46,7 @@ namespace ApiProject.ApiLogic.Controllers
         public async Task<IActionResult> RespondToRequest(Guid id, [FromBody] RespondToThesisRequestRequest response)
         {
             var receiverId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await _requestService.RespondToRequestAsync(id, receiverId, response.Accepted, response.Message);
+            await _businessLogicRequestService.RespondToRequestAsync(id, receiverId, response.Accepted, response.Message);
             return NoContent();
         }
     }

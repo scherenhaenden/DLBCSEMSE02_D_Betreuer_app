@@ -6,14 +6,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ApiProject.Constants;
 
 namespace ApiProject.BusinessLogic.Services
 {
-    public class ThesisRequestBusinessLogicService : IThesisRequestService
+    public class ThesisBusinessLogicRequestService : IThesisBusinessLogicRequestService
     {
         private readonly ThesisDbContext _context;
 
-        public ThesisRequestBusinessLogicService(ThesisDbContext context)
+        public ThesisBusinessLogicRequestService(ThesisDbContext context)
         {
             _context = context;
         }
@@ -33,7 +34,7 @@ namespace ApiProject.BusinessLogic.Services
             if (requestTypeEntity == null) throw new ArgumentException("Invalid request type.", nameof(requestType));
 
             // --- Constraint Validation ---
-            if (!receiver.UserRoles.Any(r => r.Role.Name == "TUTOR"))
+            if (!receiver.UserRoles.Any(r => r.Role.Name == Roles.Tutor))
                 throw new InvalidOperationException("The receiver of a request must be a TUTOR.");
 
             // Validate subject area Expertise (Constraint 2.3)
@@ -42,14 +43,14 @@ namespace ApiProject.BusinessLogic.Services
                 throw new InvalidOperationException("The selected tutor does not cover the subject area of this thesis.");
             }
 
-            if (requestTypeEntity.Name == "SUPERVISION")
+            if (requestTypeEntity.Name == RequestTypes.Supervision)
             {
-                if (!requester.UserRoles.Any(r => r.Role.Name == "STUDENT") || thesis.OwnerId != requesterId)
+                if (!requester.UserRoles.Any(r => r.Role.Name == Roles.Student) || thesis.OwnerId != requesterId)
                     throw new InvalidOperationException("Only the thesis owner (STUDENT) can request supervision.");
             }
-            else if (requestTypeEntity.Name == "CO_SUPERVISION")
+            else if (requestTypeEntity.Name == RequestTypes.CoSupervision)
             {
-                if (!requester.UserRoles.Any(r => r.Role.Name == "TUTOR") || thesis.TutorId != requesterId)
+                if (!requester.UserRoles.Any(r => r.Role.Name == Roles.Tutor) || thesis.TutorId != requesterId)
                     throw new InvalidOperationException("Only the main supervisor (TUTOR) can request co-supervision.");
                 
                 // Validate Supervisor Distinctness (Constraint 2.4)
@@ -60,7 +61,7 @@ namespace ApiProject.BusinessLogic.Services
             }
             // --- End Validation ---
 
-            var pendingStatus = await _context.RequestStatuses.SingleAsync(rs => rs.Name == "PENDING");
+            var pendingStatus = await _context.RequestStatuses.SingleAsync(rs => rs.Name == RequestStatuses.Pending);
 
             var newRequest = new ThesisRequestDataAccessModel
             {
@@ -114,24 +115,34 @@ namespace ApiProject.BusinessLogic.Services
             if (request == null) throw new KeyNotFoundException("Request not found.");
             if (request.ReceiverId != receiverId) throw new UnauthorizedAccessException("You are not authorized to respond to this request.");
 
-            var newStatusName = accepted ? "ACCEPTED" : "REJECTED";
+            var newStatusName = accepted ? RequestStatuses.Accepted : RequestStatuses.Rejected;
             var newStatus = await _context.RequestStatuses.SingleAsync(rs => rs.Name == newStatusName);
             request.StatusId = newStatus.Id;
 
             if (accepted)
             {
                 var requestType = await _context.RequestTypes.FindAsync(request.RequestTypeId);
-                if (requestType.Name == "SUPERVISION")
+                if (requestType.Name == RequestTypes.Supervision)
                 {
                     request.Thesis.TutorId = request.ReceiverId;
                 }
-                else if (requestType.Name == "CO_SUPERVISION")
+                else if (requestType.Name == RequestTypes.CoSupervision)
                 {
                     request.Thesis.SecondSupervisorId = request.ReceiverId;
                 }
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<ThesisRequestResponse> CreatedStudentRequestForTutor(Guid studentId, Guid tutorId, Guid thesisId, string? message)
+        {
+            return await CreateRequestAsync(studentId, thesisId, tutorId, RequestTypes.Supervision, message);
+        }
+
+        public async Task<ThesisRequestResponse> CreatedTutorRequestForSecondSupervisor(Guid tutorId, Guid secondSupervisorId, Guid thesisId, string? message)
+        {
+            return await CreateRequestAsync(tutorId, thesisId, secondSupervisorId, RequestTypes.CoSupervision, message);
         }
 
         private static ThesisRequestResponse MapToResponse(ThesisRequestDataAccessModel r)
