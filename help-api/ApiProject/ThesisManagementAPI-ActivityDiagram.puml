@@ -5,10 +5,10 @@ title Thesis Management API - Student Finds a Tutor and Starts a Thesis
 |Student|
 start
 :Login to the system;
-:Search for topics by name (e.g., "Design");
-:Receives a list of topics;
-:Selects a topic;
-:Searches for tutors covering the selected topic;
+:Search for subject areas by name (e.g., "Design");
+:Receives a list of subject areas;
+:Selects a subject areas;
+:Searches for tutors covering the selected subject areas;
 :Receives a list of tutors;
 :Selects a tutor and views their profile;
 :Contacts tutor and agrees on a thesis;

@@ -10,7 +10,7 @@ package "Presentation Layer" {
         - AuthController
         - UserController
         - TutorController
-        - TopicController
+        - SubjectAreaController
         - ThesisController
     end note
 }
@@ -20,7 +20,7 @@ package "Business Logic Layer" {
     note right of Business
         - IUserBusinessLogicService
         - IThesisService
-        - ITopicService
+        - ISubjectAreaService
     end note
 }
 
