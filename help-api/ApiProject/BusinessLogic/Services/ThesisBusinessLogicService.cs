@@ -5,6 +5,7 @@ using ApiProject.DatabaseAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using ApiProject.Constants;
 
 namespace ApiProject.BusinessLogic.Services
 {
@@ -27,13 +28,13 @@ namespace ApiProject.BusinessLogic.Services
                 .Include(t => t.Document)
                 .AsQueryable();
 
-            if (!userRoles.Contains("ADMIN"))
+            if (!userRoles.Contains(Roles.Admin))
             {
-                if (userRoles.Contains("TUTOR"))
+                if (userRoles.Contains(Roles.Tutor))
                 {
                     query = query.Where(t => t.TutorId == userId || t.SecondSupervisorId == userId);
                 }
-                else if (userRoles.Contains("STUDENT"))
+                else if (userRoles.Contains(Roles.Student))
                 {
                     query = query.Where(t => t.OwnerId == userId);
                 }
@@ -68,13 +69,15 @@ namespace ApiProject.BusinessLogic.Services
 
         public async Task<ThesisBusinessLogicModel> CreateThesisAsync(ThesisCreateRequestBusinessLogicModel request)
         {
-            if (!await _userBusinessLogicService.UserHasRoleAsync(request.OwnerId, "STUDENT"))
+            if (!await _userBusinessLogicService.UserHasRoleAsync(request.OwnerId, Roles.Student))
             {
                 throw new InvalidOperationException("Owner must have the STUDENT role.");
             }
 
-            var initialStatus = await _context.ThesisStatuses.FirstAsync(s => s.Name == "IN_DISCUSSION");
-            var initialBillingStatus = await _context.BillingStatuses.FirstAsync(b => b.Name == "NONE");
+            var values = await _context.ThesisStatuses.ToListAsync();
+
+            var initialStatus = await _context.ThesisStatuses.FirstAsync(s => s.Name == ThesisStatuses.Registered);
+            var initialBillingStatus = await _context.BillingStatuses.FirstAsync(b => b.Name == BillingStatuses.None);
 
             var thesis = new ThesisDataAccessModel
             {
@@ -117,7 +120,7 @@ namespace ApiProject.BusinessLogic.Services
 
             // Only allow updates in early stages
             var currentStatus = await _context.ThesisStatuses.FindAsync(thesis.StatusId);
-            if (currentStatus.Name != "IN_DISCUSSION")
+            if (currentStatus.Name != ThesisStatuses.InDiscussion)
             {
                 throw new InvalidOperationException("Thesis can only be modified while in discussion.");
             }
