@@ -56,4 +56,16 @@ public interface IThesisOfferBusinessLogicService
     /// <param name="request">The request model containing the details for the new application.</param>
     /// <returns>A task representing the asynchronous operation, containing a tuple with the created <see cref="ThesisOfferApplicationBusinessLogicModel"/> (or null if creation failed) and an error message (or null if successful).</returns>
     Task<(ThesisOfferApplicationBusinessLogicModel?, string?)> CreateApplicationAsync(ThesisOfferApplicationCreateRequestBusinessLogicModel request);
+
+    /// <summary>
+    /// Retrieves a paginated list of thesis offers for a specific user asynchronously.
+    /// Filters based on the current user's roles and permissions.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user whose offers are to be retrieved.</param>
+    /// <param name="currentUserId">The unique identifier of the current user making the request.</param>
+    /// <param name="userRoles">The list of roles assigned to the current user.</param>
+    /// <param name="page">The page number to retrieve (1-based).</param>
+    /// <param name="pageSize">The number of offers per page.</param>
+    /// <returns>A task representing the asynchronous operation, containing a <see cref="PaginatedResultBusinessLogicModel{T}"/> with a list of <see cref="ThesisOfferBusinessLogicModel"/> for the specified user and pagination metadata.</returns>
+    Task<PaginatedResultBusinessLogicModel<ThesisOfferBusinessLogicModel>> GetByUserIdAsync(Guid userId, Guid currentUserId, List<string> userRoles, int page, int pageSize);
 }

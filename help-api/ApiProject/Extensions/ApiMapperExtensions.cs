@@ -7,6 +7,8 @@ namespace ApiProject.Extensions
         public static void AddApiMappers(this IServiceCollection services)
         {
             services.AddScoped<IThesisApiMapper, ThesisApiMapper>();
+            services.AddScoped<IThesisOfferApiMapper, ThesisOfferApiMapper>();
+            services.AddScoped<IThesisOfferApplicationApiMapper, ThesisOfferApplicationApiMapper>();
         }
     }
 }

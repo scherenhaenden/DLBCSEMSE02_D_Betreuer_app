@@ -243,4 +243,45 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
 
         return (ThesisOfferApplicationBusinessLogicMapper.ToBusinessModel(application), null);
     }
+
+    /// <summary>
+    /// Retrieves a paginated list of thesis offers for a specific user asynchronously.
+    /// Filters based on the current user's roles and permissions.
+    /// 
+    /// What: Fetches thesis offers where the tutor is the specified user, with status information.
+    /// How: Builds a queryable starting from ThesisOffers table, includes ThesisOfferStatus, filters by TutorId == userId.
+    /// Applies role-based access: allows if current user is admin, student, or the target user (tutor viewing own).
+    /// Counts total matching offers for pagination, skips and takes the appropriate page, maps to business models.
+    /// Why: Enables users to view thesis offers from a specific tutor, with proper access control.
+    /// Supports scenarios like students browsing a tutor's offers.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user whose offers are to be retrieved.</param>
+    /// <param name="currentUserId">The unique identifier of the current user making the request.</param>
+    /// <param name="userRoles">The list of roles assigned to the current user.</param>
+    /// <param name="page">The page number to retrieve (1-based).</param>
+    /// <param name="pageSize">The number of offers per page.</param>
+    /// <returns>A paginated result containing the list of thesis offers for the specified user and metadata.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the current user is not authorized to view the offers.</exception>
+    public async Task<PaginatedResultBusinessLogicModel<ThesisOfferBusinessLogicModel>> GetByUserIdAsync(Guid userId, Guid currentUserId, List<string> userRoles, int page, int pageSize)
+    {
+        // Access control: allow if admin, student, or the user themselves
+        if (!userRoles.Contains(Roles.Admin) && !userRoles.Contains(Roles.Student) && currentUserId != userId)
+        {
+            throw new InvalidOperationException("You are not authorized to view these offers.");
+        }
+
+        var query = _context.ThesisOffers
+            .Include(to => to.ThesisOfferStatus)
+            .Where(to => to.TutorId == userId)
+            .AsQueryable();
+
+        var totalCount = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PaginatedResultBusinessLogicModel<ThesisOfferBusinessLogicModel>
+        {
+            Items = items.Select(ThesisOfferBusinessLogicMapper.ToBusinessModel).ToList(),
+            TotalCount = totalCount
+        };
+    }
 }

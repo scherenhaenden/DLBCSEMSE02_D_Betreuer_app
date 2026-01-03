@@ -441,4 +441,85 @@ public class ThesisOfferBusinessLogicServiceTests
             await _thesisOfferService.UpdateAsync(offer.Id, updateRequest, tutor.Id));
         Assert.That(ex.Message, Is.EqualTo("Thesis offer can only be updated if it is open."));
     }
+
+    [Test]
+    public async Task GetByUserId_AdminCanViewAnyTutorsOffers()
+    {
+        // Arrange
+        var admin = _seeder.SeedUser("Admin", "User", "admin@example.com", "password", Roles.Admin);
+        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        // Act
+        var result = await _thesisOfferService.GetByUserIdAsync(tutor.Id, admin.Id, new List<string> { Roles.Admin }, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Items.First().Title, Is.EqualTo("Test Offer"));
+    }
+
+    [Test]
+    public async Task GetByUserId_StudentCanViewTutorsOffers()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        // Act
+        var result = await _thesisOfferService.GetByUserIdAsync(tutor.Id, student.Id, new List<string> { Roles.Student }, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Items.First().Title, Is.EqualTo("Test Offer"));
+    }
+
+    [Test]
+    public async Task GetByUserId_TutorCanViewOwnOffers()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        // Act
+        var result = await _thesisOfferService.GetByUserIdAsync(tutor.Id, tutor.Id, new List<string> { Roles.Tutor }, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Items.First().Title, Is.EqualTo("Test Offer"));
+    }
+
+    [Test]
+    public async Task GetByUserId_TutorCannotViewOtherTutorsOffers()
+    {
+        // Arrange
+        var tutor1 = _seeder.SeedUser("Tutor1", "One", "tutor1@example.com", "password", Roles.Tutor);
+        var tutor2 = _seeder.SeedUser("Tutor2", "Two", "tutor2@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor2.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisOfferService.GetByUserIdAsync(tutor2.Id, tutor1.Id, new List<string> { Roles.Tutor }, 1, 10));
+        Assert.That(ex.Message, Is.EqualTo("You are not authorized to view these offers."));
+    }
+
+    [Test]
+    public async Task GetByUserId_ReturnsEmptyIfNoOffers()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
+        // No offers created for this tutor
+
+        // Act
+        var result = await _thesisOfferService.GetByUserIdAsync(tutor.Id, student.Id, new List<string> { Roles.Student }, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count, Is.EqualTo(0));
+        Assert.That(result.TotalCount, Is.EqualTo(0));
+    }
 }

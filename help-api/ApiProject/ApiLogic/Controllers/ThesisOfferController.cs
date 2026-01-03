@@ -40,6 +40,24 @@ namespace ApiProject.ApiLogic.Controllers
             return Ok(response);
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<PaginatedResponse<ThesisOfferResponse>>> GetByUserId(Guid userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var currentUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+            var result = await _thesisOfferService.GetByUserIdAsync(userId, currentUserId, userRoles, page, pageSize);
+
+            var response = new PaginatedResponse<ThesisOfferResponse>
+            {
+                Items = result.Items.Select(_thesisOfferApiMapper.MapToResponse).ToList(),
+                TotalCount = result.TotalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+            return Ok(response);
+        }
+
         [HttpPost]
         [Authorize(Roles = "TUTOR")]
         public async Task<ActionResult<ThesisOfferResponse>> Create([FromBody] CreateThesisOfferRequest request)
