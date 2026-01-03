@@ -105,7 +105,7 @@ public class AuthControllerTests
         var response = await _client.PostAsJsonAsync("/auth/login", loginRequest);
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test]
@@ -138,7 +138,7 @@ public class AuthControllerTests
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/auth/register", registerRequest);
+        var response = await _client.PostAsJsonAsync("/auth/register", registerRequest);
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
@@ -157,7 +157,7 @@ public class AuthControllerTests
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/auth/register", registerRequest);
+        var response = await _client.PostAsJsonAsync("/auth/register", registerRequest);
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));

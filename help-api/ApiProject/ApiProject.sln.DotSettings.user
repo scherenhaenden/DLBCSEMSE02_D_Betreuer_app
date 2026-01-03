@@ -50,9 +50,7 @@
   &lt;/Or&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=836320ba_002D1fc5_002D426b_002Db1fa_002D619d45805982/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Login_ValidCredentials_ReturnsOkWithToken" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::D5FCE5C1-2E43-44B0-A353-4C5E219DB668::net10.0::ApiProject.Tests.NUnit.ApiLogic.Controllers.AuthControllerTests.Login_MissingPassword_ReturnsOkRequest&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+  &lt;Project Location="/home/edward/Development/DLBCSEMSE02_D_Betreuet_app/help-api/ApiProject.Tests" Presentation="&amp;lt;ApiProject.Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=bdd47eb1_002Dee12_002D424b_002D8561_002D433098b5ddf0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Seeder" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Project Location="/home/edward/Development/DLBCSEMSE02_D_Betreuet_app/help-api/ApiProject.Tests" Presentation="&amp;lt;ApiProject.Tests&amp;gt;" /&gt;
