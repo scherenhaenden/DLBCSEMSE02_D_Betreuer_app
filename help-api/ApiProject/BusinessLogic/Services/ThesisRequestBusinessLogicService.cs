@@ -19,6 +19,27 @@ namespace ApiProject.BusinessLogic.Services
             _context = context;
         }
 
+        /// <summary>
+        /// Creates a new thesis request with comprehensive validation of roles, expertise, and constraints.
+        /// This method enforces business rules for supervision and co-supervision requests.
+        /// 
+        /// What: Creates a thesis request record linking a requester to a receiver for a specific thesis and request type.
+        /// How: Validates thesis existence, user roles, subject area expertise, and request-specific constraints.
+        /// For supervision: ensures requester is thesis owner (student), for co-supervision: ensures requester is main supervisor (tutor) and distinct from receiver.
+        /// Sets status to pending, saves the request, and returns the full request details.
+        /// Why: Enables structured request process for thesis supervision assignments.
+        /// Ensures only authorized users can make requests and receivers are qualified tutors.
+        /// Maintains data integrity and enforces workflow constraints.
+        /// </summary>
+        /// <param name="requesterId">The unique identifier of the user making the request.</param>
+        /// <param name="thesisId">The unique identifier of the thesis associated with the request.</param>
+        /// <param name="receiverId">The unique identifier of the user receiving the request (must be a tutor).</param>
+        /// <param name="requestType">The type of request, either "SUPERVISION" or "CO_SUPERVISION".</param>
+        /// <param name="message">An optional message accompanying the request.</param>
+        /// <returns>The created thesis request response with full details.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the thesis is not found.</exception>
+        /// <exception cref="ArgumentException">Thrown if the request type is invalid.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if validation constraints are not met.</exception>
         public async Task<ThesisRequestResponse> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message)
         {
             var thesis = await _context.Theses.FindAsync(thesisId);
@@ -79,6 +100,20 @@ namespace ApiProject.BusinessLogic.Services
             return await GetRequestByIdAsync(newRequest.Id);
         }
 
+        /// <summary>
+        /// Retrieves all thesis requests associated with a specific user, either as requester or receiver.
+        /// Requests are ordered by creation date in descending order (most recent first).
+        /// 
+        /// What: Fetches a list of thesis requests where the user is involved, including full details of thesis, users, types, and statuses.
+        /// How: Builds a query including all related entities for comprehensive data loading.
+        /// Filters requests where the user is either the requester or receiver, orders by creation date descending.
+        /// Maps each request to the response model using the private MapToResponse method.
+        /// Why: Allows users to view their request history and pending actions.
+        /// Provides complete context for each request including participant details and current status.
+        /// Supports user dashboards and notification systems.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user whose requests are to be retrieved.</param>
+        /// <returns>An enumerable collection of thesis request responses.</returns>
         public async Task<IEnumerable<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId)
         {
             return await _context.ThesisRequests
@@ -93,6 +128,19 @@ namespace ApiProject.BusinessLogic.Services
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Retrieves a specific thesis request by its unique identifier, including all related details.
+        /// 
+        /// What: Fetches detailed information about a single thesis request from the database.
+        /// How: Queries the ThesisRequests table with eager loading of all related entities (thesis, users with roles, request type, status).
+        /// Uses SingleOrDefaultAsync to find the request by ID, returning null if not found.
+        /// Maps the data access model to the response model using the private MapToResponse method.
+        /// Why: Allows detailed viewing of individual requests for review or action.
+        /// Ensures all necessary data is loaded to provide complete context without additional queries.
+        /// Supports request detail pages and administrative oversight.
+        /// </summary>
+        /// <param name="requestId">The unique identifier of the thesis request to retrieve.</param>
+        /// <returns>The thesis request response if found, otherwise null.</returns>
         public async Task<ThesisRequestResponse?> GetRequestByIdAsync(Guid requestId)
         {
             var request = await _context.ThesisRequests
@@ -106,6 +154,25 @@ namespace ApiProject.BusinessLogic.Services
             return request == null ? null : MapToResponse(request);
         }
 
+        /// <summary>
+        /// Allows the receiver of a thesis request to respond to it, either accepting or rejecting.
+        /// If accepted, updates the thesis with the appropriate supervisor assignment.
+        /// 
+        /// What: Processes a response to a thesis request, updating its status and potentially assigning supervisors to the thesis.
+        /// How: Retrieves the request with thesis details, validates the responder is the receiver.
+        /// Updates the request status to accepted or rejected based on the response.
+        /// If accepted, assigns the receiver as the main supervisor (for supervision) or second supervisor (for co-supervision).
+        /// Saves all changes to the database.
+        /// Why: Enables tutors to approve or decline supervision requests, completing the assignment workflow.
+        /// Ensures only the intended receiver can respond to prevent unauthorized changes.
+        /// Automatically updates thesis assignments upon acceptance for seamless workflow.
+        /// </summary>
+        /// <param name="requestId">The unique identifier of the request being responded to.</param>
+        /// <param name="receiverId">The unique identifier of the user responding (must be the receiver).</param>
+        /// <param name="accepted">True to accept the request, false to reject it.</param>
+        /// <param name="message">An optional response message.</param>
+        /// <exception cref="KeyNotFoundException">Thrown if the request is not found.</exception>
+        /// <exception cref="UnauthorizedAccessException">Thrown if the user is not authorized to respond to the request.</exception>
         public async Task RespondToRequestAsync(Guid requestId, Guid receiverId, bool accepted, string? message)
         {
             var request = await _context.ThesisRequests
@@ -135,11 +202,43 @@ namespace ApiProject.BusinessLogic.Services
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Creates a supervision request from a student to a tutor for a specific thesis.
+        /// This is a convenience method for requesting primary supervision.
+        /// 
+        /// What: Initiates a supervision request where a student seeks a tutor as their primary supervisor.
+        /// How: Calls the general CreateRequestAsync method with the supervision request type.
+        /// Passes the student as requester, tutor as receiver, and supervision as the request type.
+        /// Why: Simplifies the process for students to request supervision without specifying the request type manually.
+        /// Encapsulates the common use case of student-to-tutor supervision requests.
+        /// Maintains consistency with the underlying request creation logic.
+        /// </summary>
+        /// <param name="studentId">The unique identifier of the student making the request.</param>
+        /// <param name="tutorId">The unique identifier of the tutor receiving the request.</param>
+        /// <param name="thesisId">The unique identifier of the thesis for which supervision is requested.</param>
+        /// <param name="message">An optional message accompanying the request.</param>
+        /// <returns>The created thesis request response with full details.</returns>
         public async Task<ThesisRequestResponse> CreatedStudentRequestForTutor(Guid studentId, Guid tutorId, Guid thesisId, string? message)
         {
             return await CreateRequestAsync(studentId, thesisId, tutorId, RequestTypes.Supervision, message);
         }
 
+        /// <summary>
+        /// Creates a co-supervision request from a tutor to another tutor for a specific thesis.
+        /// This is used when the main supervisor requests a second supervisor.
+        /// 
+        /// What: Initiates a co-supervision request where the main supervisor seeks an additional tutor for secondary supervision.
+        /// How: Calls the general CreateRequestAsync method with the co-supervision request type.
+        /// Passes the main tutor as requester, second tutor as receiver, and co-supervision as the request type.
+        /// Why: Simplifies the process for main supervisors to request co-supervision without specifying the request type manually.
+        /// Encapsulates the specific use case of tutor-to-tutor co-supervision requests.
+        /// Maintains consistency with the underlying request creation logic and validation.
+        /// </summary>
+        /// <param name="tutorId">The unique identifier of the main tutor making the request.</param>
+        /// <param name="secondSupervisorId">The unique identifier of the second supervisor receiving the request.</param>
+        /// <param name="thesisId">The unique identifier of the thesis for which co-supervision is requested.</param>
+        /// <param name="message">An optional message accompanying the request.</param>
+        /// <returns>The created thesis request response with full details.</returns>
         public async Task<ThesisRequestResponse> CreatedTutorRequestForSecondSupervisor(Guid tutorId, Guid secondSupervisorId, Guid thesisId, string? message)
         {
             return await CreateRequestAsync(tutorId, thesisId, secondSupervisorId, RequestTypes.CoSupervision, message);
