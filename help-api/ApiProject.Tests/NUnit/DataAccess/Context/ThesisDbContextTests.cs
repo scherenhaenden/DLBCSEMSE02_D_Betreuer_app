@@ -40,8 +40,8 @@ public class ThesisDbContextTests
         Assert.That(_context.Roles, Is.Not.Null);
         Assert.That(_context.UserRoles, Is.Not.Null);
         Assert.That(_context.Theses, Is.Not.Null);
-        Assert.That(_context.Topics, Is.Not.Null);
-        Assert.That(_context.UserTopics, Is.Not.Null);
+        Assert.That(_context.SubjectAreas, Is.Not.Null);
+        Assert.That(_context.UserToSubjectAreas, Is.Not.Null);
         Assert.That(_context.ThesisStatuses, Is.Not.Null);
         Assert.That(_context.BillingStatuses, Is.Not.Null);
         Assert.That(_context.ThesisDocuments, Is.Not.Null);
@@ -117,7 +117,7 @@ public class ThesisDbContextTests
     [Test]
     public void CanAddTopic()
     {
-        var topic = new TopicDataAccessModel
+        var topic = new SubjectAreaDataAccessModel
         {
             Id = Guid.NewGuid(),
             Title = "Test Topic",
@@ -125,10 +125,10 @@ public class ThesisDbContextTests
             IsActive = true
         };
 
-        _context.Topics.Add(topic);
+        _context.SubjectAreas.Add(topic);
         _context.SaveChanges();
 
-        var retrieved = _context.Topics.Find(topic.Id);
+        var retrieved = _context.SubjectAreas.Find(topic.Id);
         Assert.That(retrieved, Is.Not.Null);
         Assert.That(retrieved.Title, Is.EqualTo("Test Topic"));
     }

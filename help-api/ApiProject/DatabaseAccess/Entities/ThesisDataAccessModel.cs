@@ -22,8 +22,8 @@ namespace ApiProject.DatabaseAccess.Entities
         public Guid? SecondSupervisorId { get; set; }
         public UserDataAccessModel? SecondSupervisor { get; set; }
 
-        public Guid? TopicId { get; set; }
-        public TopicDataAccessModel? Topic { get; set; }
+        public Guid? SubjectAreaId { get; set; }
+        public SubjectAreaDataAccessModel? SubjectArea { get; set; }
         
         public ThesisDocumentDataAccessModel? Document { get; set; }
     }

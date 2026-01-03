@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.betreuer_app.R;
-import com.example.betreuer_app.model.TopicApiModel;
+import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.TutorProfileResponse;
 import java.util.List;
 import java.util.Random;
@@ -52,12 +52,12 @@ public class TutorListAdapter extends RecyclerView.Adapter<TutorListAdapter.Tuto
         holder.textViewName.setText(fullName.trim());
 
         StringBuilder specializations = new StringBuilder();
-        if (tutor.getTopics() != null) {
-            for (TopicApiModel topic : tutor.getTopics()) {
+        if (tutor.getSubjectAreas() != null) {
+            for (SubjectAreaResponse subjectArea : tutor.getSubjectAreas()) {
                 if (specializations.length() > 0) {
                     specializations.append(", ");
                 }
-                specializations.append(topic.getTitle());
+                specializations.append(subjectArea.getTitle());
             }
         }
         holder.textViewSpecialization.setText(specializations.toString());
