@@ -130,6 +130,75 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
     }
 
     /// <summary>
+    /// Updates an existing thesis offer asynchronously.
+    /// Validates that the updater is the tutor who created the offer and that the offer is still open.
+    /// 
+    /// What: Modifies a thesis offer's details based on the provided request.
+    /// How: Retrieves the thesis offer by ID, checks if it exists, is in "OPEN" status, and the user is the tutor who created it.
+    /// Applies updates to title, description, subject area, max students, and expiration date if provided.
+    /// Saves changes to the database and returns the updated business model.
+    /// Why: Allows tutors to modify their thesis offers before they expire or are closed.
+    /// Ensures only the original tutor can update their offers for security.
+    /// Supports flexible partial updates for offer management.
+    /// </summary>
+    /// <param name="id">The unique identifier of the thesis offer to update.</param>
+    /// <param name="request">The request model containing the updated details for the thesis offer.</param>
+    /// <param name="userId">The unique identifier of the user attempting to update the offer.</param>
+    /// <returns>The updated thesis offer business model.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown if the thesis offer is not found.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the user is not the tutor who created the offer or if the offer is not open.</exception>
+    public async Task<ThesisOfferBusinessLogicModel> UpdateAsync(Guid id, ThesisOfferUpdateRequestBusinessLogicModel request, Guid userId)
+    {
+        var thesisOffer = await _context.ThesisOffers
+            .Include(to => to.ThesisOfferStatus)
+            .FirstOrDefaultAsync(to => to.Id == id);
+
+        if (thesisOffer == null)
+        {
+            throw new KeyNotFoundException("Thesis offer not found.");
+        }
+
+        if (thesisOffer.TutorId != userId)
+        {
+            throw new InvalidOperationException("Only the tutor who created the offer can update it.");
+        }
+
+        if (thesisOffer.ThesisOfferStatus?.Name != ThesisOfferStatuses.Open)
+        {
+            throw new InvalidOperationException("Thesis offer can only be updated if it is open.");
+        }
+
+        if (request.Title != null)
+        {
+            thesisOffer.Title = request.Title;
+        }
+
+        if (request.Description != null)
+        {
+            thesisOffer.Description = request.Description;
+        }
+
+        if (request.SubjectAreaId.HasValue)
+        {
+            thesisOffer.SubjectAreaId = request.SubjectAreaId.Value;
+        }
+
+        if (request.MaxStudents.HasValue)
+        {
+            thesisOffer.MaxStudents = request.MaxStudents.Value;
+        }
+
+        if (request.ExpiresAt.HasValue)
+        {
+            thesisOffer.ExpiresAt = request.ExpiresAt.Value;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return ThesisOfferBusinessLogicMapper.ToBusinessModel(thesisOffer);
+    }
+
+    /// <summary>
     /// Creates a new application for a thesis offer, validating that the offer exists and is open.
     /// 
     /// What: Creates a new application record linking a student to a thesis offer, with an optional message.

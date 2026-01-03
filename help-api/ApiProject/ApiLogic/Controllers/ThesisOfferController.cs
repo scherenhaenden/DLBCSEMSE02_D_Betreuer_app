@@ -57,5 +57,22 @@ namespace ApiProject.ApiLogic.Controllers
 
             return CreatedAtAction(nameof(GetAll), new { }, _thesisOfferApiMapper.MapToResponse(created));
         }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "TUTOR")]
+        public async Task<ActionResult<ThesisOfferResponse>> Update(Guid id, [FromBody] UpdateThesisOfferRequest request)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var updated = await _thesisOfferService.UpdateAsync(id, new ThesisOfferUpdateRequestBusinessLogicModel
+            {
+                Title = request.Title,
+                Description = request.Description,
+                SubjectAreaId = request.SubjectAreaId,
+                MaxStudents = request.MaxStudents,
+                ExpiresAt = request.ExpiresAt
+            }, userId);
+
+            return Ok(_thesisOfferApiMapper.MapToResponse(updated));
+        }
     }
 }

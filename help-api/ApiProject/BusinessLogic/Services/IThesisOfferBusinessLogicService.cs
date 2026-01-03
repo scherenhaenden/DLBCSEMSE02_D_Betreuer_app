@@ -38,6 +38,18 @@ public interface IThesisOfferBusinessLogicService
     Task<ThesisOfferBusinessLogicModel> CreateAsync(ThesisOfferCreateRequestBusinessLogicModel request);
 
     /// <summary>
+    /// Updates an existing thesis offer asynchronously.
+    /// Validates that the updater is the tutor who created the offer and that the offer is still open.
+    /// </summary>
+    /// <param name="id">The unique identifier of the thesis offer to update.</param>
+    /// <param name="request">The request model containing the updated details for the thesis offer.</param>
+    /// <param name="userId">The unique identifier of the user attempting to update the offer.</param>
+    /// <returns>A task representing the asynchronous operation, containing the updated <see cref="ThesisOfferBusinessLogicModel"/>.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown if the thesis offer is not found.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the user is not the tutor who created the offer or if the offer is not open.</exception>
+    Task<ThesisOfferBusinessLogicModel> UpdateAsync(Guid id, ThesisOfferUpdateRequestBusinessLogicModel request, Guid userId);
+
+    /// <summary>
     /// Creates a new application for a thesis offer asynchronously.
     /// Validates that the thesis offer exists and is in an "OPEN" state.
     /// </summary>
