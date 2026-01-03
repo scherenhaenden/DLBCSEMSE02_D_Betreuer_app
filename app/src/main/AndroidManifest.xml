@@ -58,6 +58,13 @@
             android:label="Betreuungsanfrage"
             android:parentActivityName=".TutorListActivity" />
 
+        <!-- Create Thesis Offer Activity (Renamed from Topic) -->
+        <activity
+            android:name=".CreateThesisOfferActivity"
+            android:exported="false"
+            android:label="Thesis ausschreiben"
+            android:parentActivityName=".DashboardActivity" />
+
     </application>
 
 </manifest>

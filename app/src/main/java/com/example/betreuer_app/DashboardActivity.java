@@ -39,6 +39,7 @@ public class DashboardActivity extends AppCompatActivity {
     private MaterialCardView lecturerThesisCard;
     private MaterialCardView lecturerRequestsCard;
     private Button btnCreateNewThesis;
+    private Button btnCreateNewThesisOffer;
     private Button btnFindTutor;
 
     @Override
@@ -113,8 +114,14 @@ public class DashboardActivity extends AppCompatActivity {
                     lecturerRequestsCountTextView = lecturerView.findViewById(R.id.lecturerRequestsCountTextView);
                     lecturerThesisCard = lecturerView.findViewById(R.id.lecturer_thesis_card);
                     lecturerRequestsCard = lecturerView.findViewById(R.id.lecturer_requests_card);
-                    
+                    btnCreateNewThesisOffer = lecturerView.findViewById(R.id.btn_create_new_thesis_offer);
+
                     lecturerThesisCard.setOnClickListener(openThesisList);
+                    
+                    btnCreateNewThesisOffer.setOnClickListener(v -> {
+                        Intent intent = new Intent(DashboardActivity.this, CreateThesisOfferActivity.class);
+                        startActivity(intent);
+                    });
                     
                     // TODO: Set listener for requests card when activity is available
                 }
