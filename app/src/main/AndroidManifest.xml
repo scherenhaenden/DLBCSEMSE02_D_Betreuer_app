@@ -63,6 +63,13 @@
             android:name=".CreateThesisOfferActivity"
             android:exported="false"
             android:label="Thesis ausschreiben"
+            android:parentActivityName=".ThesisOfferDashboardActivity" />
+            
+        <!-- Thesis Offer Dashboard Activity -->
+        <activity
+            android:name=".ThesisOfferDashboardActivity"
+            android:exported="false"
+            android:label="Meine Ausschreibungen"
             android:parentActivityName=".DashboardActivity" />
 
     </application>
