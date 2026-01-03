@@ -1,8 +1,7 @@
 namespace ApiProject.BusinessLogic.Models
 {
-    public class ThesisStatusBusinessLogicModel
+    public class ThesisStatusBusinessLogicModel: BaseEntityBusinessLogicModel
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
     }
 }

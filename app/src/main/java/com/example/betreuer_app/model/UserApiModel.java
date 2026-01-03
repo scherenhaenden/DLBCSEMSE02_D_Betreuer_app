@@ -13,7 +13,7 @@ public class UserApiModel {
     private String email;
     private String passwordHash;
     private List<String> roles;
-    private List<UserTopic> userTopics;
+    private List<UserSubjectArea> userSubjectAreas;
 
     /**
      * Default constructor.
@@ -35,14 +35,14 @@ public class UserApiModel {
     /**
      * Full constructor.
      */
-    public UserApiModel(String id, String firstName, String lastName, String email, String passwordHash, List<String> roles, List<UserTopic> userTopics) {
+    public UserApiModel(String id, String firstName, String lastName, String email, String passwordHash, List<String> roles, List<UserSubjectArea> userSubjectAreas) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.roles = roles;
-        this.userTopics = userTopics;
+        this.userSubjectAreas = userSubjectAreas;
     }
 
     // Getters and setters
@@ -94,11 +94,11 @@ public class UserApiModel {
         this.roles = roles;
     }
 
-    public List<UserTopic> getUserTopics() {
-        return userTopics;
+    public List<UserSubjectArea> getUserSubjectAreas() {
+        return userSubjectAreas;
     }
 
-    public void setUserTopics(List<UserTopic> userTopics) {
-        this.userTopics = userTopics;
+    public void setUserSubjectAreas(List<UserSubjectArea> userSubjectAreas) {
+        this.userSubjectAreas = userSubjectAreas;
     }
 }
