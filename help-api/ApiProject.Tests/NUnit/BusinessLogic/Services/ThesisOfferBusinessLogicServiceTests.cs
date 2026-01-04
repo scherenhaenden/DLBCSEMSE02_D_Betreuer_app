@@ -535,4 +535,45 @@ public class ThesisOfferBusinessLogicServiceTests
         Assert.That(result.Any(s => s.Name == ThesisOfferStatuses.Closed), Is.True);
         Assert.That(result.Any(s => s.Name == ThesisOfferStatuses.Archived), Is.True);
     }
+
+    [Test]
+    public async Task ShouldCreateThesisOfferAndUpdateStatusAfterWardsShouldPass()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "StatusUpdate", "tutorstatus@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+        var closedStatus = _context.ThesisOfferStatuses.First(s => s.Name == ThesisOfferStatuses.Closed);
+
+        var updateRequest = new ThesisOfferUpdateRequestBusinessLogicModel
+        {
+            ThesisOfferStatusId = closedStatus.Id
+        };
+
+        // Act
+        var updatedOffer = await _thesisOfferService.UpdateAsync(offer.Id, updateRequest, tutor.Id);
+
+        // Assert
+        Assert.That(updatedOffer, Is.Not.Null);
+        Assert.That(updatedOffer.Status, Is.EqualTo(ThesisOfferStatuses.Closed));
+    }
+
+    [Test]
+    public async Task ShouldCreateThesisOfferAndTryUpdateStatusToNonExistantStatusAfterWardsShouldNotPass()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "InvalidStatus", "tutorinvalid@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+        var nonExistentStatusId = Guid.NewGuid(); // Non-existent status ID
+
+        var updateRequest = new ThesisOfferUpdateRequestBusinessLogicModel
+        {
+            ThesisOfferStatusId = nonExistentStatusId
+        };
+
+        // Act & Assert
+        Assert.ThrowsAsync<DbUpdateException>(async () =>
+            await _thesisOfferService.UpdateAsync(offer.Id, updateRequest, tutor.Id));
+    }
 }
