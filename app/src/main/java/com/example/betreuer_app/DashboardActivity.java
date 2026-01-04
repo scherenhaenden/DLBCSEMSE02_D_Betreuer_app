@@ -123,7 +123,10 @@ public class DashboardActivity extends AppCompatActivity {
                         startActivity(intent);
                     });
                     
-                    // TODO: Set listener for requests card when activity is available
+                    lecturerRequestsCard.setOnClickListener(v -> {
+                        Intent intent = new Intent(DashboardActivity.this, ThesisRequestActivity.class);
+                        startActivity(intent);
+                    });
                 }
             }
         }

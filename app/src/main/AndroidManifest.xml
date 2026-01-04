@@ -72,6 +72,13 @@
             android:label="Meine Ausschreibungen"
             android:parentActivityName=".DashboardActivity" />
 
+        <!-- Thesis Request Activity (New) -->
+        <activity
+            android:name=".ThesisRequestActivity"
+            android:exported="false"
+            android:label="Betreuungsanfragen"
+            android:parentActivityName=".DashboardActivity" />
+
     </application>
 
 </manifest>
