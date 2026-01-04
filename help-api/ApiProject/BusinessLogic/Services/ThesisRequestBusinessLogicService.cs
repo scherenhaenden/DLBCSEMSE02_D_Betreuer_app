@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiProject.Constants;
+using ApiProject.BusinessLogic.Models;
 
 namespace ApiProject.BusinessLogic.Services
 {
@@ -104,28 +105,45 @@ namespace ApiProject.BusinessLogic.Services
         /// Retrieves all thesis requests associated with a specific user, either as requester or receiver.
         /// Requests are ordered by creation date in descending order (most recent first).
         /// 
-        /// What: Fetches a list of thesis requests where the user is involved, including full details of thesis, users, types, and statuses.
+        /// What: Fetches a paginated list of thesis requests where the user is involved, including full details of thesis, users, types, and statuses.
         /// How: Builds a query including all related entities for comprehensive data loading.
         /// Filters requests where the user is either the requester or receiver, orders by creation date descending.
+        /// Applies pagination using Skip and Take based on page and pageSize.
+        /// Retrieves the total count for pagination metadata.
         /// Maps each request to the response model using the private MapToResponse method.
-        /// Why: Allows users to view their request history and pending actions.
+        /// Why: Allows users to view their request history and pending actions with pagination for performance.
         /// Provides complete context for each request including participant details and current status.
-        /// Supports user dashboards and notification systems.
+        /// Supports user dashboards and notification systems with efficient data retrieval.
         /// </summary>
         /// <param name="userId">The unique identifier of the user whose requests are to be retrieved.</param>
-        /// <returns>An enumerable collection of thesis request responses.</returns>
-        public async Task<IEnumerable<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId)
+        /// <param name="page">The page number for pagination (1-based).</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>A paginated result containing the list of thesis request responses and pagination metadata.</returns>
+        public async Task<Models.PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId, int page, int pageSize)
         {
-            return await _context.ThesisRequests
+            var query = _context.ThesisRequests
                 .Include(r => r.Thesis)
                 .Include(r => r.Requester).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.Receiver).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.RequestType)
                 .Include(r => r.Status)
                 .Where(r => r.ReceiverId == userId || r.RequesterId == userId)
-                .OrderByDescending(r => r.CreatedAt)
+                .OrderByDescending(r => r.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(r => MapToResponse(r))
                 .ToListAsync();
+
+            return new Models.PaginatedResultBusinessLogicModel<ThesisRequestResponse>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         /// <summary>

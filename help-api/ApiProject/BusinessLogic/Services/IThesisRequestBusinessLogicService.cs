@@ -1,4 +1,5 @@
 using ApiProject.ApiLogic.Models;
+using ApiProject.BusinessLogic.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -53,8 +54,10 @@ namespace ApiProject.BusinessLogic.Services
         /// Requests are ordered by creation date in descending order.
         /// </summary>
         /// <param name="userId">The unique identifier of the user whose requests are to be retrieved.</param>
-        /// <returns>A task representing the asynchronous operation, containing an enumerable collection of <see cref="ThesisRequestResponse"/> objects.</returns>
-        Task<IEnumerable<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId);
+        /// <param name="page">The page number for pagination (1-based).</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestResponse"/> objects.</returns>
+        Task<Models.PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId, int page, int pageSize);
 
         /// <summary>
         /// Retrieves a specific thesis request by its unique identifier.
