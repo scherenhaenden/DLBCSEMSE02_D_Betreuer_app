@@ -7,4 +7,5 @@ public class ThesisOfferUpdateRequestBusinessLogicModel
     public Guid? SubjectAreaId { get; set; }
     public int? MaxStudents { get; set; }
     public DateTime? ExpiresAt { get; set; }
+    public Guid? ThesisOfferStatusId { get; set; }
 }

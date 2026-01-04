@@ -87,7 +87,8 @@ namespace ApiProject.ApiLogic.Controllers
                 Description = request.Description,
                 SubjectAreaId = request.SubjectAreaId,
                 MaxStudents = request.MaxStudents,
-                ExpiresAt = request.ExpiresAt
+                ExpiresAt = request.ExpiresAt,
+                ThesisOfferStatusId = request.ThesisOfferStatusId
             }, userId);
 
             return Ok(_thesisOfferApiMapper.MapToResponse(updated));

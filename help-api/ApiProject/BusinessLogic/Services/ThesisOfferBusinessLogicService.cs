@@ -131,13 +131,14 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
 
     /// <summary>
     /// Updates an existing thesis offer asynchronously.
-    /// Validates that the updater is the tutor who created the offer and that the offer is still open.
+    /// Validates that the updater is the tutor who created the offer and that the offer is still open for non-status updates.
     /// 
     /// What: Modifies a thesis offer's details based on the provided request.
-    /// How: Retrieves the thesis offer by ID, checks if it exists, is in "OPEN" status, and the user is the tutor who created it.
-    /// Applies updates to title, description, subject area, max students, and expiration date if provided.
+    /// How: Retrieves the thesis offer by ID, checks if it exists, and the user is the tutor who created it.
+    /// For non-status updates, checks if the offer is in "OPEN" status.
+    /// Applies updates to title, description, subject area, max students, expiration date, and status if provided.
     /// Saves changes to the database and returns the updated business model.
-    /// Why: Allows tutors to modify their thesis offers before they expire or are closed.
+    /// Why: Allows tutors to modify their thesis offers before they expire or are closed, and to change status at any time.
     /// Ensures only the original tutor can update their offers for security.
     /// Supports flexible partial updates for offer management.
     /// </summary>
@@ -146,7 +147,7 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
     /// <param name="userId">The unique identifier of the user attempting to update the offer.</param>
     /// <returns>The updated thesis offer business model.</returns>
     /// <exception cref="KeyNotFoundException">Thrown if the thesis offer is not found.</exception>
-    /// <exception cref="InvalidOperationException">Thrown if the user is not the tutor who created the offer or if the offer is not open.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the user is not the tutor who created the offer or if non-status updates are attempted on a non-open offer.</exception>
     public async Task<ThesisOfferBusinessLogicModel> UpdateAsync(Guid id, ThesisOfferUpdateRequestBusinessLogicModel request, Guid userId)
     {
         var thesisOffer = await _context.ThesisOffers
@@ -163,7 +164,9 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
             throw new InvalidOperationException("Only the tutor who created the offer can update it.");
         }
 
-        if (thesisOffer.ThesisOfferStatus?.Name != ThesisOfferStatuses.Open)
+        // Allow status updates at any time, but other updates only if open
+        bool hasNonStatusUpdates = request.Title != null || request.Description != null || request.SubjectAreaId.HasValue || request.MaxStudents.HasValue || request.ExpiresAt.HasValue;
+        if (hasNonStatusUpdates && thesisOffer.ThesisOfferStatus?.Name != ThesisOfferStatuses.Open)
         {
             throw new InvalidOperationException("Thesis offer can only be updated if it is open.");
         }
@@ -191,6 +194,11 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
         if (request.ExpiresAt.HasValue)
         {
             thesisOffer.ExpiresAt = request.ExpiresAt.Value;
+        }
+
+        if (request.ThesisOfferStatusId.HasValue)
+        {
+            thesisOffer.ThesisOfferStatusId = request.ThesisOfferStatusId.Value;
         }
 
         await _context.SaveChangesAsync();
