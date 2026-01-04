@@ -15,17 +15,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.betreuer_app.R;
 import com.example.betreuer_app.model.ThesesResponse;
 import com.example.betreuer_app.viewmodel.ThesisListViewModel;
+import com.google.android.material.appbar.MaterialToolbar;
 
 public class ThesisListFragment extends Fragment {
     private RecyclerView recyclerView;
     private ThesisListViewModel viewModel;
     private ThesisListAdapter adapter;
+    private MaterialToolbar toolbar;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_thesis_list, container, false);
         recyclerView = view.findViewById(R.id.thesesRecyclerView);
+        toolbar = view.findViewById(R.id.toolbar);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return view;
     }
@@ -34,6 +37,14 @@ public class ThesisListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this).get(ThesisListViewModel.class);
+
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> {
+                if (getActivity() != null) {
+                    getActivity().onBackPressed();
+                }
+            });
+        }
 
         viewModel.getTheses().observe(getViewLifecycleOwner(), new Observer<ThesesResponse>() {
             @Override
