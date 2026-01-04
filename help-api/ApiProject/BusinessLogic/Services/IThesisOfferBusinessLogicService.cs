@@ -68,4 +68,10 @@ public interface IThesisOfferBusinessLogicService
     /// <param name="pageSize">The number of offers per page.</param>
     /// <returns>A task representing the asynchronous operation, containing a <see cref="PaginatedResultBusinessLogicModel{T}"/> with a list of <see cref="ThesisOfferBusinessLogicModel"/> for the specified user and pagination metadata.</returns>
     Task<PaginatedResultBusinessLogicModel<ThesisOfferBusinessLogicModel>> GetByUserIdAsync(Guid userId, Guid currentUserId, List<string> userRoles, int page, int pageSize);
+
+    /// <summary>
+    /// Retrieves all thesis offer statuses asynchronously.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation, containing a list of <see cref="ThesisOfferStatusBusinessLogicModel"/>.</returns>
+    Task<List<ThesisOfferStatusBusinessLogicModel>> GetStatusesAsync();
 }

@@ -93,5 +93,12 @@ namespace ApiProject.ApiLogic.Controllers
 
             return Ok(_thesisOfferApiMapper.MapToResponse(updated));
         }
+
+        [HttpGet("statuses")]
+        public async Task<ActionResult<List<ThesisOfferStatusResponse>>> GetStatuses()
+        {
+            var statuses = await _thesisOfferService.GetStatusesAsync();
+            return Ok(statuses.Select(_thesisOfferApiMapper.MapToStatusResponse).ToList());
+        }
     }
 }

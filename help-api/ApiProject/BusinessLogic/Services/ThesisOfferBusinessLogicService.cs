@@ -292,4 +292,18 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
             TotalCount = totalCount
         };
     }
+
+    /// <summary>
+    /// Retrieves all thesis offer statuses asynchronously.
+    /// 
+    /// What: Fetches all thesis offer status records from the database.
+    /// How: Queries the ThesisOfferStatuses table and maps each to a business model.
+    /// Why: Provides a list of available statuses for use in UI dropdowns or validation.
+    /// </summary>
+    /// <returns>A list of thesis offer status business models.</returns>
+    public async Task<List<ThesisOfferStatusBusinessLogicModel>> GetStatusesAsync()
+    {
+        var statuses = await _context.ThesisOfferStatuses.ToListAsync();
+        return statuses.Select(ThesisOfferStatusBusinessLogicMapper.ToBusinessModel).ToList();
+    }
 }
