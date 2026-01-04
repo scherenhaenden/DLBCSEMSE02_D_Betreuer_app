@@ -52,9 +52,13 @@ namespace ApiProject.BusinessLogic.Services
 
         /// <summary>
         /// Deletes a thesis by its unique identifier asynchronously.
+        /// This operation will cascade-delete related ThesisRequest entities per EF configuration.
+        /// Only the thesis owner or users with Admin role may delete a thesis.
         /// </summary>
         /// <param name="id">The unique identifier of the thesis to delete.</param>
-        /// <returns>A task representing the asynchronous operation, containing true if the thesis was deleted, or false if it was not found.</returns>
-        Task<bool> DeleteThesisAsync(Guid id);
+        /// <param name="userId">The unique identifier of the user attempting the deletion.</param>
+        /// <param name="userRoles">The list of roles assigned to the user.</param>
+        /// <returns>A task representing the asynchronous operation, containing the result of the deletion attempt.</returns>
+        Task<DeleteThesisResult> DeleteThesisAsync(Guid id, Guid userId, List<string> userRoles);
     }
 }

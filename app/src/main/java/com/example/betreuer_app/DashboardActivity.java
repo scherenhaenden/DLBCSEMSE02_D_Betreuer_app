@@ -89,7 +89,7 @@ public class DashboardActivity extends AppCompatActivity {
                     studentThesisCard.setOnClickListener(openThesisList);
                     
                     btnCreateNewThesis.setOnClickListener(v -> {
-                        Intent intent = new Intent(DashboardActivity.this, CreateThesisActivity.class);
+                        Intent intent = new Intent(DashboardActivity.this, StudentCreateThesisActivity.class);
                         startActivity(intent);
                     });
 

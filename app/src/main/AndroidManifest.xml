@@ -41,9 +41,9 @@
             android:name=".ThesisListActivity"
             android:exported="false" />
 
-        <!-- CreateThesis Activity -->
+        <!-- Student Create Thesis Activity (Renamed) -->
         <activity
-            android:name=".CreateThesisActivity"
+            android:name=".StudentCreateThesisActivity"
             android:exported="false" />
 
         <!-- TutorList Activity -->

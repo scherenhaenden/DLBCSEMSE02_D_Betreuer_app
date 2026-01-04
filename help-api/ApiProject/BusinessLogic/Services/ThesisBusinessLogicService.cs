@@ -233,15 +233,27 @@ namespace ApiProject.BusinessLogic.Services
         /// Cascading deletes should be handled by the database or EF configuration for related entities.
         /// </summary>
         /// <param name="id">The unique GUID identifier of the thesis to delete.</param>
-        /// <returns>True if the thesis was deleted, false if it was not found.</returns>
-        public async Task<bool> DeleteThesisAsync(Guid id)
+        /// <param name="userId">The unique identifier of the user attempting the deletion.</param>
+        /// <param name="userRoles">The list of roles assigned to the user.</param>
+        /// <returns>The result of the deletion attempt.</returns>
+        public async Task<DeleteThesisResult> DeleteThesisAsync(Guid id, Guid userId, List<string> userRoles)
         {
             var thesis = await _context.Theses.SingleOrDefaultAsync(t => t.Id == id);
-            if (thesis == null) return false;
+            if (thesis == null) return DeleteThesisResult.NotFound;
+
+            // Check if user is admin
+            if (!userRoles.Contains(Roles.Admin))
+            {
+                // If not admin, check if user is the owner
+                if (thesis.OwnerId != userId)
+                {
+                    return DeleteThesisResult.NotAuthorized;
+                }
+            }
 
             _context.Theses.Remove(thesis);
             await _context.SaveChangesAsync();
-            return true;
+            return DeleteThesisResult.Deleted;
         }
     }
 }

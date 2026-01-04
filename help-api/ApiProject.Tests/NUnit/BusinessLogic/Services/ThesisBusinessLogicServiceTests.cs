@@ -154,10 +154,10 @@ public class ThesisBusinessLogicServiceTests
         var thesis = _seeder.SeedThesis("Thesis to Delete", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
 
         // Act
-        var deleted = await _thesisService.DeleteThesisAsync(thesis.Id);
+        var result = await _thesisService.DeleteThesisAsync(thesis.Id, student.Id, new List<string> { Roles.Student });
 
         // Assert
-        Assert.That(deleted, Is.True);
+        Assert.That(result, Is.EqualTo(DeleteThesisResult.Deleted));
         var retrieved = await _thesisService.GetByIdAsync(thesis.Id);
         Assert.That(retrieved, Is.Null);
     }
