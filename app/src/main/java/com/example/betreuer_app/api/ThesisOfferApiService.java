@@ -3,8 +3,10 @@ package com.example.betreuer_app.api;
 import com.example.betreuer_app.model.CreateThesisOfferRequest;
 import com.example.betreuer_app.model.ThesisOfferApiModel;
 import com.example.betreuer_app.model.ThesisOfferResponse;
+import com.example.betreuer_app.model.ThesisOfferStatusResponse;
 import com.example.betreuer_app.model.UpdateThesisOfferRequest;
 
+import java.util.List;
 import java.util.UUID;
 
 import retrofit2.Call;
@@ -38,4 +40,7 @@ public interface ThesisOfferApiService {
             @Path("id") UUID id,
             @Body UpdateThesisOfferRequest request
     );
+
+    @GET("thesis-offers/statuses")
+    Call<List<ThesisOfferStatusResponse>> getThesisOfferStatuses();
 }

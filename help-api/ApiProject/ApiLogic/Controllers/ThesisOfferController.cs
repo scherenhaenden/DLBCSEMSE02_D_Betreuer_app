@@ -87,10 +87,18 @@ namespace ApiProject.ApiLogic.Controllers
                 Description = request.Description,
                 SubjectAreaId = request.SubjectAreaId,
                 MaxStudents = request.MaxStudents,
-                ExpiresAt = request.ExpiresAt
+                ExpiresAt = request.ExpiresAt,
+                ThesisOfferStatusId = request.ThesisOfferStatusId
             }, userId);
 
             return Ok(_thesisOfferApiMapper.MapToResponse(updated));
+        }
+
+        [HttpGet("statuses")]
+        public async Task<ActionResult<List<ThesisOfferStatusResponse>>> GetStatuses()
+        {
+            var statuses = await _thesisOfferService.GetStatusesAsync();
+            return Ok(statuses.Select(_thesisOfferApiMapper.MapToStatusResponse).ToList());
         }
     }
 }

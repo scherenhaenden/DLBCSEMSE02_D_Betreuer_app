@@ -1,6 +1,7 @@
 package com.example.betreuer_app;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -11,11 +12,13 @@ import com.example.betreuer_app.model.CreateThesisOfferRequest;
 import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.SubjectAreaResponsePaginatedResponse;
 import com.example.betreuer_app.model.ThesisOfferApiModel;
+import com.example.betreuer_app.model.ThesisOfferStatusResponse;
 import com.example.betreuer_app.model.UpdateThesisOfferRequest;
 import com.example.betreuer_app.repository.SubjectAreaRepository;
 import com.example.betreuer_app.repository.ThesisOfferRepository;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,10 +36,13 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
     public static final String EXTRA_OFFER_TITLE = "offer_title";
     public static final String EXTRA_OFFER_DESCRIPTION = "offer_description";
     public static final String EXTRA_OFFER_SUBJECT_AREA_ID = "offer_subject_area_id";
+    public static final String EXTRA_OFFER_STATUS = "offer_status"; // Status name or ID
 
     private TextInputEditText etTitle;
     private TextInputEditText etDescription;
     private AutoCompleteTextView dropdownSubjectArea;
+    private AutoCompleteTextView dropdownStatus;
+    private TextInputLayout statusLayout;
     private Button btnSave;
     private MaterialToolbar toolbar;
 
@@ -44,11 +50,12 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
     private SubjectAreaRepository subjectAreaRepository;
 
     private Map<String, UUID> subjectAreaMap = new HashMap<>();
+    private Map<String, UUID> statusMap = new HashMap<>();
     
-    // Variables for edit mode
     private boolean isEditMode = false;
     private UUID offerId = null;
     private UUID preselectedSubjectAreaId = null;
+    private String preselectedStatus = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +68,8 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
         etTitle = findViewById(R.id.et_thesis_title);
         etDescription = findViewById(R.id.et_thesis_description);
         dropdownSubjectArea = findViewById(R.id.subject_area_dropdown);
+        dropdownStatus = findViewById(R.id.status_dropdown);
+        statusLayout = findViewById(R.id.status_dropdown_layout);
         btnSave = findViewById(R.id.btn_save_thesis_offer);
         toolbar = findViewById(R.id.toolbar);
 
@@ -69,6 +78,13 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
         checkForEditMode();
 
         loadSubjectAreas();
+
+        if (isEditMode) {
+            statusLayout.setVisibility(View.VISIBLE);
+            loadStatuses();
+        } else {
+            statusLayout.setVisibility(View.GONE);
+        }
 
         btnSave.setOnClickListener(v -> saveThesisOffer());
     }
@@ -87,6 +103,7 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
             String title = getIntent().getStringExtra(EXTRA_OFFER_TITLE);
             String description = getIntent().getStringExtra(EXTRA_OFFER_DESCRIPTION);
             String subjectAreaIdStr = getIntent().getStringExtra(EXTRA_OFFER_SUBJECT_AREA_ID);
+            preselectedStatus = getIntent().getStringExtra(EXTRA_OFFER_STATUS);
             
             if (title != null) etTitle.setText(title);
             if (description != null) etDescription.setText(description);
@@ -110,7 +127,6 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
                                 areaNames.add(name);
                                 subjectAreaMap.put(name, id);
                                 
-                                // Pre-select subject area in edit mode
                                 if (isEditMode && preselectedSubjectAreaId != null && preselectedSubjectAreaId.equals(id)) {
                                     dropdownSubjectArea.setText(name, false);
                                 }
@@ -124,14 +140,45 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
                         );
                         dropdownSubjectArea.setAdapter(adapter);
                     }
-                } else {
-                    Toast.makeText(CreateThesisOfferActivity.this, "Failed to load subject areas", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<SubjectAreaResponsePaginatedResponse> call, Throwable t) {
-                Toast.makeText(CreateThesisOfferActivity.this, "Error loading subject areas: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreateThesisOfferActivity.this, "Fehler beim Laden der Fachbereiche", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadStatuses() {
+        thesisOfferRepository.getThesisOfferStatuses(new Callback<List<ThesisOfferStatusResponse>>() {
+            @Override
+            public void onResponse(Call<List<ThesisOfferStatusResponse>> call, Response<List<ThesisOfferStatusResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<String> statusNames = new ArrayList<>();
+                    for (ThesisOfferStatusResponse status : response.body()) {
+                        statusNames.add(status.getName());
+                        statusMap.put(status.getName(), status.getId());
+                        
+                        // Try to preselect status if we have a matching name
+                        // Note: The EXTRA might contain the status name (e.g. "OPEN") directly
+                        if (preselectedStatus != null && preselectedStatus.equalsIgnoreCase(status.getName())) {
+                            dropdownStatus.setText(status.getName(), false);
+                        }
+                    }
+                    
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            CreateThesisOfferActivity.this,
+                            android.R.layout.simple_dropdown_item_1line,
+                            statusNames
+                    );
+                    dropdownStatus.setAdapter(adapter);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ThesisOfferStatusResponse>> call, Throwable t) {
+                 Toast.makeText(CreateThesisOfferActivity.this, "Fehler beim Laden der Status", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -156,7 +203,12 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
         btnSave.setEnabled(false);
 
         if (isEditMode) {
-            updateExistingThesisOffer(title, description, subjectAreaId);
+            String selectedStatusName = dropdownStatus.getText().toString();
+            UUID statusId = null;
+            if (!selectedStatusName.isEmpty() && statusMap.containsKey(selectedStatusName)) {
+                statusId = statusMap.get(selectedStatusName);
+            }
+            updateExistingThesisOffer(title, description, subjectAreaId, statusId);
         } else {
             createNewThesisOffer(title, description, subjectAreaId);
         }
@@ -188,8 +240,11 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
         });
     }
 
-    private void updateExistingThesisOffer(String title, String description, UUID subjectAreaId) {
+    private void updateExistingThesisOffer(String title, String description, UUID subjectAreaId, UUID statusId) {
         UpdateThesisOfferRequest request = new UpdateThesisOfferRequest(title, description, subjectAreaId);
+        if (statusId != null) {
+            request.setThesisOfferStatusId(statusId);
+        }
         
         thesisOfferRepository.updateThesisOffer(offerId, request, new Callback<ThesisOfferApiModel>() {
             @Override

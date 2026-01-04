@@ -9,6 +9,7 @@ public class UpdateThesisOfferRequest {
     private UUID subjectAreaId;
     private Integer maxStudents;
     private OffsetDateTime expiresAt;
+    private UUID thesisOfferStatusId;
 
     public UpdateThesisOfferRequest() {
     }
@@ -57,5 +58,13 @@ public class UpdateThesisOfferRequest {
 
     public void setExpiresAt(OffsetDateTime expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public UUID getThesisOfferStatusId() {
+        return thesisOfferStatusId;
+    }
+
+    public void setThesisOfferStatusId(UUID thesisOfferStatusId) {
+        this.thesisOfferStatusId = thesisOfferStatusId;
     }
 }

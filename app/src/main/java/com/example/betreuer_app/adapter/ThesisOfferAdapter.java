@@ -13,9 +13,15 @@ import java.util.List;
 public class ThesisOfferAdapter extends RecyclerView.Adapter<ThesisOfferAdapter.ViewHolder> {
 
     private final List<ThesisOfferApiModel> offers;
+    private final OnItemClickListener listener;
 
-    public ThesisOfferAdapter(List<ThesisOfferApiModel> offers) {
+    public interface OnItemClickListener {
+        void onItemClick(ThesisOfferApiModel offer);
+    }
+
+    public ThesisOfferAdapter(List<ThesisOfferApiModel> offers, OnItemClickListener listener) {
         this.offers = offers;
+        this.listener = listener;
     }
 
     @NonNull
@@ -30,7 +36,12 @@ public class ThesisOfferAdapter extends RecyclerView.Adapter<ThesisOfferAdapter.
         ThesisOfferApiModel offer = offers.get(position);
         holder.tvTitle.setText(offer.getTitle());
         holder.tvDescription.setText(offer.getDescription() != null ? offer.getDescription() : "");
-        // holder.chipStatus.setText(offer.getStatus()); // Uncomment if status is available and wanted
+        
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(offer);
+            }
+        });
     }
 
     @Override
@@ -41,13 +52,11 @@ public class ThesisOfferAdapter extends RecyclerView.Adapter<ThesisOfferAdapter.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle;
         TextView tvDescription;
-        // Chip chipStatus;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tv_offer_title);
             tvDescription = itemView.findViewById(R.id.tv_offer_description);
-            // chipStatus = itemView.findViewById(R.id.chip_status);
         }
     }
 }
