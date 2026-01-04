@@ -6,6 +6,7 @@ import com.example.betreuer_app.api.ThesisOfferApiService;
 import com.example.betreuer_app.model.CreateThesisOfferRequest;
 import com.example.betreuer_app.model.ThesisOfferApiModel;
 import com.example.betreuer_app.model.ThesisOfferResponse;
+import com.example.betreuer_app.model.UpdateThesisOfferRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -24,5 +25,9 @@ public class ThesisOfferRepository {
 
     public void getThesisOffersByUser(UUID userId, int page, int pageSize, Callback<ThesisOfferResponse> callback) {
         apiService.getThesisOffersByUser(userId, page, pageSize).enqueue(callback);
+    }
+    
+    public void updateThesisOffer(UUID id, UpdateThesisOfferRequest request, Callback<ThesisOfferApiModel> callback) {
+        apiService.updateThesisOffer(id, request).enqueue(callback);
     }
 }

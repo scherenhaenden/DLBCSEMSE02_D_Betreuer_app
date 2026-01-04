@@ -3,6 +3,7 @@ package com.example.betreuer_app.api;
 import com.example.betreuer_app.model.CreateThesisOfferRequest;
 import com.example.betreuer_app.model.ThesisOfferApiModel;
 import com.example.betreuer_app.model.ThesisOfferResponse;
+import com.example.betreuer_app.model.UpdateThesisOfferRequest;
 
 import java.util.UUID;
 
@@ -35,6 +36,6 @@ public interface ThesisOfferApiService {
     @PUT("thesis-offers/{id}")
     Call<ThesisOfferApiModel> updateThesisOffer(
             @Path("id") UUID id,
-            @Body CreateThesisOfferRequest request // Note: Using CreateRequest for update as described roughly, but might need a specific Update request if fields are different.
+            @Body UpdateThesisOfferRequest request
     );
 }

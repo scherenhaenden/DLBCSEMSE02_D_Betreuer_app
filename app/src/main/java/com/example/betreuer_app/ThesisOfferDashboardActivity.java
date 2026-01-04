@@ -71,7 +71,16 @@ public class ThesisOfferDashboardActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     List<ThesisOfferApiModel> offers = response.body().getItems();
                     if (offers != null && !offers.isEmpty()) {
-                        ThesisOfferAdapter adapter = new ThesisOfferAdapter(offers);
+                        ThesisOfferAdapter adapter = new ThesisOfferAdapter(offers, offer -> {
+                            Intent intent = new Intent(ThesisOfferDashboardActivity.this, CreateThesisOfferActivity.class);
+                            intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_ID, offer.getId().toString());
+                            intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_TITLE, offer.getTitle());
+                            intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_DESCRIPTION, offer.getDescription());
+                            if (offer.getSubjectAreaId() != null) {
+                                intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_SUBJECT_AREA_ID, offer.getSubjectAreaId().toString());
+                            }
+                            startActivity(intent);
+                        });
                         recyclerView.setAdapter(adapter);
                         recyclerView.setVisibility(View.VISIBLE);
                         emptyView.setVisibility(View.GONE);
