@@ -1,5 +1,8 @@
 package com.example.betreuer_app.ui.thesislist;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,15 +16,20 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.betreuer_app.R;
+import com.example.betreuer_app.ThesisDetailActivity;
+import com.example.betreuer_app.constants.AuthConstants;
 import com.example.betreuer_app.model.ThesesResponse;
+import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.viewmodel.ThesisListViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ThesisListFragment extends Fragment {
     private RecyclerView recyclerView;
     private ThesisListViewModel viewModel;
     private ThesisListAdapter adapter;
     private MaterialToolbar toolbar;
+    private FloatingActionButton fabAddThesis;
 
     @Nullable
     @Override
@@ -29,6 +37,7 @@ public class ThesisListFragment extends Fragment {
         View view = inflater.inflate(R.layout.activity_thesis_list, container, false);
         recyclerView = view.findViewById(R.id.thesesRecyclerView);
         toolbar = view.findViewById(R.id.toolbar);
+        fabAddThesis = view.findViewById(R.id.fab_add_thesis);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return view;
     }
@@ -46,11 +55,36 @@ public class ThesisListFragment extends Fragment {
             });
         }
 
+        SharedPreferences prefs = requireContext().getSharedPreferences(AuthConstants.PREFS_NAME, Context.MODE_PRIVATE);
+        String role = prefs.getString(AuthConstants.KEY_USER_ROLE, "");
+
+        if ("tutor".equalsIgnoreCase(role)) {
+            fabAddThesis.setVisibility(View.GONE);
+        } else {
+            fabAddThesis.setVisibility(View.VISIBLE);
+        }
+
+        fabAddThesis.setOnClickListener(v -> {
+             // TODO: Navigate to CreateThesisActivity if needed, already handled in dashboard or here? 
+             // The user has a separate activity for creation, usually started from dashboard, 
+             // but if we want it here:
+             // Intent intent = new Intent(getActivity(), com.example.betreuer_app.CreateThesisActivity.class);
+             // startActivity(intent);
+        });
+
         viewModel.getTheses().observe(getViewLifecycleOwner(), new Observer<ThesesResponse>() {
             @Override
             public void onChanged(ThesesResponse thesesResponse) {
                 if (thesesResponse != null && thesesResponse.getItems() != null) {
                     adapter = new ThesisListAdapter(thesesResponse.getItems());
+                    adapter.setOnItemClickListener(new ThesisListAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(ThesisApiModel thesis) {
+                            Intent intent = new Intent(getContext(), ThesisDetailActivity.class);
+                            intent.putExtra("THESIS_ID", thesis.getId().toString());
+                            startActivity(intent);
+                        }
+                    });
                     recyclerView.setAdapter(adapter);
                 }
             }

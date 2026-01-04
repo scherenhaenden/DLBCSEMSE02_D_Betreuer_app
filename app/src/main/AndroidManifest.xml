@@ -86,6 +86,12 @@
             android:label="Anfrage Details"
             android:parentActivityName=".ThesisRequestActivity" />
 
+        <activity
+            android:name=".ThesisDetailActivity"
+            android:exported="false"
+            android:label="Abschlussarbeit Details"
+            android:parentActivityName=".ThesisListActivity" />
+
     </application>
 
 </manifest>
