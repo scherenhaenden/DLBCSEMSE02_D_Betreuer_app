@@ -57,6 +57,26 @@ namespace ApiProject.BusinessLogic.Services
         Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId, int page, int pageSize);
 
         /// <summary>
+        /// Retrieves all thesis requests where the specified tutor is the receiver.
+        /// Requests are ordered by creation date in descending order.
+        /// </summary>
+        /// <param name="tutorId">The unique identifier of the tutor who is the receiver of the requests.</param>
+        /// <param name="page">The page number for pagination (1-based).</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestResponse"/> objects.</returns>
+        Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize);
+
+        /// <summary>
+        /// Retrieves all thesis requests where the specified tutor is the requester.
+        /// Requests are ordered by creation date in descending order.
+        /// </summary>
+        /// <param name="tutorId">The unique identifier of the tutor who is the requester of the requests.</param>
+        /// <param name="page">The page number for pagination (1-based).</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestResponse"/> objects.</returns>
+        Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize);
+
+        /// <summary>
         /// Retrieves a specific thesis request by its unique identifier.
         /// </summary>
         /// <param name="requestId">The unique identifier of the request to retrieve.</param>

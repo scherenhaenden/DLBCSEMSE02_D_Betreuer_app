@@ -258,6 +258,96 @@ namespace ApiProject.BusinessLogic.Services
             return await CreateRequestAsync(tutorId, thesisId, secondSupervisorId, RequestTypes.CoSupervision, message);
         }
 
+        /// <summary>
+        /// Retrieves all thesis requests where the specified tutor is the receiver.
+        /// Requests are ordered by creation date in descending order.
+        /// 
+        /// What: Fetches a paginated list of thesis requests where the tutor is the receiver, including full details of thesis, users, types, and statuses.
+        /// How: Builds a query including all related entities for comprehensive data loading.
+        /// Filters requests where the tutor is the receiver, orders by creation date descending.
+        /// Applies pagination using Skip and Take based on page and pageSize.
+        /// Retrieves the total count for pagination metadata.
+        /// Maps each request to the response model using the private MapToResponse method.
+        /// Why: Allows tutors to view their incoming request history and pending actions with pagination for performance.
+        /// Provides complete context for each request including participant details and current status.
+        /// Supports tutor dashboards and notification systems with efficient data retrieval.
+        /// </summary>
+        /// <param name="tutorId">The unique identifier of the tutor who is the receiver of the requests.</param>
+        /// <param name="page">The page number for pagination (1-based).</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>A paginated result containing the list of thesis request responses and pagination metadata.</returns>
+        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize)
+        {
+            var query = _context.ThesisRequests
+                .Include(r => r.Thesis)
+                .Include(r => r.Requester).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .Include(r => r.Receiver).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .Include(r => r.RequestType)
+                .Include(r => r.Status)
+                .Where(r => r.ReceiverId == tutorId)
+                .OrderByDescending(r => r.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => MapToResponse(r))
+                .ToListAsync();
+
+            return new PaginatedResultBusinessLogicModel<ThesisRequestResponse>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+        /// <summary>
+        /// Retrieves all thesis requests where the specified tutor is the requester.
+        /// Requests are ordered by creation date in descending order.
+        /// 
+        /// What: Fetches a paginated list of thesis requests where the tutor is the requester, including full details of thesis, users, types, and statuses.
+        /// How: Builds a query including all related entities for comprehensive data loading.
+        /// Filters requests where the tutor is the requester, orders by creation date descending.
+        /// Applies pagination using Skip and Take based on page and pageSize.
+        /// Retrieves the total count for pagination metadata.
+        /// Maps each request to the response model using the private MapToResponse method.
+        /// Why: Allows tutors to view their outgoing request history and pending actions with pagination for performance.
+        /// Provides complete context for each request including participant details and current status.
+        /// Supports tutor dashboards and notification systems with efficient data retrieval.
+        /// </summary>
+        /// <param name="tutorId">The unique identifier of the tutor who is the requester of the requests.</param>
+        /// <param name="page">The page number for pagination (1-based).</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>A paginated result containing the list of thesis request responses and pagination metadata.</returns>
+        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize)
+        {
+            var query = _context.ThesisRequests
+                .Include(r => r.Thesis)
+                .Include(r => r.Requester).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .Include(r => r.Receiver).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .Include(r => r.RequestType)
+                .Include(r => r.Status)
+                .Where(r => r.RequesterId == tutorId)
+                .OrderByDescending(r => r.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => MapToResponse(r))
+                .ToListAsync();
+
+            return new PaginatedResultBusinessLogicModel<ThesisRequestResponse>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
         private static ThesisRequestResponse MapToResponse(ThesisRequestDataAccessModel r)
         {
             return new ThesisRequestResponse

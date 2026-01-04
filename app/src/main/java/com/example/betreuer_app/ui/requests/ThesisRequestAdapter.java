@@ -21,14 +21,23 @@ public class ThesisRequestAdapter extends RecyclerView.Adapter<ThesisRequestAdap
 
     private List<ThesisRequestResponse> requests = new ArrayList<>();
     private OnRequestActionClickListener actionListener;
+    private OnItemClickListener itemClickListener;
 
     public interface OnRequestActionClickListener {
         void onAccept(ThesisRequestResponse request);
         void onReject(ThesisRequestResponse request);
     }
 
+    public interface OnItemClickListener {
+        void onItemClick(ThesisRequestResponse request);
+    }
+
     public void setOnRequestActionClickListener(OnRequestActionClickListener listener) {
         this.actionListener = listener;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.itemClickListener = listener;
     }
 
     public void setRequests(List<ThesisRequestResponse> requests) {
@@ -73,6 +82,13 @@ public class ThesisRequestAdapter extends RecyclerView.Adapter<ThesisRequestAdap
             actionsLayout = itemView.findViewById(R.id.layoutActions);
             btnAccept = itemView.findViewById(R.id.buttonAccept);
             btnReject = itemView.findViewById(R.id.buttonReject);
+
+            itemView.setOnClickListener(v -> {
+                int pos = getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION && itemClickListener != null) {
+                    itemClickListener.onItemClick(requests.get(pos));
+                }
+            });
         }
 
         public void bind(ThesisRequestResponse request) {

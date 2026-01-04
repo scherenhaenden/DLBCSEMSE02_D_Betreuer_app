@@ -1,5 +1,6 @@
 package com.example.betreuer_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -66,6 +67,16 @@ public class ThesisRequestActivity extends AppCompatActivity {
                 respondToRequest(request, false);
             }
         });
+
+        adapter.setOnItemClickListener(new ThesisRequestAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(ThesisRequestResponse request) {
+                Intent intent = new Intent(ThesisRequestActivity.this, ThesisRequestDetailActivity.class);
+                intent.putExtra("request_id", request.getId().toString());
+                startActivity(intent);
+            }
+        });
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }

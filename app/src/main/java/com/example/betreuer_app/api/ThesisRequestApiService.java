@@ -1,6 +1,7 @@
 package com.example.betreuer_app.api;
 
 import com.example.betreuer_app.model.RespondToThesisRequestRequest;
+import com.example.betreuer_app.model.ThesisRequestResponse;
 import com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse;
 
 import java.util.UUID;
@@ -18,6 +19,11 @@ public interface ThesisRequestApiService {
     Call<ThesisRequestResponsePaginatedResponse> getMyRequests(
             @Query("page") int page,
             @Query("pageSize") int pageSize
+    );
+
+    @GET("thesis-requests/{id}")
+    Call<ThesisRequestResponse> getThesisRequest(
+            @Path("id") UUID id
     );
 
     @POST("thesis-requests/{id}/respond")

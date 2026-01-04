@@ -78,6 +78,13 @@
             android:exported="false"
             android:label="Betreuungsanfragen"
             android:parentActivityName=".DashboardActivity" />
+            
+        <!-- Thesis Request Detail Activity (New) -->
+        <activity
+            android:name=".ThesisRequestDetailActivity"
+            android:exported="false"
+            android:label="Anfrage Details"
+            android:parentActivityName=".ThesisRequestActivity" />
 
     </application>
 
