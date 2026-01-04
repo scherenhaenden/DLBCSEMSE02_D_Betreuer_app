@@ -6,10 +6,12 @@ import com.example.betreuer_app.api.ThesisOfferApiService;
 import com.example.betreuer_app.model.CreateThesisOfferRequest;
 import com.example.betreuer_app.model.ThesisOfferApiModel;
 import com.example.betreuer_app.model.ThesisOfferResponse;
+import com.example.betreuer_app.model.ThesisOfferStatusResponse;
 import com.example.betreuer_app.model.UpdateThesisOfferRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
 
+import java.util.List;
 import java.util.UUID;
 
 public class ThesisOfferRepository {
@@ -29,5 +31,9 @@ public class ThesisOfferRepository {
     
     public void updateThesisOffer(UUID id, UpdateThesisOfferRequest request, Callback<ThesisOfferApiModel> callback) {
         apiService.updateThesisOffer(id, request).enqueue(callback);
+    }
+
+    public void getThesisOfferStatuses(Callback<List<ThesisOfferStatusResponse>> callback) {
+        apiService.getThesisOfferStatuses().enqueue(callback);
     }
 }
