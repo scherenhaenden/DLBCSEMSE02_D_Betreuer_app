@@ -32,6 +32,7 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
     private TextView message;
     private TextView status;
     private TextView date;
+    private TextView requestType;
     private LinearLayout actionsLayout;
     private Button btnAccept;
     private Button btnReject;
@@ -50,6 +51,7 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
         message = findViewById(R.id.textViewMessage);
         status = findViewById(R.id.textViewStatus);
         date = findViewById(R.id.textViewDate);
+        requestType = findViewById(R.id.textViewRequestType);
         actionsLayout = findViewById(R.id.layoutActions);
         btnAccept = findViewById(R.id.buttonAccept);
         btnReject = findViewById(R.id.buttonReject);
@@ -99,6 +101,8 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
 
     private void displayDetails(ThesisRequestResponse request) {
         thesisTitle.setText(request.getThesisTitle() != null ? request.getThesisTitle() : "No Title");
+        
+        requestType.setText(request.getRequestType() != null ? request.getRequestType() : "Unknown Type");
         
         String requester = "Unknown";
         if (request.getRequester() != null) {
