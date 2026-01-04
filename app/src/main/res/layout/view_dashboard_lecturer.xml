@@ -96,20 +96,4 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Liste der betreuten Arbeiten:"
-        android:textStyle="bold"/>
-    
-    <!-- Platzhalter-Liste (Dummy) -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:padding="8dp"
-        android:background="#F5F5F5"
-        android:text="1. Entwicklung einer App (Max Müller)\n2. KI in der Medizin (Lisa Schmidt)\n3. Cloud Computing (Tom Weber)" />
-
 </LinearLayout>
