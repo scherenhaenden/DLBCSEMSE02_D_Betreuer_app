@@ -522,4 +522,17 @@ public class ThesisOfferBusinessLogicServiceTests
         Assert.That(result.Items.Count, Is.EqualTo(0));
         Assert.That(result.TotalCount, Is.EqualTo(0));
     }
+
+    [Test]
+    public async Task GetStatusesAsync_ReturnsAllStatuses()
+    {
+        // Act
+        var result = await _thesisOfferService.GetStatusesAsync();
+
+        // Assert
+        Assert.That(result.Count, Is.EqualTo(3));
+        Assert.That(result.Any(s => s.Name == ThesisOfferStatuses.Open), Is.True);
+        Assert.That(result.Any(s => s.Name == ThesisOfferStatuses.Closed), Is.True);
+        Assert.That(result.Any(s => s.Name == ThesisOfferStatuses.Archived), Is.True);
+    }
 }
