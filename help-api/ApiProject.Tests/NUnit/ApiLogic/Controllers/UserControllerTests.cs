@@ -5,7 +5,6 @@ using ApiProject.DatabaseAccess.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NUnit.Framework;
 
 namespace ApiProject.Tests.NUnit.ApiLogic.Controllers;
 

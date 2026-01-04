@@ -1,7 +1,5 @@
 using ApiProject.DatabaseAccess.Context;
 using ApiProject.DatabaseAccess.Entities;
-using Microsoft.EntityFrameworkCore;
-using BCrypt.Net;
 using ApiProject.Constants;
 
 namespace ApiProject.Tests.NUnit.BusinessLogic.Services;

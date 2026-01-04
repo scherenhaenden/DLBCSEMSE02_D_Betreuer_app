@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace ApiProject.ApiLogic.Models
 {
     public class UpdateThesisRequest

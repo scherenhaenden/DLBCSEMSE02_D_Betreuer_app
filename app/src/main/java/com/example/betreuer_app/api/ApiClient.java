@@ -44,4 +44,8 @@ public class ApiClient {
     public static ThesisOfferApiService getThesisOfferApiService(Context context) {
         return getClient(context).create(ThesisOfferApiService.class);
     }
+
+    public static ThesisRequestApiService getThesisRequestApiService(Context context) {
+        return getClient(context).create(ThesisRequestApiService.class);
+    }
 }

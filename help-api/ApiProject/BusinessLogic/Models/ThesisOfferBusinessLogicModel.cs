@@ -1,5 +1,3 @@
-using System;
-
 namespace ApiProject.BusinessLogic.Models;
 
 public class ThesisOfferBusinessLogicModel : BaseEntityBusinessLogicModel

@@ -1,5 +1,3 @@
-
-using Microsoft.EntityFrameworkCore;
 using ApiProject.DatabaseAccess.Context;
 
 namespace ApiProject.Extensions

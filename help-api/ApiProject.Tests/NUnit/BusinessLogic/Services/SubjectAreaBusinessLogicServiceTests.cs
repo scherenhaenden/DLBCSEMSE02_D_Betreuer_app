@@ -1,10 +1,7 @@
 using ApiProject.BusinessLogic.Services;
 using ApiProject.DatabaseAccess.Context;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
 using ApiProject.BusinessLogic.Models;
-using ApiProject.Constants;
-using ApiProject.DatabaseAccess.Entities;
 
 namespace ApiProject.Tests.NUnit.BusinessLogic.Services;
 

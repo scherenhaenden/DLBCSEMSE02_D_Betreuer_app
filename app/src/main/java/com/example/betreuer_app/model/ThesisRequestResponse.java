@@ -1,6 +1,5 @@
 package com.example.betreuer_app.model;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public class ThesisRequestResponse {
@@ -12,7 +11,7 @@ public class ThesisRequestResponse {
     private String requestType;
     private String status;
     private String message;
-    private OffsetDateTime createdAt;
+    private String createdAt; // Changed from OffsetDateTime to String to avoid Gson deserialization issues
 
     public UUID getId() {
         return id;
@@ -46,7 +45,7 @@ public class ThesisRequestResponse {
         return message;
     }
 
-    public OffsetDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 }

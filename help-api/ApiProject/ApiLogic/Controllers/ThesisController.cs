@@ -4,7 +4,6 @@ using ApiProject.BusinessLogic.Models;
 using ApiProject.BusinessLogic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 using System.Security.Claims;
 
 namespace ApiProject.ApiLogic.Controllers

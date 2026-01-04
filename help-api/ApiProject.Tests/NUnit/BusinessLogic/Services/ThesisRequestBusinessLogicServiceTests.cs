@@ -1,10 +1,7 @@
 using ApiProject.BusinessLogic.Services;
 using ApiProject.DatabaseAccess.Context;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using ApiProject.BusinessLogic.Models;
 using ApiProject.Constants;
-using ApiProject.DatabaseAccess.Entities;
 
 namespace ApiProject.Tests.NUnit.BusinessLogic.Services;
 
@@ -56,11 +53,14 @@ public class ThesisRequestBusinessLogicServiceTests
         var request = _seeder.SeedThesisRequest(student.Id, tutor.Id, thesis.Id, RequestTypes.Supervision, RequestStatuses.Pending, "Request message");
 
         // Act
-        var result = await _thesisRequestService.GetRequestsForUserAsync(student.Id);
+        var result = await _thesisRequestService.GetRequestsForUserAsync(student.Id, 1, 10);
 
         // Assert
-        Assert.That(result.Count(), Is.EqualTo(1));
-        Assert.That(result.First().Message, Is.EqualTo("Request message"));
+        Assert.That(result.Items.Count(), Is.EqualTo(1));
+        Assert.That(result.Items.First().Message, Is.EqualTo("Request message"));
+        Assert.That(result.TotalCount, Is.EqualTo(1));
+        Assert.That(result.Page, Is.EqualTo(1));
+        Assert.That(result.PageSize, Is.EqualTo(10));
     }
   
 

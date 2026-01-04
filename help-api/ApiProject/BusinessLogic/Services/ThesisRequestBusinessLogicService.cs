@@ -2,10 +2,6 @@ using ApiProject.ApiLogic.Models;
 using ApiProject.DatabaseAccess.Context;
 using ApiProject.DatabaseAccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ApiProject.Constants;
 using ApiProject.BusinessLogic.Models;
 
@@ -119,7 +115,7 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
         /// <returns>A paginated result containing the list of thesis request responses and pagination metadata.</returns>
-        public async Task<Models.PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId, int page, int pageSize)
+        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId, int page, int pageSize)
         {
             var query = _context.ThesisRequests
                 .Include(r => r.Thesis)
@@ -137,7 +133,7 @@ namespace ApiProject.BusinessLogic.Services
                 .Select(r => MapToResponse(r))
                 .ToListAsync();
 
-            return new Models.PaginatedResultBusinessLogicModel<ThesisRequestResponse>
+            return new PaginatedResultBusinessLogicModel<ThesisRequestResponse>
             {
                 Items = items,
                 TotalCount = totalCount,
