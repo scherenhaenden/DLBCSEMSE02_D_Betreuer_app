@@ -253,7 +253,7 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="page">The page number to retrieve (1-based).</param>
         /// <param name="pageSize">The number of tutors per page.</param>
         /// <returns>A paginated response containing tutor profiles with their subject areas.</returns>
-        public async Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? subjectAreaId, string? subjectAreaName, string? name, int page, int pageSize)
+        public async Task<PaginatedResultBusinessLogicModel<TutorProfileBusinessLogicModel>> GetTutorsAsync(Guid? subjectAreaId, string? subjectAreaName, string? name, int page, int pageSize)
         {
             var query = _context.Users
                 .Include(u => u.UserRoles)
@@ -283,21 +283,23 @@ namespace ApiProject.BusinessLogic.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            var tutorProfiles = items.Select(u => new TutorProfileResponse
+            var tutorProfiles = items.Select(u => new TutorProfileBusinessLogicModel
             {
                 Id = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Email = u.Email,
-                SubjectAreas = u.UserToSubjectAreas.Select(ut => new SubjectAreaResponse
+                SubjectAreas = u.UserToSubjectAreas.Select(ut => new SubjectAreaBusinessLogicModel
                 {
                     Id = ut.SubjectArea.Id,
                     Title = ut.SubjectArea.Title,
-                    Description = ut.SubjectArea.Description
+                    Description = ut.SubjectArea.Description,
+                    IsActive = ut.SubjectArea.IsActive,
+                    TutorIds = ut.SubjectArea.UserToSubjectAreas.Select(uts => uts.UserId).ToList()
                 }).ToList()
             }).ToList();
 
-            return new PaginatedResponse<TutorProfileResponse>
+            return new PaginatedResultBusinessLogicModel<TutorProfileBusinessLogicModel>
             {
                 Items = tutorProfiles,
                 TotalCount = totalCount,
@@ -319,7 +321,7 @@ namespace ApiProject.BusinessLogic.Services
         /// </summary>
         /// <param name="id">The unique GUID identifier of the tutor.</param>
         /// <returns>The tutor's profile response if found and is a tutor, otherwise null.</returns>
-        public async Task<TutorProfileResponse?> GetTutorByIdAsync(Guid id)
+        public async Task<TutorProfileBusinessLogicModel?> GetTutorByIdAsync(Guid id)
         {
             var user = await _context.Users
                 .Include(u => u.UserRoles)
@@ -334,17 +336,19 @@ namespace ApiProject.BusinessLogic.Services
                 return null;
             }
 
-            return new TutorProfileResponse
+            return new TutorProfileBusinessLogicModel
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                SubjectAreas = user.UserToSubjectAreas.Select(ut => new SubjectAreaResponse
+                SubjectAreas = user.UserToSubjectAreas.Select(ut => new SubjectAreaBusinessLogicModel
                 {
                     Id = ut.SubjectArea.Id,
                     Title = ut.SubjectArea.Title,
-                    Description = ut.SubjectArea.Description
+                    Description = ut.SubjectArea.Description,
+                    IsActive = ut.SubjectArea.IsActive,
+                    TutorIds = ut.SubjectArea.UserToSubjectAreas.Select(uts => uts.UserId).ToList()
                 }).ToList()
             };
         }

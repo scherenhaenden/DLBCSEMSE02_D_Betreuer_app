@@ -3,6 +3,7 @@ using ApiProject.BusinessLogic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using ApiProject.BusinessLogic.Models;
 
 namespace ApiProject.ApiLogic.Controllers
 {
@@ -23,7 +24,7 @@ namespace ApiProject.ApiLogic.Controllers
         {
             var requesterId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var createdRequest = await _requestBusinessLogicService.CreateRequestAsync(requesterId, request.ThesisId, request.ReceiverId, request.RequestType, request.Message);
-            return CreatedAtAction(nameof(GetRequestById), new { id = createdRequest.Id }, createdRequest);
+            return CreatedAtAction(nameof(GetRequestById), new { id = createdRequest.Id }, MapToResponse(createdRequest));
         }
 
         [HttpGet]
@@ -33,7 +34,7 @@ namespace ApiProject.ApiLogic.Controllers
             var result = await _requestBusinessLogicService.GetRequestsForUserAsync(userId, page, pageSize);
             var response = new PaginatedResponse<ThesisRequestResponse>
             {
-                Items = result.Items,
+                Items = result.Items.Select(MapToResponse).ToList(),
                 TotalCount = result.TotalCount,
                 Page = result.Page,
                 PageSize = result.PageSize
@@ -46,7 +47,7 @@ namespace ApiProject.ApiLogic.Controllers
         {
             var request = await _requestBusinessLogicService.GetRequestByIdAsync(id);
             if (request == null) return NotFound();
-            return Ok(request);
+            return Ok(MapToResponse(request));
         }
 
         [HttpPost("{id}/respond")]
@@ -55,6 +56,36 @@ namespace ApiProject.ApiLogic.Controllers
             var receiverId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             await _requestBusinessLogicService.RespondToRequestAsync(id, receiverId, response.Accepted, response.Message);
             return NoContent();
+        }
+
+        private ThesisRequestResponse MapToResponse(ThesisRequestBusinessLogicModel model)
+        {
+            return new ThesisRequestResponse
+            {
+                Id = model.Id,
+                ThesisId = model.ThesisId,
+                ThesisTitle = model.ThesisTitle,
+                Requester = new UserResponse
+                {
+                    Id = model.Requester.Id,
+                    FirstName = model.Requester.FirstName,
+                    LastName = model.Requester.LastName,
+                    Email = model.Requester.Email,
+                    Roles = model.Requester.Roles
+                },
+                Receiver = new UserResponse
+                {
+                    Id = model.Receiver.Id,
+                    FirstName = model.Receiver.FirstName,
+                    LastName = model.Receiver.LastName,
+                    Email = model.Receiver.Email,
+                    Roles = model.Receiver.Roles
+                },
+                RequestType = model.RequestType,
+                Status = model.Status,
+                Message = model.Message,
+                CreatedAt = model.CreatedAt
+            };
         }
     }
 }
