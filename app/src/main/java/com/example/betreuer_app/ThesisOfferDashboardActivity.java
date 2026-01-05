@@ -65,38 +65,42 @@ public class ThesisOfferDashboardActivity extends AppCompatActivity {
     }
 
     private void loadThesisOffers() {
-        repository.getThesisOffersByUser(UUID.fromString(userId), 1, 50, new Callback<ThesisOfferResponse>() {
-            @Override
-            public void onResponse(Call<ThesisOfferResponse> call, Response<ThesisOfferResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<ThesisOfferApiModel> offers = response.body().getItems();
-                    if (offers != null && !offers.isEmpty()) {
-                        ThesisOfferAdapter adapter = new ThesisOfferAdapter(offers, offer -> {
-                            Intent intent = new Intent(ThesisOfferDashboardActivity.this, CreateThesisOfferActivity.class);
-                            intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_ID, offer.getId().toString());
-                            intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_TITLE, offer.getTitle());
-                            intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_DESCRIPTION, offer.getDescription());
-                            if (offer.getSubjectAreaId() != null) {
-                                intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_SUBJECT_AREA_ID, offer.getSubjectAreaId().toString());
-                            }
-                            startActivity(intent);
-                        });
-                        recyclerView.setAdapter(adapter);
-                        recyclerView.setVisibility(View.VISIBLE);
-                        emptyView.setVisibility(View.GONE);
+        try {
+            repository.getThesisOffersByUser(UUID.fromString(userId), 1, 50, new Callback<ThesisOfferResponse>() {
+                @Override
+                public void onResponse(Call<ThesisOfferResponse> call, Response<ThesisOfferResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<ThesisOfferApiModel> offers = response.body().getItems();
+                        if (offers != null && !offers.isEmpty()) {
+                            ThesisOfferAdapter adapter = new ThesisOfferAdapter(offers, offer -> {
+                                Intent intent = new Intent(ThesisOfferDashboardActivity.this, CreateThesisOfferActivity.class);
+                                intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_ID, offer.getId().toString());
+                                intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_TITLE, offer.getTitle());
+                                intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_DESCRIPTION, offer.getDescription());
+                                if (offer.getSubjectAreaId() != null) {
+                                    intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_SUBJECT_AREA_ID, offer.getSubjectAreaId().toString());
+                                }
+                                startActivity(intent);
+                            });
+                            recyclerView.setAdapter(adapter);
+                            recyclerView.setVisibility(View.VISIBLE);
+                            emptyView.setVisibility(View.GONE);
+                        } else {
+                            recyclerView.setVisibility(View.GONE);
+                            emptyView.setVisibility(View.VISIBLE);
+                        }
                     } else {
-                        recyclerView.setVisibility(View.GONE);
-                        emptyView.setVisibility(View.VISIBLE);
+                        Toast.makeText(ThesisOfferDashboardActivity.this, "Fehler beim Laden: " + response.code(), Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Toast.makeText(ThesisOfferDashboardActivity.this, "Fehler beim Laden: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ThesisOfferResponse> call, Throwable t) {
-                Toast.makeText(ThesisOfferDashboardActivity.this, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<ThesisOfferResponse> call, Throwable t) {
+                    Toast.makeText(ThesisOfferDashboardActivity.this, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(this, "Fehler: Ungültige Benutzer-ID.", Toast.LENGTH_SHORT).show();
+        }
     }
 }
