@@ -335,4 +335,245 @@ public class ThesisOfferBusinessLogicServiceTests
         Assert.That(application, Is.Null);
         Assert.That(error, Is.EqualTo("Thesis offer does not have open state anymore."));
     }
+
+    [Test]
+    public async Task UpdateThesisOffer_SuccessfulUpdateByTutor()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "Updater", "tutorupdate@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Original Title", "Original Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        var updateRequest = new ThesisOfferUpdateRequestBusinessLogicModel
+        {
+            Title = "Updated Title",
+            Description = "Updated Description",
+            MaxStudents = 5,
+            ExpiresAt = DateTime.UtcNow.AddDays(60)
+        };
+
+        // Act
+        var updatedOffer = await _thesisOfferService.UpdateAsync(offer.Id, updateRequest, tutor.Id);
+
+        // Assert
+        Assert.That(updatedOffer, Is.Not.Null);
+        Assert.That(updatedOffer.Title, Is.EqualTo("Updated Title"));
+        Assert.That(updatedOffer.Description, Is.EqualTo("Updated Description"));
+        Assert.That(updatedOffer.MaxStudents, Is.EqualTo(5));
+        Assert.That(updatedOffer.ExpiresAt, Is.EqualTo(updateRequest.ExpiresAt.Value).Within(TimeSpan.FromSeconds(1)));
+    }
+
+    [Test]
+    public async Task UpdateThesisOffer_PartialUpdate()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "Partial", "tutorpartial@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Original Title", "Original Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        var updateRequest = new ThesisOfferUpdateRequestBusinessLogicModel
+        {
+            Title = "New Title" // Only update title
+        };
+
+        // Act
+        var updatedOffer = await _thesisOfferService.UpdateAsync(offer.Id, updateRequest, tutor.Id);
+
+        // Assert
+        Assert.That(updatedOffer.Title, Is.EqualTo("New Title"));
+        Assert.That(updatedOffer.Description, Is.EqualTo("Original Description")); // Unchanged
+        Assert.That(updatedOffer.MaxStudents, Is.EqualTo(1)); // Unchanged
+    }
+
+    [Test]
+    public async Task UpdateThesisOffer_FailsIfOfferNotFound()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "NotFound", "tutornf@example.com", "password", Roles.Tutor);
+
+        var updateRequest = new ThesisOfferUpdateRequestBusinessLogicModel
+        {
+            Title = "New Title"
+        };
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
+            await _thesisOfferService.UpdateAsync(Guid.NewGuid(), updateRequest, tutor.Id));
+        Assert.That(ex.Message, Is.EqualTo("Thesis offer not found."));
+    }
+
+    [Test]
+    public async Task UpdateThesisOffer_FailsIfUserIsNotTutor()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "Owner", "tutorowner@example.com", "password", Roles.Tutor);
+        var otherTutor = _seeder.SeedUser("Tutor", "Other", "tutorother@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        var updateRequest = new ThesisOfferUpdateRequestBusinessLogicModel
+        {
+            Title = "New Title"
+        };
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisOfferService.UpdateAsync(offer.Id, updateRequest, otherTutor.Id));
+        Assert.That(ex.Message, Is.EqualTo("Only the tutor who created the offer can update it."));
+    }
+
+    [Test]
+    public async Task UpdateThesisOffer_FailsIfOfferNotOpen()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "Closed", "tutorclosed@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var closedStatus = _context.ThesisOfferStatuses.First(s => s.Name == ThesisOfferStatuses.Closed);
+        var offer = _seeder.SeedThesisOfferWithStatus("Closed Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30), closedStatus.Id);
+
+        var updateRequest = new ThesisOfferUpdateRequestBusinessLogicModel
+        {
+            Title = "New Title"
+        };
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisOfferService.UpdateAsync(offer.Id, updateRequest, tutor.Id));
+        Assert.That(ex.Message, Is.EqualTo("Thesis offer can only be updated if it is open."));
+    }
+
+    [Test]
+    public async Task GetByUserId_AdminCanViewAnyTutorsOffers()
+    {
+        // Arrange
+        var admin = _seeder.SeedUser("Admin", "User", "admin@example.com", "password", Roles.Admin);
+        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        // Act
+        var result = await _thesisOfferService.GetByUserIdAsync(tutor.Id, admin.Id, new List<string> { Roles.Admin }, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Items.First().Title, Is.EqualTo("Test Offer"));
+    }
+
+    [Test]
+    public async Task GetByUserId_StudentCanViewTutorsOffers()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        // Act
+        var result = await _thesisOfferService.GetByUserIdAsync(tutor.Id, student.Id, new List<string> { Roles.Student }, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Items.First().Title, Is.EqualTo("Test Offer"));
+    }
+
+    [Test]
+    public async Task GetByUserId_TutorCanViewOwnOffers()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        // Act
+        var result = await _thesisOfferService.GetByUserIdAsync(tutor.Id, tutor.Id, new List<string> { Roles.Tutor }, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Items.First().Title, Is.EqualTo("Test Offer"));
+    }
+
+    [Test]
+    public async Task GetByUserId_TutorCannotViewOtherTutorsOffers()
+    {
+        // Arrange
+        var tutor1 = _seeder.SeedUser("Tutor1", "One", "tutor1@example.com", "password", Roles.Tutor);
+        var tutor2 = _seeder.SeedUser("Tutor2", "Two", "tutor2@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor2.Id, 1, DateTime.UtcNow.AddDays(30));
+
+        // Act & Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _thesisOfferService.GetByUserIdAsync(tutor2.Id, tutor1.Id, new List<string> { Roles.Tutor }, 1, 10));
+        Assert.That(ex.Message, Is.EqualTo("You are not authorized to view these offers."));
+    }
+
+    [Test]
+    public async Task GetByUserId_ReturnsEmptyIfNoOffers()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "One", "student@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "One", "tutor@example.com", "password", Roles.Tutor);
+        // No offers created for this tutor
+
+        // Act
+        var result = await _thesisOfferService.GetByUserIdAsync(tutor.Id, student.Id, new List<string> { Roles.Student }, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count, Is.EqualTo(0));
+        Assert.That(result.TotalCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GetStatusesAsync_ReturnsAllStatuses()
+    {
+        // Act
+        var result = await _thesisOfferService.GetStatusesAsync();
+
+        // Assert
+        Assert.That(result.Count, Is.EqualTo(3));
+        Assert.That(result.Any(s => s.Name == ThesisOfferStatuses.Open), Is.True);
+        Assert.That(result.Any(s => s.Name == ThesisOfferStatuses.Closed), Is.True);
+        Assert.That(result.Any(s => s.Name == ThesisOfferStatuses.Archived), Is.True);
+    }
+
+    [Test]
+    public async Task ShouldCreateThesisOfferAndUpdateStatusAfterWardsShouldPass()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "StatusUpdate", "tutorstatus@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+        var closedStatus = _context.ThesisOfferStatuses.First(s => s.Name == ThesisOfferStatuses.Closed);
+
+        var updateRequest = new ThesisOfferUpdateRequestBusinessLogicModel
+        {
+            ThesisOfferStatusId = closedStatus.Id
+        };
+
+        // Act
+        var updatedOffer = await _thesisOfferService.UpdateAsync(offer.Id, updateRequest, tutor.Id);
+
+        // Assert
+        Assert.That(updatedOffer, Is.Not.Null);
+        Assert.That(updatedOffer.Status, Is.EqualTo(ThesisOfferStatuses.Closed));
+    }
+
+    [Test]
+    public async Task ShouldCreateThesisOfferAndTryUpdateStatusToNonExistantStatusAfterWardsShouldNotPass()
+    {
+        // Arrange
+        var tutor = _seeder.SeedUser("Tutor", "InvalidStatus", "tutorinvalid@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor.Id, 1, DateTime.UtcNow.AddDays(30));
+        var nonExistentStatusId = Guid.NewGuid(); // Non-existent status ID
+
+        var updateRequest = new ThesisOfferUpdateRequestBusinessLogicModel
+        {
+            ThesisOfferStatusId = nonExistentStatusId
+        };
+
+        // Act & Assert
+        Assert.ThrowsAsync<DbUpdateException>(async () =>
+            await _thesisOfferService.UpdateAsync(offer.Id, updateRequest, tutor.Id));
+    }
 }

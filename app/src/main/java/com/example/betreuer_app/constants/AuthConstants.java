@@ -16,4 +16,7 @@ public class AuthConstants {
 
     /** Key for storing the user's role. */
     public static final String KEY_USER_ROLE = "user_role";
+    
+    /** Key for storing the user's ID. */
+    public static final String KEY_USER_ID = "user_id";
 }

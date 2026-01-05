@@ -21,5 +21,16 @@ namespace ApiProject.ApiLogic.Mappers
                 ExpiresAt = thesisOffer.ExpiresAt
             };
         }
+
+        public ThesisOfferStatusResponse MapToStatusResponse(ThesisOfferStatusBusinessLogicModel status)
+        {
+            if (status == null) return null;
+
+            return new ThesisOfferStatusResponse
+            {
+                Id = status.Id,
+                Name = status.Name
+            };
+        }
     }
 }

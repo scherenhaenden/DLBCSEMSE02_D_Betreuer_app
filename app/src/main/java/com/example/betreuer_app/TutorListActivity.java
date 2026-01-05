@@ -171,7 +171,30 @@ public class TutorListActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     var items = response.body().getItems();
                     if (items != null) {
-                        adapter = new TutorListAdapter(items);
+                        adapter = new TutorListAdapter(items, tutor -> {
+                            // Handle tutor click: Navigate to supervision request
+                            SupervisionRequestFragment fragment = new SupervisionRequestFragment();
+                            // TODO: Pass tutor data to fragment if needed
+                            
+                            // For now, just show the fragment in a container or open a new activity
+                            // Since this activity seems to be a standalone list, maybe we should start a new activity
+                            // But for now let's assume we want to replace the current content or use a container.
+                            // However, TutorListActivity uses a specific layout 'activity_tutor_list'.
+                            // It might not have a FragmentContainerView.
+                            
+                            // Let's check layout file activity_tutor_list.xml first to see if we can replace content.
+                            // If not, we might need to launch a new activity that hosts the fragment, 
+                            // or simple replace the root view if that's acceptable, but usually navigation is better.
+                            
+                            // Given the prompt "when I click onto one of the tutors ... I have to see something like this",
+                            // let's try to launch a new Activity that hosts this fragment.
+                            
+                            android.content.Intent intent = new android.content.Intent(TutorListActivity.this, SupervisionRequestActivity.class);
+                            // We would pass tutor ID here
+                            intent.putExtra("TUTOR_ID", tutor.getId().toString());
+                             intent.putExtra("TUTOR_NAME", (tutor.getFirstName() != null ? tutor.getFirstName() : "") + " " + (tutor.getLastName() != null ? tutor.getLastName() : ""));
+                            startActivity(intent);
+                        });
                         recyclerView.setAdapter(adapter);
                     } else {
                         Toast.makeText(TutorListActivity.this, "No tutors found", Toast.LENGTH_SHORT).show();

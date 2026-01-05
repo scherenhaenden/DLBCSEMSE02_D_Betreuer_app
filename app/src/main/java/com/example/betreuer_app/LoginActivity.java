@@ -183,6 +183,9 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString(AuthConstants.KEY_JWT_TOKEN, token);
         editor.putString(AuthConstants.KEY_USER_NAME, user.getFirstName());
         editor.putString(AuthConstants.KEY_USER_ROLE, role);
+        if (user.getId() != null) {
+             editor.putString(AuthConstants.KEY_USER_ID, user.getId());
+        }
         editor.apply();
     }
 

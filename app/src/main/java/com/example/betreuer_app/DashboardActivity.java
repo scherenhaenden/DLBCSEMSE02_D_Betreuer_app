@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +26,21 @@ import retrofit2.Response;
 public class DashboardActivity extends AppCompatActivity {
 
     private ThesisRepository thesisRepository;
+    
+    // Member variables for dynamic views loaded from ViewStubs
+    private View studentView;
+    private View lecturerView;
+    
+    // UI components that will be initialized after ViewStub inflation
+    private TextView studentThesisCountTextView;
+    private TextView lecturerThesisCountTextView;
+    private TextView lecturerRequestsCountTextView;
+    private MaterialCardView studentThesisCard;
+    private MaterialCardView lecturerThesisCard;
+    private MaterialCardView lecturerRequestsCard;
+    private Button btnCreateNewThesis;
+    private Button btnManageThesisOffers;
+    private Button btnFindTutor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +53,8 @@ public class DashboardActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         TextView welcomeTextView = findViewById(R.id.welcomeTextView);
-        TextView studentDashboardTitle = findViewById(R.id.studentDashboardTitle);
-        TextView lecturerDashboardTitle = findViewById(R.id.lecturerDashboardTitle);
-        View studentView = findViewById(R.id.studentDashboardView);
-        View lecturerView = findViewById(R.id.lecturerDashboardView);
-        TextView studentThesisCountTextView = findViewById(R.id.studentThesisCountTextView);
-        TextView lecturerThesisCountTextView = findViewById(R.id.lecturerThesisCountTextView);
-        MaterialCardView studentThesisCard = findViewById(R.id.student_thesis_card);
-        MaterialCardView lecturerThesisCard = findViewById(R.id.lecturer_thesis_card);
-        Button btnCreateNewThesis = findViewById(R.id.btn_create_new_thesis);
-        Button btnFindTutor = findViewById(R.id.btn_find_tutor);
+        ViewStub stubStudent = findViewById(R.id.stub_student_dashboard);
+        ViewStub stubLecturer = findViewById(R.id.stub_lecturer_dashboard);
 
         String userName = getIntent().getStringExtra("USER_NAME");
         String userRole = getIntent().getStringExtra("USER_ROLE");
@@ -60,28 +68,63 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(intent);
         };
 
-        studentThesisCard.setOnClickListener(openThesisList);
-        lecturerThesisCard.setOnClickListener(openThesisList);
-
-        btnCreateNewThesis.setOnClickListener(v -> {
-            Intent intent = new Intent(DashboardActivity.this, CreateThesisActivity.class);
-            startActivity(intent);
-        });
-
-        btnFindTutor.setOnClickListener(v -> {
-            Intent intent = new Intent(DashboardActivity.this, TutorListActivity.class);
-            startActivity(intent);
-        });
-
         if (userRole != null) {
             if (userRole.equalsIgnoreCase("student")) {
-                studentDashboardTitle.setText("Dein Dashboard als (Student)");
-                studentView.setVisibility(View.VISIBLE);
-                lecturerView.setVisibility(View.GONE);
+                // Inflate Student View
+                if (stubStudent != null) {
+                    if (studentView == null) {
+                        studentView = stubStudent.inflate();
+                    } else {
+                        studentView.setVisibility(View.VISIBLE);
+                    }
+                    
+                    if (stubLecturer != null) stubLecturer.setVisibility(View.GONE);
+                    
+                    // Initialize Student UI components
+                    studentThesisCountTextView = studentView.findViewById(R.id.studentThesisCountTextView);
+                    studentThesisCard = studentView.findViewById(R.id.student_thesis_card);
+                    btnCreateNewThesis = studentView.findViewById(R.id.btn_create_new_thesis);
+                    btnFindTutor = studentView.findViewById(R.id.btn_find_tutor);
+                    
+                    studentThesisCard.setOnClickListener(openThesisList);
+                    
+                    btnCreateNewThesis.setOnClickListener(v -> {
+                        Intent intent = new Intent(DashboardActivity.this, CreateThesisActivity.class);
+                        startActivity(intent);
+                    });
+
+                    btnFindTutor.setOnClickListener(v -> {
+                        Intent intent = new Intent(DashboardActivity.this, TutorListActivity.class);
+                        startActivity(intent);
+                    });
+                }
             } else if (userRole.equalsIgnoreCase("tutor")) {
-                lecturerDashboardTitle.setText("Dein Dashboard als (Dozent)");
-                lecturerView.setVisibility(View.VISIBLE);
-                studentView.setVisibility(View.GONE);
+                // Inflate Lecturer View
+                if (stubLecturer != null) {
+                    if (lecturerView == null) {
+                        lecturerView = stubLecturer.inflate();
+                    } else {
+                        lecturerView.setVisibility(View.VISIBLE);
+                    }
+
+                    if (stubStudent != null) stubStudent.setVisibility(View.GONE);
+
+                    // Initialize Lecturer UI components
+                    lecturerThesisCountTextView = lecturerView.findViewById(R.id.lecturerThesisCountTextView);
+                    lecturerRequestsCountTextView = lecturerView.findViewById(R.id.lecturerRequestsCountTextView);
+                    lecturerThesisCard = lecturerView.findViewById(R.id.lecturer_thesis_card);
+                    lecturerRequestsCard = lecturerView.findViewById(R.id.lecturer_requests_card);
+                    btnManageThesisOffers = lecturerView.findViewById(R.id.btn_manage_thesis_offers);
+
+                    lecturerThesisCard.setOnClickListener(openThesisList);
+                    
+                    btnManageThesisOffers.setOnClickListener(v -> {
+                        Intent intent = new Intent(DashboardActivity.this, ThesisOfferDashboardActivity.class);
+                        startActivity(intent);
+                    });
+                    
+                    // TODO: Set listener for requests card when activity is available
+                }
             }
         }
     }
@@ -123,8 +166,6 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void loadDashboardData() {
         String userRole = getIntent().getStringExtra("USER_ROLE");
-        TextView studentThesisCountTextView = findViewById(R.id.studentThesisCountTextView);
-        TextView lecturerThesisCountTextView = findViewById(R.id.lecturerThesisCountTextView);
         
         thesisRepository.getTheses(1, 1, new Callback<ThesesResponse>() {
             @Override
@@ -134,9 +175,9 @@ public class DashboardActivity extends AppCompatActivity {
                     String thesisText = (thesisCount == 1) ? "Abschlussarbeit" : "Abschlussarbeiten";
 
                     if (userRole != null) {
-                        if (userRole.equalsIgnoreCase("student")) {
+                        if (userRole.equalsIgnoreCase("student") && studentThesisCountTextView != null) {
                             studentThesisCountTextView.setText("Du hast " + thesisCount + " " + thesisText + " im System.");
-                        } else if (userRole.equalsIgnoreCase("tutor")) {
+                        } else if (userRole.equalsIgnoreCase("tutor") && lecturerThesisCountTextView != null) {
                             lecturerThesisCountTextView.setText("Du betreust " + thesisCount + " " + thesisText + ".");
                         }
                     }

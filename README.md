@@ -153,7 +153,7 @@ Automated building and releasing are handled via **GitHub Actions**.
 ---
 
 ## 📜 Credits
-**Developer**: Abraham Angene, Edward Sergio José Flores Mogollón, Stefan Schaerl, Michael Wolff
+**Developers**: Abraham Angene, Edward Sergio José Flores Mogollón, Stefan Schaerl, Michael Wolff
 **Course**: Mobile Software Engineering II (DLBCSEMSE02)
 **Institution**: IU International University of Applied Sciences
 

@@ -48,7 +48,7 @@ public class Seeder
     
 
     //[Test]
-    public Object CreateSeed()
+    public SeedData CreateSeed()
     {
         
         ICreateSeedOfObject createSeedOfObject = new CreateSeedOfObject();
@@ -694,6 +694,8 @@ public class Seeder
         Console.WriteLine("Database seeded successfully!");
     }
 }
+
+
 
 
 
