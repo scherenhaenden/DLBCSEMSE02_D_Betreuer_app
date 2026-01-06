@@ -58,6 +58,36 @@ namespace ApiProject.ApiLogic.Controllers
             return NoContent();
         }
 
+        [HttpGet("tutor/receiver")]
+        public async Task<ActionResult<PaginatedResponse<ThesisRequestResponse>>> GetRequestsForTutorAsReceiver([FromQuery] string? status, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var tutorId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _requestBusinessLogicService.GetRequestsForTutorAsReceiver(tutorId, page, pageSize, status);
+            var response = new PaginatedResponse<ThesisRequestResponse>
+            {
+                Items = result.Items.Select(MapToResponse).ToList(),
+                TotalCount = result.TotalCount,
+                Page = result.Page,
+                PageSize = result.PageSize
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("tutor/requester")]
+        public async Task<ActionResult<PaginatedResponse<ThesisRequestResponse>>> GetRequestsForTutorAsRequester([FromQuery] string? status, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var tutorId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _requestBusinessLogicService.GetRequestsForTutorAsRequester(tutorId, page, pageSize, status);
+            var response = new PaginatedResponse<ThesisRequestResponse>
+            {
+                Items = result.Items.Select(MapToResponse).ToList(),
+                TotalCount = result.TotalCount,
+                Page = result.Page,
+                PageSize = result.PageSize
+            };
+            return Ok(response);
+        }
+
         private ThesisRequestResponse MapToResponse(ThesisRequestBusinessLogicModel model)
         {
             return new ThesisRequestResponse
