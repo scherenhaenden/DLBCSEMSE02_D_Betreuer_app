@@ -13,6 +13,15 @@ import java.util.List;
 public class ThesisListAdapter extends RecyclerView.Adapter<ThesisListAdapter.ThesisViewHolder> {
 
     private List<ThesisApiModel> thesisList;
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(ThesisApiModel thesis);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     public ThesisListAdapter(List<ThesisApiModel> thesisList) {
         this.thesisList = thesisList;
@@ -28,11 +37,7 @@ public class ThesisListAdapter extends RecyclerView.Adapter<ThesisListAdapter.Th
     @Override
     public void onBindViewHolder(@NonNull ThesisViewHolder holder, int position) {
         ThesisApiModel thesis = thesisList.get(position);
-        holder.textViewTitel.setText(thesis.getTitle());
-        // ThesesResponse does not contain a field for "Fachgebiet", so we hide it or leave it blank.
-        holder.textViewFachgebiet.setText(""); // Or set to View.GONE
-        holder.textViewStatus.setText("Status: " + thesis.getStatus());
-        holder.textViewRechnungsstatus.setText("Rechnung: " + thesis.getBillingStatus());
+        holder.bind(thesis, listener);
     }
 
     @Override
@@ -52,6 +57,22 @@ public class ThesisListAdapter extends RecyclerView.Adapter<ThesisListAdapter.Th
             textViewFachgebiet = itemView.findViewById(R.id.textViewFachgebiet);
             textViewStatus = itemView.findViewById(R.id.textViewStatus);
             textViewRechnungsstatus = itemView.findViewById(R.id.textViewRechnungsstatus);
+        }
+
+        public void bind(final ThesisApiModel thesis, final OnItemClickListener listener) {
+            textViewTitel.setText(thesis.getTitle());
+            textViewFachgebiet.setText(""); 
+            textViewStatus.setText("Status: " + thesis.getStatus());
+            textViewRechnungsstatus.setText("Rechnung: " + thesis.getBillingStatus());
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        listener.onItemClick(thesis);
+                    }
+                }
+            });
         }
     }
 }

@@ -16,6 +16,7 @@ import com.example.betreuer_app.model.TutorsResponse;
 import com.example.betreuer_app.repository.SubjectAreaRepository;
 import com.example.betreuer_app.repository.TutorRepository;
 import com.example.betreuer_app.ui.tutorlist.TutorListAdapter;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import java.util.UUID;
@@ -72,6 +73,9 @@ public class TutorListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutor_list);
+
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         recyclerView = findViewById(R.id.tutorsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

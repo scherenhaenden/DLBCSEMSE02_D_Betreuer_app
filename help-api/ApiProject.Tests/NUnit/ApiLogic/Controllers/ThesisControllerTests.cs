@@ -1,9 +1,7 @@
-using ApiProject.ApiLogic.Controllers;
 using ApiProject.DatabaseAccess.Context;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NUnit.Framework;
 using System.Net;
 using System.Net.Http.Json;
 using ApiProject.ApiLogic.Models;

@@ -27,11 +27,18 @@ namespace ApiProject.ApiLogic.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ThesisRequestResponse>>> GetMyRequests()
+        public async Task<ActionResult<PaginatedResponse<ThesisRequestResponse>>> GetMyRequests([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var requests = await _requestBusinessLogicService.GetRequestsForUserAsync(userId);
-            return Ok(requests);
+            var result = await _requestBusinessLogicService.GetRequestsForUserAsync(userId, page, pageSize);
+            var response = new PaginatedResponse<ThesisRequestResponse>
+            {
+                Items = result.Items,
+                TotalCount = result.TotalCount,
+                Page = result.Page,
+                PageSize = result.PageSize
+            };
+            return Ok(response);
         }
 
         [HttpGet("{id}")]

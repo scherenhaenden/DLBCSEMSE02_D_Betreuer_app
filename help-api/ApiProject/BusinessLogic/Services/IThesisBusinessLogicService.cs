@@ -1,5 +1,4 @@
 using ApiProject.BusinessLogic.Models;
-using System.Collections.Generic;
 
 namespace ApiProject.BusinessLogic.Services
 {

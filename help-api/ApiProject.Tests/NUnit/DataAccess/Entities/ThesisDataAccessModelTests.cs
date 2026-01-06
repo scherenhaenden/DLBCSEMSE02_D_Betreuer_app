@@ -1,5 +1,4 @@
 using ApiProject.DatabaseAccess.Entities;
-using NUnit.Framework;
 
 namespace ApiProject.Tests.NUnit.DataAccess.Entities;
 

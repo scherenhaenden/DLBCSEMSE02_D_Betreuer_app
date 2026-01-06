@@ -203,6 +203,9 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
 
         await _context.SaveChangesAsync();
 
+        // Reload the status navigation property to reflect the update
+        await _context.Entry(thesisOffer).Reference(t => t.ThesisOfferStatus).LoadAsync();
+
         return ThesisOfferBusinessLogicMapper.ToBusinessModel(thesisOffer);
     }
 
