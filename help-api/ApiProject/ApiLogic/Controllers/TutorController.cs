@@ -1,5 +1,6 @@
 using ApiProject.ApiLogic.Models;
 using ApiProject.BusinessLogic.Services;
+using ApiProject.BusinessLogic.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiProject.ApiLogic.Controllers
@@ -32,8 +33,15 @@ namespace ApiProject.ApiLogic.Controllers
             [FromQuery] int page = 1, 
             [FromQuery] int pageSize = 10)
         {
-            var tutors = await _userBusinessLogicService.GetTutorsAsync(subjectAreaId, subjectAreaName, name, page, pageSize);
-            return Ok(tutors);
+            var result = await _userBusinessLogicService.GetTutorsAsync(subjectAreaId, subjectAreaName, name, page, pageSize);
+            var response = new PaginatedResponse<TutorProfileResponse>
+            {
+                Items = result.Items.Select(MapToTutorProfileResponse).ToList(),
+                TotalCount = result.TotalCount,
+                Page = result.Page,
+                PageSize = result.PageSize
+            };
+            return Ok(response);
         }
 
         /// <summary>
@@ -49,7 +57,27 @@ namespace ApiProject.ApiLogic.Controllers
             {
                 return NotFound();
             }
-            return Ok(tutor);
+            return Ok(MapToTutorProfileResponse(tutor));
+        }
+
+        private TutorProfileResponse MapToTutorProfileResponse(TutorProfileBusinessLogicModel tutor)
+        {
+            return new TutorProfileResponse
+            {
+                Id = tutor.Id,
+                FirstName = tutor.FirstName,
+                LastName = tutor.LastName,
+                Email = tutor.Email,
+                SubjectAreas = tutor.SubjectAreas.Select(sa => new SubjectAreaResponse
+                {
+                    Id = sa.Id,
+                    Title = sa.Title,
+                    Description = sa.Description,
+                    SubjectArea = sa.Title, // Assuming SubjectArea is the Title
+                    IsActive = sa.IsActive,
+                    TutorIds = sa.TutorIds
+                }).ToList()
+            };
         }
     }
 }

@@ -18,11 +18,11 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="receiverId">The unique identifier of the user receiving the request (must be a tutor).</param>
         /// <param name="requestType">The type of the request, either "SUPERVISION" or "CO_SUPERVISION".</param>
         /// <param name="message">An optional message providing additional details for the request.</param>
-        /// <returns>A task representing the asynchronous operation, containing the <see cref="ThesisRequestResponse"/> for the created request.</returns>
+        /// <returns>A task representing the asynchronous operation, containing the <see cref="ThesisRequestBusinessLogicModel"/> for the created request.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the thesis is not found.</exception>
         /// <exception cref="ArgumentException">Thrown if the request type is invalid.</exception>
         /// <exception cref="InvalidOperationException">Thrown if validation constraints are not met, such as role requirements or subject area expertise.</exception>
-        Task<ThesisRequestResponse> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message);
+        Task<ThesisRequestBusinessLogicModel> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message);
 
         /// <summary>
         /// Creates a supervision request from a student to a tutor for a specific thesis.
@@ -32,8 +32,8 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="tutorId">The unique identifier of the tutor receiving the request.</param>
         /// <param name="thesisId">The unique identifier of the thesis for which supervision is requested.</param>
         /// <param name="message">An optional message accompanying the request.</param>
-        /// <returns>A task representing the asynchronous operation, containing the <see cref="ThesisRequestResponse"/> for the created request.</returns>
-        Task<ThesisRequestResponse> CreatedStudentRequestForTutor(Guid studentId, Guid tutorId, Guid thesisId, string? message);
+        /// <returns>A task representing the asynchronous operation, containing the <see cref="ThesisRequestBusinessLogicModel"/> for the created request.</returns>
+        Task<ThesisRequestBusinessLogicModel> CreatedStudentRequestForTutor(Guid studentId, Guid tutorId, Guid thesisId, string? message);
 
         /// <summary>
         /// Creates a co-supervision request from a tutor to another tutor for a specific thesis.
@@ -43,8 +43,8 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="secondSupervisorId">The unique identifier of the second supervisor receiving the request.</param>
         /// <param name="thesisId">The unique identifier of the thesis for which co-supervision is requested.</param>
         /// <param name="message">An optional message accompanying the request.</param>
-        /// <returns>A task representing the asynchronous operation, containing the <see cref="ThesisRequestResponse"/> for the created request.</returns>
-        Task<ThesisRequestResponse> CreatedTutorRequestForSecondSupervisor(Guid tutorId, Guid secondSupervisorId, Guid thesisId, string? message);
+        /// <returns>A task representing the asynchronous operation, containing the <see cref="ThesisRequestBusinessLogicModel"/> for the created request.</returns>
+        Task<ThesisRequestBusinessLogicModel> CreatedTutorRequestForSecondSupervisor(Guid tutorId, Guid secondSupervisorId, Guid thesisId, string? message);
 
         /// <summary>
         /// Retrieves all thesis requests associated with a specific user, either as requester or receiver.
@@ -53,8 +53,8 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="userId">The unique identifier of the user whose requests are to be retrieved.</param>
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
-        /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestResponse"/> objects.</returns>
-        Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId, int page, int pageSize);
+        /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestBusinessLogicModel"/> objects.</returns>
+        Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForUserAsync(Guid userId, int page, int pageSize);
 
         /// <summary>
         /// Retrieves all thesis requests where the specified tutor is the receiver.
@@ -63,8 +63,8 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="tutorId">The unique identifier of the tutor who is the receiver of the requests.</param>
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
-        /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestResponse"/> objects.</returns>
-        Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize);
+        /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestBusinessLogicModel"/> objects.</returns>
+        Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize);
 
         /// <summary>
         /// Retrieves all thesis requests where the specified tutor is the requester.
@@ -73,15 +73,15 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="tutorId">The unique identifier of the tutor who is the requester of the requests.</param>
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
-        /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestResponse"/> objects.</returns>
-        Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize);
+        /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestBusinessLogicModel"/> objects.</returns>
+        Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize);
 
         /// <summary>
         /// Retrieves a specific thesis request by its unique identifier.
         /// </summary>
         /// <param name="requestId">The unique identifier of the request to retrieve.</param>
-        /// <returns>A task representing the asynchronous operation, containing the <see cref="ThesisRequestResponse"/> if found, or null if not found.</returns>
-        Task<ThesisRequestResponse?> GetRequestByIdAsync(Guid requestId);
+        /// <returns>A task representing the asynchronous operation, containing the <see cref="ThesisRequestBusinessLogicModel"/> if found, or null if not found.</returns>
+        Task<ThesisRequestBusinessLogicModel?> GetRequestByIdAsync(Guid requestId);
 
         /// <summary>
         /// Allows the receiver of a thesis request to respond to it, either accepting or rejecting.

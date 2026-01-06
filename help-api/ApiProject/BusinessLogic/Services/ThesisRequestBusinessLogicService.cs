@@ -37,7 +37,7 @@ namespace ApiProject.BusinessLogic.Services
         /// <exception cref="KeyNotFoundException">Thrown if the thesis is not found.</exception>
         /// <exception cref="ArgumentException">Thrown if the request type is invalid.</exception>
         /// <exception cref="InvalidOperationException">Thrown if validation constraints are not met.</exception>
-        public async Task<ThesisRequestResponse> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message)
+        public async Task<ThesisRequestBusinessLogicModel> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message)
         {
             var thesis = await _context.Theses.FindAsync(thesisId);
             if (thesis == null) throw new KeyNotFoundException("Thesis not found.");
@@ -115,7 +115,7 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
         /// <returns>A paginated result containing the list of thesis request responses and pagination metadata.</returns>
-        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForUserAsync(Guid userId, int page, int pageSize)
+        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForUserAsync(Guid userId, int page, int pageSize)
         {
             var query = _context.ThesisRequests
                 .Include(r => r.Thesis)
@@ -133,7 +133,7 @@ namespace ApiProject.BusinessLogic.Services
                 .Select(r => MapToResponse(r))
                 .ToListAsync();
 
-            return new PaginatedResultBusinessLogicModel<ThesisRequestResponse>
+            return new PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>
             {
                 Items = items,
                 TotalCount = totalCount,
@@ -155,7 +155,7 @@ namespace ApiProject.BusinessLogic.Services
         /// </summary>
         /// <param name="requestId">The unique identifier of the thesis request to retrieve.</param>
         /// <returns>The thesis request response if found, otherwise null.</returns>
-        public async Task<ThesisRequestResponse?> GetRequestByIdAsync(Guid requestId)
+        public async Task<ThesisRequestBusinessLogicModel?> GetRequestByIdAsync(Guid requestId)
         {
             var request = await _context.ThesisRequests
                 .Include(r => r.Thesis)
@@ -232,7 +232,7 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="thesisId">The unique identifier of the thesis for which supervision is requested.</param>
         /// <param name="message">An optional message accompanying the request.</param>
         /// <returns>The created thesis request response with full details.</returns>
-        public async Task<ThesisRequestResponse> CreatedStudentRequestForTutor(Guid studentId, Guid tutorId, Guid thesisId, string? message)
+        public async Task<ThesisRequestBusinessLogicModel> CreatedStudentRequestForTutor(Guid studentId, Guid tutorId, Guid thesisId, string? message)
         {
             return await CreateRequestAsync(studentId, thesisId, tutorId, RequestTypes.Supervision, message);
         }
@@ -253,7 +253,7 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="thesisId">The unique identifier of the thesis for which co-supervision is requested.</param>
         /// <param name="message">An optional message accompanying the request.</param>
         /// <returns>The created thesis request response with full details.</returns>
-        public async Task<ThesisRequestResponse> CreatedTutorRequestForSecondSupervisor(Guid tutorId, Guid secondSupervisorId, Guid thesisId, string? message)
+        public async Task<ThesisRequestBusinessLogicModel> CreatedTutorRequestForSecondSupervisor(Guid tutorId, Guid secondSupervisorId, Guid thesisId, string? message)
         {
             return await CreateRequestAsync(tutorId, thesisId, secondSupervisorId, RequestTypes.CoSupervision, message);
         }
@@ -276,7 +276,7 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
         /// <returns>A paginated result containing the list of thesis request responses and pagination metadata.</returns>
-        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize)
+        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize)
         {
             var query = _context.ThesisRequests
                 .Include(r => r.Thesis)
@@ -294,7 +294,7 @@ namespace ApiProject.BusinessLogic.Services
                 .Select(r => MapToResponse(r))
                 .ToListAsync();
 
-            return new PaginatedResultBusinessLogicModel<ThesisRequestResponse>
+            return new PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>
             {
                 Items = items,
                 TotalCount = totalCount,
@@ -321,7 +321,7 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
         /// <returns>A paginated result containing the list of thesis request responses and pagination metadata.</returns>
-        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestResponse>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize)
+        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize)
         {
             var query = _context.ThesisRequests
                 .Include(r => r.Thesis)
@@ -339,7 +339,7 @@ namespace ApiProject.BusinessLogic.Services
                 .Select(r => MapToResponse(r))
                 .ToListAsync();
 
-            return new PaginatedResultBusinessLogicModel<ThesisRequestResponse>
+            return new PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>
             {
                 Items = items,
                 TotalCount = totalCount,
@@ -348,15 +348,15 @@ namespace ApiProject.BusinessLogic.Services
             };
         }
 
-        private static ThesisRequestResponse MapToResponse(ThesisRequestDataAccessModel r)
+        private static ThesisRequestBusinessLogicModel MapToResponse(ThesisRequestDataAccessModel r)
         {
-            return new ThesisRequestResponse
+            return new ThesisRequestBusinessLogicModel
             {
                 Id = r.Id,
                 ThesisId = r.ThesisId,
                 ThesisTitle = r.Thesis.Title,
-                Requester = new UserResponse { Id = r.Requester.Id, FirstName = r.Requester.FirstName, LastName = r.Requester.LastName, Email = r.Requester.Email, Roles = r.Requester.UserRoles.Select(ur => ur.Role.Name).ToList() },
-                Receiver = new UserResponse { Id = r.Receiver.Id, FirstName = r.Receiver.FirstName, LastName = r.Receiver.LastName, Email = r.Receiver.Email, Roles = r.Receiver.UserRoles.Select(ur => ur.Role.Name).ToList() },
+                Requester = new UserBusinessLogicModel { Id = r.Requester.Id, FirstName = r.Requester.FirstName, LastName = r.Requester.LastName, Email = r.Requester.Email, Roles = r.Requester.UserRoles.Select(ur => ur.Role.Name).ToList() },
+                Receiver = new UserBusinessLogicModel { Id = r.Receiver.Id, FirstName = r.Receiver.FirstName, LastName = r.Receiver.LastName, Email = r.Receiver.Email, Roles = r.Receiver.UserRoles.Select(ur => ur.Role.Name).ToList() },
                 RequestType = r.RequestType.Name,
                 Status = r.Status.Name,
                 Message = r.Message,

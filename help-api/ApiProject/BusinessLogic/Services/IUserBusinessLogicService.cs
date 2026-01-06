@@ -1,4 +1,3 @@
-using ApiProject.ApiLogic.Models;
 using ApiProject.BusinessLogic.Models;
 
 namespace ApiProject.BusinessLogic.Services
@@ -78,15 +77,15 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="name">Optional string to filter tutors by first or last name (partial match).</param>
         /// <param name="page">The page number to retrieve (1-based).</param>
         /// <param name="pageSize">The number of tutors per page.</param>
-        /// <returns>A task representing the asynchronous operation, containing a <see cref="PaginatedResponse{T}"/> with a list of <see cref="TutorProfileResponse"/> and pagination metadata.</returns>
-        Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? subjectAreaId, string? subjectAreaName, string? name, int page, int pageSize);
+        /// <returns>A task representing the asynchronous operation, containing a <see cref="PaginatedResultBusinessLogicModel{T}"/> with a list of <see cref="TutorProfileBusinessLogicModel"/> and pagination metadata.</returns>
+        Task<PaginatedResultBusinessLogicModel<TutorProfileBusinessLogicModel>> GetTutorsAsync(Guid? subjectAreaId, string? subjectAreaName, string? name, int page, int pageSize);
 
         /// <summary>
         /// Retrieves detailed information about a specific tutor by their unique identifier asynchronously.
         /// Includes associated subject areas. Only returns users with the TUTOR role.
         /// </summary>
         /// <param name="id">The unique identifier of the tutor to retrieve.</param>
-        /// <returns>A task representing the asynchronous operation, containing the <see cref="TutorProfileResponse"/> if found and is a tutor, or null otherwise.</returns>
-        Task<TutorProfileResponse?> GetTutorByIdAsync(Guid id);
+        /// <returns>A task representing the asynchronous operation, containing the <see cref="TutorProfileBusinessLogicModel"/> if found and is a tutor, or null otherwise.</returns>
+        Task<TutorProfileBusinessLogicModel?> GetTutorByIdAsync(Guid id);
     }
 }

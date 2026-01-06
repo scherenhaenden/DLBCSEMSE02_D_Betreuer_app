@@ -121,9 +121,17 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            var deleted = await _thesisBusinessLogicService.DeleteThesisAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+            var result = await _thesisBusinessLogicService.DeleteThesisAsync(id, userId, userRoles);
+            return result switch
+            {
+                DeleteThesisResult.NotFound => NotFound(),
+                DeleteThesisResult.NotAuthorized => Forbid(),
+                DeleteThesisResult.Deleted => NoContent(),
+                _ => throw new InvalidOperationException("Unexpected delete result")
+            };
         }
     }
 }
