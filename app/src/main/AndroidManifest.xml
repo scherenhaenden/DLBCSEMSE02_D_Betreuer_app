@@ -50,13 +50,20 @@
         <activity
             android:name=".TutorListActivity"
             android:exported="false" />
+        
+        <!-- Tutor Profile Activity (New) -->
+        <activity
+            android:name=".TutorProfileActivity"
+            android:exported="false"
+            android:label="Tutor Profil"
+            android:parentActivityName=".TutorListActivity" />
             
         <!-- Supervision Request Activity -->
         <activity
             android:name=".SupervisionRequestActivity"
             android:exported="false"
             android:label="Betreuungsanfrage"
-            android:parentActivityName=".TutorListActivity" />
+            android:parentActivityName=".TutorProfileActivity" />
 
         <!-- Create Thesis Offer Activity (Renamed from Topic) -->
         <activity
