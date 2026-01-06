@@ -91,7 +91,7 @@ public class ThesisControllerTests
     public async Task CreateThesis_ValidData_ReturnsCreated()
     {
         // Arrange
-        var createRequest = new CreateThesisRequest
+        var createRequest = new CreateThesisApiRequest
         {
             Title = "Test Thesis",
             SubjectAreaId = _context.SubjectAreas.First().Id,
@@ -109,7 +109,7 @@ public class ThesisControllerTests
     public async Task CreateThesis_InvalidData_ReturnsBadRequest()
     {
         // Arrange
-        var createRequest = new CreateThesisRequest
+        var createRequest = new CreateThesisApiRequest
         {
             Title = "",
             SubjectAreaId = Guid.NewGuid(),
