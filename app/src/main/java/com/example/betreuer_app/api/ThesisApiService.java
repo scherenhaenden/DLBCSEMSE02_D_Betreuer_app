@@ -22,6 +22,9 @@ public interface ThesisApiService {
     @GET("theses")
     Call<ThesesResponse> getTheses(@Query("page") int page, @Query("pageSize") int pageSize);
 
+    @GET("theses/{id}")
+    Call<ThesisApiModel> getThesis(@Path("id") String id);
+
     /**
      * Aktualisiert den Status einer spezifischen Abschlussarbeit.
      * 

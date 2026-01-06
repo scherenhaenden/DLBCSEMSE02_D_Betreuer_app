@@ -9,5 +9,5 @@ public sealed class UpdateThesisApiRequest
     public string? BillingStatus { get; set; }
     public Guid? TutorId { get; set; }
     public Guid? SecondSupervisorId { get; set; }
-    public Guid? TopicId { get; set; }
+    public Guid? SubjectAreaId { get; set; }
 }

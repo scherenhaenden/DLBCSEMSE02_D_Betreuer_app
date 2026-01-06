@@ -7,9 +7,9 @@ public class TutorProfileResponse extends BaseEntityApiModel {
     private String firstName;
     private String lastName;
     private String email;
-    private List<TopicApiModel> topics;
+    private List<SubjectAreaResponse> subjectAreas;
 
-    public TutorProfileResponse(String id, String firstName, String lastName, String email, List<TopicApiModel> topics) {
+    public TutorProfileResponse(String id, String firstName, String lastName, String email, List<SubjectAreaResponse> subjectAreas) {
         super();
         if (id != null) {
             setId(UUID.fromString(id));
@@ -17,7 +17,7 @@ public class TutorProfileResponse extends BaseEntityApiModel {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.topics = topics;
+        this.subjectAreas = subjectAreas;
     }
 
     public String getFirstName() {
@@ -44,11 +44,11 @@ public class TutorProfileResponse extends BaseEntityApiModel {
         this.email = email;
     }
 
-    public List<TopicApiModel> getTopics() {
-        return topics;
+    public List<SubjectAreaResponse> getSubjectAreas() {
+        return subjectAreas;
     }
 
-    public void setTopics(List<TopicApiModel> topics) {
-        this.topics = topics;
+    public void setSubjectAreas(List<SubjectAreaResponse> subjectAreas) {
+        this.subjectAreas = subjectAreas;
     }
 }

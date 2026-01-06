@@ -65,5 +65,24 @@ namespace ApiProject.ApiLogic.Controllers
 
             return CreatedAtAction(nameof(GetAll), new { id = response.Id }, response);
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserResponse>> GetById(Guid id)
+        {
+            var user = await _userBusinessLogicService.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var response = new UserResponse
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Roles = user.Roles
+            };
+            return Ok(response);
+        }
     }
 }

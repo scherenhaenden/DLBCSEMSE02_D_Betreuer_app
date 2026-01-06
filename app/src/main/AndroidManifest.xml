@@ -41,15 +41,56 @@
             android:name=".ThesisListActivity"
             android:exported="false" />
 
-        <!-- CreateThesis Activity -->
+        <!-- Student Create Thesis Activity (Renamed) -->
         <activity
-            android:name=".CreateThesisActivity"
+            android:name=".StudentCreateThesisActivity"
             android:exported="false" />
 
         <!-- TutorList Activity -->
         <activity
             android:name=".TutorListActivity"
             android:exported="false" />
+            
+        <!-- Supervision Request Activity -->
+        <activity
+            android:name=".SupervisionRequestActivity"
+            android:exported="false"
+            android:label="Betreuungsanfrage"
+            android:parentActivityName=".TutorListActivity" />
+
+        <!-- Create Thesis Offer Activity (Renamed from Topic) -->
+        <activity
+            android:name=".CreateThesisOfferActivity"
+            android:exported="false"
+            android:label="Thesis ausschreiben"
+            android:parentActivityName=".ThesisOfferDashboardActivity" />
+            
+        <!-- Thesis Offer Dashboard Activity -->
+        <activity
+            android:name=".ThesisOfferDashboardActivity"
+            android:exported="false"
+            android:label="Meine Ausschreibungen"
+            android:parentActivityName=".DashboardActivity" />
+
+        <!-- Thesis Request Activity (New) -->
+        <activity
+            android:name=".ThesisRequestActivity"
+            android:exported="false"
+            android:label="Betreuungsanfragen"
+            android:parentActivityName=".DashboardActivity" />
+            
+        <!-- Thesis Request Detail Activity (New) -->
+        <activity
+            android:name=".ThesisRequestDetailActivity"
+            android:exported="false"
+            android:label="Anfrage Details"
+            android:parentActivityName=".ThesisRequestActivity" />
+
+        <activity
+            android:name=".ThesisDetailActivity"
+            android:exported="false"
+            android:label="Abschlussarbeit Details"
+            android:parentActivityName=".ThesisListActivity" />
 
     </application>
 

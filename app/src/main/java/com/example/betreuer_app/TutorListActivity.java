@@ -10,12 +10,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.betreuer_app.model.TopicApiModel;
-import com.example.betreuer_app.model.TopicsResponse;
+import com.example.betreuer_app.model.SubjectAreaResponse;
+import com.example.betreuer_app.model.SubjectAreaResponsePaginatedResponse;
 import com.example.betreuer_app.model.TutorsResponse;
-import com.example.betreuer_app.repository.TopicRepository;
+import com.example.betreuer_app.repository.SubjectAreaRepository;
 import com.example.betreuer_app.repository.TutorRepository;
 import com.example.betreuer_app.ui.tutorlist.TutorListAdapter;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import java.util.UUID;
@@ -40,8 +41,8 @@ public class TutorListActivity extends AppCompatActivity {
     /** Repository for handling tutor-related API operations. */
     private TutorRepository tutorRepository;
 
-    /** Repository for handling topic-related API operations. */
-    private TopicRepository topicRepository;
+    /** Repository for handling subject area-related API operations. */
+    private SubjectAreaRepository subjectAreaRepository;
 
     /** EditText for user input to search tutors by name. */
     private EditText searchInput;
@@ -73,13 +74,16 @@ public class TutorListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutor_list);
 
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
+
         recyclerView = findViewById(R.id.tutorsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         searchInput = findViewById(R.id.search_input);
         topicChipGroup = findViewById(R.id.topic_chip_group);
 
         tutorRepository = new TutorRepository(getApplicationContext());
-        topicRepository = new TopicRepository(getApplicationContext());
+        subjectAreaRepository = new SubjectAreaRepository(getApplicationContext());
 
         loadTopics();
         loadTutors(null);
@@ -109,47 +113,47 @@ public class TutorListActivity extends AppCompatActivity {
      * If the API call fails, an error message is displayed to the user.
      */
     private void loadTopics() {
-        topicRepository.getTopics(1, 10, new Callback<TopicsResponse>() {
+        subjectAreaRepository.getSubjectAreas(1, 10, new Callback<SubjectAreaResponsePaginatedResponse>() {
             @Override
-            public void onResponse(Call<TopicsResponse> call, Response<TopicsResponse> response) {
+            public void onResponse(Call<SubjectAreaResponsePaginatedResponse> call, Response<SubjectAreaResponsePaginatedResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     topicChipGroup.removeAllViews();
                     var items = response.body().getItems();
                     if (items != null) {
-                        for (TopicApiModel topic : items) {
-                            addTopicChip(topic);
+                        for (SubjectAreaResponse subjectArea : items) {
+                            addTopicChip(subjectArea);
                         }
                     }
                 } else {
-                    Toast.makeText(TutorListActivity.this, "Failed to load topics", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TutorListActivity.this, "Failed to load subject areas", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<TopicsResponse> call, Throwable t) {
-                Toast.makeText(TutorListActivity.this, "Failed to load topics: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<SubjectAreaResponsePaginatedResponse> call, Throwable t) {
+                Toast.makeText(TutorListActivity.this, "Failed to load subject areas: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     /**
-     * Creates and adds a Chip to the ChipGroup for the given topic.
+     * Creates and adds a Chip to the ChipGroup for the given subject area.
      * The chip is checkable and triggers a tutor reload when its checked state changes.
-     * @param topic The topic model containing the title and ID for the chip.
+     * @param subjectArea The subject area model containing the title and ID for the chip.
      */
-    private void addTopicChip(TopicApiModel topic) {
+    private void addTopicChip(SubjectAreaResponse subjectArea) {
         Chip chip = new Chip(this);
-        chip.setText(topic.getTitle());
+        chip.setText(subjectArea.getTitle());
         chip.setCheckable(true);
         chip.setClickable(true);
-        if (topic.getId() == null) {
-            Toast.makeText(this, "Ungültige Themen-Daten empfangen: " + topic.getTitle(), Toast.LENGTH_SHORT).show();
+        if (subjectArea.getId() == null) {
+            Toast.makeText(this, "Ungültige Fachbereichs-Daten empfangen: " + subjectArea.getTitle(), Toast.LENGTH_SHORT).show();
         }
-        chip.setTag(topic.getId());
-        
+        chip.setTag(subjectArea.getId());
+
         chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                selectedTopicId = topic.getId() != null ? topic.getId().toString() : null;
+                selectedTopicId = subjectArea.getId() != null ? subjectArea.getId().toString() : null;
             } else {
                 selectedTopicId = null;
             }
@@ -171,7 +175,30 @@ public class TutorListActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     var items = response.body().getItems();
                     if (items != null) {
-                        adapter = new TutorListAdapter(items);
+                        adapter = new TutorListAdapter(items, tutor -> {
+                            // Handle tutor click: Navigate to supervision request
+                            SupervisionRequestFragment fragment = new SupervisionRequestFragment();
+                            // TODO: Pass tutor data to fragment if needed
+                            
+                            // For now, just show the fragment in a container or open a new activity
+                            // Since this activity seems to be a standalone list, maybe we should start a new activity
+                            // But for now let's assume we want to replace the current content or use a container.
+                            // However, TutorListActivity uses a specific layout 'activity_tutor_list'.
+                            // It might not have a FragmentContainerView.
+                            
+                            // Let's check layout file activity_tutor_list.xml first to see if we can replace content.
+                            // If not, we might need to launch a new activity that hosts the fragment, 
+                            // or simple replace the root view if that's acceptable, but usually navigation is better.
+                            
+                            // Given the prompt "when I click onto one of the tutors ... I have to see something like this",
+                            // let's try to launch a new Activity that hosts this fragment.
+                            
+                            android.content.Intent intent = new android.content.Intent(TutorListActivity.this, SupervisionRequestActivity.class);
+                            // We would pass tutor ID here
+                            intent.putExtra("TUTOR_ID", tutor.getId().toString());
+                             intent.putExtra("TUTOR_NAME", (tutor.getFirstName() != null ? tutor.getFirstName() : "") + " " + (tutor.getLastName() != null ? tutor.getLastName() : ""));
+                            startActivity(intent);
+                        });
                         recyclerView.setAdapter(adapter);
                     } else {
                         Toast.makeText(TutorListActivity.this, "No tutors found", Toast.LENGTH_SHORT).show();
