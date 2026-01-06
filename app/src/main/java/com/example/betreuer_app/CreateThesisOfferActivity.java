@@ -94,7 +94,13 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
             isEditMode = true;
             String idStr = getIntent().getStringExtra(EXTRA_OFFER_ID);
             if (idStr != null) {
-                offerId = UUID.fromString(idStr);
+                try {
+                    offerId = UUID.fromString(idStr);
+                } catch (IllegalArgumentException e) {
+                    Toast.makeText(this, "Ungültige Angebots-ID", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
             }
             
             toolbar.setTitle("Ausschreibung bearbeiten");
@@ -107,7 +113,13 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
             
             if (title != null) etTitle.setText(title);
             if (description != null) etDescription.setText(description);
-            if (subjectAreaIdStr != null) preselectedSubjectAreaId = UUID.fromString(subjectAreaIdStr);
+            if (subjectAreaIdStr != null) {
+                try {
+                    preselectedSubjectAreaId = UUID.fromString(subjectAreaIdStr);
+                } catch (IllegalArgumentException e) {
+                    // Ignore invalid subject area ID; dropdown won't be preselected
+                }
+            }
         }
     }
 
@@ -203,6 +215,11 @@ public class CreateThesisOfferActivity extends AppCompatActivity {
         btnSave.setEnabled(false);
 
         if (isEditMode) {
+            if (offerId == null) {
+                Toast.makeText(this, "Ungültige Angebots-ID", Toast.LENGTH_SHORT).show();
+                btnSave.setEnabled(true);
+                return;
+            }
             String selectedStatusName = dropdownStatus.getText().toString();
             UUID statusId = null;
             if (!selectedStatusName.isEmpty() && statusMap.containsKey(selectedStatusName)) {

@@ -79,6 +79,7 @@ public class DashboardActivity extends AppCompatActivity {
                     }
                     
                     if (stubLecturer != null) stubLecturer.setVisibility(View.GONE);
+                    if (lecturerView != null) lecturerView.setVisibility(View.GONE);
                     
                     // Initialize Student UI components
                     studentThesisCountTextView = studentView.findViewById(R.id.studentThesisCountTextView);
@@ -108,6 +109,7 @@ public class DashboardActivity extends AppCompatActivity {
                     }
 
                     if (stubStudent != null) stubStudent.setVisibility(View.GONE);
+                    if (studentView != null) studentView.setVisibility(View.GONE);
 
                     // Initialize Lecturer UI components
                     lecturerThesisCountTextView = lecturerView.findViewById(R.id.lecturerThesisCountTextView);

@@ -51,12 +51,6 @@ public class AuthControllerTests
         // Seed data using Seeder
         var seeder = new TestDataSeeder(_context);
         seeder.SeedRoles();
-
-
-        var gh = _context.Users.ToList();
-        var abr = gh.First(u => u.Email == "abraham.student@test.com");
-        var fhh = gh.Count;
-
     }
 
     [TearDown]
@@ -71,7 +65,7 @@ public class AuthControllerTests
     
     
     [Test]
-    public async Task Login_MissingPassword_ReturnsOkRequest()
+    public async Task Login_ValidCredentials_ReturnsOk()
     {
         // Arrange
         var loginRequest = new LoginRequest
