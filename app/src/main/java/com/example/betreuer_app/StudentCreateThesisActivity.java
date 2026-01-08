@@ -283,8 +283,9 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
                 UUID id = area.getId();
                 
                 if (name != null && id != null) {
-                    areaNames.add(name);
-                    subjectAreaMap.put(name, id.toString());
+                    String displayName = name + " (" + id.toString() + ")";
+                    areaNames.add(displayName);
+                    subjectAreaMap.put(displayName, id.toString());
                 }
             }
 
