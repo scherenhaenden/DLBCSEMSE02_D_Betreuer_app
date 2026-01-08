@@ -62,7 +62,6 @@ public class ThesisRequestBusinessLogicServiceTests
         Assert.That(result.Page, Is.EqualTo(1));
         Assert.That(result.PageSize, Is.EqualTo(10));
     }
-  
 
     [Test]
     public async Task CanRespondToRequest()
@@ -234,5 +233,159 @@ public class ThesisRequestBusinessLogicServiceTests
         var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await _thesisRequestService.CreatedTutorRequestForSecondSupervisor(mainTutor.Id, secondTutor.Id, thesis.Id, "Please co-supervise."));
         Assert.That(ex.Message, Is.EqualTo("The selected tutor does not cover the subject area of this thesis."));
+    }
+
+    // New tests for GetRequestsForTutorAsReceiver
+    [Test]
+    public async Task CanGetRequestsForTutorAsReceiverWithoutStatusFilter()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Requester", "studentreq5@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "Receiver", "tutorreceiver5@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Receiver Test", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        var request = _seeder.SeedThesisRequest(student.Id, tutor.Id, thesis.Id, RequestTypes.Supervision, RequestStatuses.Pending, "Receiver test message");
+
+        // Act
+        var result = await _thesisRequestService.GetRequestsForTutorAsReceiver(tutor.Id, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count(), Is.EqualTo(1));
+        Assert.That(result.Items.First().Message, Is.EqualTo("Receiver test message"));
+        Assert.That(result.TotalCount, Is.EqualTo(1));
+        Assert.That(result.Page, Is.EqualTo(1));
+        Assert.That(result.PageSize, Is.EqualTo(10));
+    }
+
+    [Test]
+    public async Task CanGetRequestsForTutorAsReceiverWithStatusFilterPending()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Requester", "studentreq6@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "Receiver", "tutorreceiver6@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Receiver Status Test", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        var pendingRequest = _seeder.SeedThesisRequest(student.Id, tutor.Id, thesis.Id, RequestTypes.Supervision, RequestStatuses.Pending, "Pending message");
+        var acceptedRequest = _seeder.SeedThesisRequest(student.Id, tutor.Id, thesis.Id, RequestTypes.Supervision, RequestStatuses.Accepted, "Accepted message");
+
+        // Act
+        var pendingResult = await _thesisRequestService.GetRequestsForTutorAsReceiver(tutor.Id, 1, 10, "PENDING");
+        var acceptedResult = await _thesisRequestService.GetRequestsForTutorAsReceiver(tutor.Id, 1, 10, "ACCEPTED");
+
+        // Assert
+        Assert.That(pendingResult.Items.Count(), Is.EqualTo(1));
+        Assert.That(pendingResult.Items.First().Message, Is.EqualTo("Pending message"));
+        Assert.That(acceptedResult.Items.Count(), Is.EqualTo(1));
+        Assert.That(acceptedResult.Items.First().Message, Is.EqualTo("Accepted message"));
+    }
+
+    [Test]
+    public async Task CanGetRequestsForTutorAsReceiverWithPagination()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Requester", "studentreq7@example.com", "password", Roles.Student);
+        var tutor = _seeder.SeedUser("Tutor", "Receiver", "tutorreceiver7@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis1 = _seeder.SeedThesis("Thesis 1 for Pagination", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        var thesis2 = _seeder.SeedThesis("Thesis 2 for Pagination", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        var request1 = _seeder.SeedThesisRequest(student.Id, tutor.Id, thesis1.Id, RequestTypes.Supervision, RequestStatuses.Pending, "Message 1");
+        var request2 = _seeder.SeedThesisRequest(student.Id, tutor.Id, thesis2.Id, RequestTypes.Supervision, RequestStatuses.Pending, "Message 2");
+
+        // Act
+        var result = await _thesisRequestService.GetRequestsForTutorAsReceiver(tutor.Id, 1, 1);
+
+        // Assert
+        Assert.That(result.Items.Count(), Is.EqualTo(1));
+        Assert.That(result.TotalCount, Is.EqualTo(2));
+        Assert.That(result.Page, Is.EqualTo(1));
+        Assert.That(result.PageSize, Is.EqualTo(1));
+    }
+
+    // New tests for GetRequestsForTutorAsRequester
+    [Test]
+    public async Task CanGetRequestsForTutorAsRequesterWithoutStatusFilter()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Owner", "studentowner3@example.com", "password", Roles.Student);
+        var mainTutor = _seeder.SeedUser("Main", "Tutor", "maintutor3@example.com", "password", Roles.Tutor);
+        var secondTutor = _seeder.SeedUser("Second", "Tutor", "secondtutor3@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Requester Test", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        thesis.TutorId = mainTutor.Id;
+        _context.SaveChanges();
+        var request = _seeder.SeedThesisRequest(mainTutor.Id, secondTutor.Id, thesis.Id, RequestTypes.CoSupervision, RequestStatuses.Pending, "Requester test message");
+
+        // Act
+        var result = await _thesisRequestService.GetRequestsForTutorAsRequester(mainTutor.Id, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count(), Is.EqualTo(1));
+        Assert.That(result.Items.First().Message, Is.EqualTo("Requester test message"));
+        Assert.That(result.TotalCount, Is.EqualTo(1));
+        Assert.That(result.Page, Is.EqualTo(1));
+        Assert.That(result.PageSize, Is.EqualTo(10));
+    }
+
+    [Test]
+    public async Task CanGetRequestsForTutorAsRequesterWithStatusFilterPending()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Owner", "studentowner4@example.com", "password", Roles.Student);
+        var mainTutor = _seeder.SeedUser("Main", "Tutor", "maintutor4@example.com", "password", Roles.Tutor);
+        var secondTutor = _seeder.SeedUser("Second", "Tutor", "secondtutor4@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis = _seeder.SeedThesis("Thesis for Requester Status Test", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        thesis.TutorId = mainTutor.Id;
+        _context.SaveChanges();
+        var pendingRequest = _seeder.SeedThesisRequest(mainTutor.Id, secondTutor.Id, thesis.Id, RequestTypes.CoSupervision, RequestStatuses.Pending, "Pending requester message");
+        var acceptedRequest = _seeder.SeedThesisRequest(mainTutor.Id, secondTutor.Id, thesis.Id, RequestTypes.CoSupervision, RequestStatuses.Accepted, "Accepted requester message");
+
+        // Act
+        var pendingResult = await _thesisRequestService.GetRequestsForTutorAsRequester(mainTutor.Id, 1, 10, "PENDING");
+        var acceptedResult = await _thesisRequestService.GetRequestsForTutorAsRequester(mainTutor.Id, 1, 10, "ACCEPTED");
+
+        // Assert
+        Assert.That(pendingResult.Items.Count(), Is.EqualTo(1));
+        Assert.That(pendingResult.Items.First().Message, Is.EqualTo("Pending requester message"));
+        Assert.That(acceptedResult.Items.Count(), Is.EqualTo(1));
+        Assert.That(acceptedResult.Items.First().Message, Is.EqualTo("Accepted requester message"));
+    }
+
+    [Test]
+    public async Task CanGetRequestsForTutorAsRequesterWithPagination()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Student", "Owner", "studentowner5@example.com", "password", Roles.Student);
+        var mainTutor = _seeder.SeedUser("Main", "Tutor", "maintutor5@example.com", "password", Roles.Tutor);
+        var secondTutor = _seeder.SeedUser("Second", "Tutor", "secondtutor5@example.com", "password", Roles.Tutor);
+        var subjectArea = _context.SubjectAreas.First();
+        var status = _context.ThesisStatuses.First(s => s.Name == ThesisStatuses.Registered);
+        var billingStatus = _context.BillingStatuses.First();
+        var thesis1 = _seeder.SeedThesis("Thesis 1 for Requester Pagination", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        var thesis2 = _seeder.SeedThesis("Thesis 2 for Requester Pagination", student.Id, subjectArea.Id, status.Id, billingStatus.Id);
+        thesis1.TutorId = mainTutor.Id;
+        thesis2.TutorId = mainTutor.Id;
+        _context.SaveChanges();
+        var request1 = _seeder.SeedThesisRequest(mainTutor.Id, secondTutor.Id, thesis1.Id, RequestTypes.CoSupervision, RequestStatuses.Pending, "Requester message 1");
+        var request2 = _seeder.SeedThesisRequest(mainTutor.Id, secondTutor.Id, thesis2.Id, RequestTypes.CoSupervision, RequestStatuses.Pending, "Requester message 2");
+
+        // Act
+        var result = await _thesisRequestService.GetRequestsForTutorAsRequester(mainTutor.Id, 1, 1);
+
+        // Assert
+        Assert.That(result.Items.Count(), Is.EqualTo(1));
+        Assert.That(result.TotalCount, Is.EqualTo(2));
+        Assert.That(result.Page, Is.EqualTo(1));
+        Assert.That(result.PageSize, Is.EqualTo(1));
     }
 }

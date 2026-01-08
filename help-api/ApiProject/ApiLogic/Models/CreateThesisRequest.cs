@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApiProject.ApiLogic.Models
 {
-    public class CreateThesisRequest
+    public class CreateThesisApiRequest
     {
         [Required]
         public required string Title { get; set; }

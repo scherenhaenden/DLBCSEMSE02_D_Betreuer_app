@@ -50,7 +50,7 @@ namespace ApiProject.ApiLogic.Controllers
 
         [HttpPost]
         [Authorize(Roles = "STUDENT")]
-        public async Task<ActionResult<ThesisResponse>> Create([FromForm] CreateThesisRequest request)
+        public async Task<ActionResult<ThesisResponse>> Create([FromForm] CreateThesisApiRequest request)
         {
             var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

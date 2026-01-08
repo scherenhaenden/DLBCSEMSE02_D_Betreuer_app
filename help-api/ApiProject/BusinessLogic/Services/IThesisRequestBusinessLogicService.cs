@@ -63,8 +63,9 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="tutorId">The unique identifier of the tutor who is the receiver of the requests.</param>
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
+        /// <param name="status">Optional status filter (PENDING, ACCEPTED, REJECTED).</param>
         /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestBusinessLogicModel"/> objects.</returns>
-        Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize);
+        Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize, string? status = null);
 
         /// <summary>
         /// Retrieves all thesis requests where the specified tutor is the requester.
@@ -73,8 +74,9 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="tutorId">The unique identifier of the tutor who is the requester of the requests.</param>
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
+        /// <param name="status">Optional status filter (PENDING, ACCEPTED, REJECTED).</param>
         /// <returns>A task representing the asynchronous operation, containing a paginated result of <see cref="ThesisRequestBusinessLogicModel"/> objects.</returns>
-        Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize);
+        Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize, string? status = null);
 
         /// <summary>
         /// Retrieves a specific thesis request by its unique identifier.
