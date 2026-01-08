@@ -275,11 +275,6 @@ public class ThesisOfferBusinessLogicService : IThesisOfferBusinessLogicService
     /// <exception cref="InvalidOperationException">Thrown if the current user is not authorized to view the offers.</exception>
     public async Task<PaginatedResultBusinessLogicModel<ThesisOfferBusinessLogicModel>> GetByUserIdAsync(Guid userId, Guid currentUserId, List<string> userRoles, int page, int pageSize)
     {
-        // Access control: allow if admin, student, or the user themselves
-        if (!userRoles.Contains(Roles.Admin) && !userRoles.Contains(Roles.Student) && currentUserId != userId)
-        {
-            throw new InvalidOperationException("You are not authorized to view these offers.");
-        }
 
         var query = _context.ThesisOffers
             .Include(to => to.ThesisOfferStatus)

@@ -27,13 +27,25 @@ public class ThesisOfferDashboardActivity extends AppCompatActivity {
     private TextView emptyView;
     private ThesisOfferRepository repository;
     private String userId;
+    
+    // Flag to determine if we are viewing another tutor's offers
+    private boolean isViewingTutorOffers = false;
+    private String targetTutorId = null;
+    private String targetTutorName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thesis_offer_dashboard);
 
-        // Retrieve current user ID
+        // Check intents for external tutor
+        if (getIntent().hasExtra("TUTOR_ID")) {
+            targetTutorId = getIntent().getStringExtra("TUTOR_ID");
+            targetTutorName = getIntent().getStringExtra("TUTOR_NAME");
+            isViewingTutorOffers = true;
+        }
+
+        // Retrieve current user ID (still needed for context, or if we fallback)
         SharedPreferences prefs = getSharedPreferences(AuthConstants.PREFS_NAME, MODE_PRIVATE);
         userId = prefs.getString(AuthConstants.KEY_USER_ID, null);
 
@@ -45,42 +57,59 @@ public class ThesisOfferDashboardActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         FloatingActionButton fab = findViewById(R.id.fab_add_thesis_offer);
-        fab.setOnClickListener(v -> {
-            Intent intent = new Intent(ThesisOfferDashboardActivity.this, CreateThesisOfferActivity.class);
-            startActivity(intent);
-        });
         
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
+        
+        if (isViewingTutorOffers) {
+            // If viewing another tutor's offers, hide the FAB (only owner creates offers)
+            fab.setVisibility(View.GONE);
+            toolbar.setTitle("Ausschreibungen: " + (targetTutorName != null ? targetTutorName : "Tutor"));
+        } else {
+             // Creating own offers
+            fab.setOnClickListener(v -> {
+                Intent intent = new Intent(ThesisOfferDashboardActivity.this, CreateThesisOfferActivity.class);
+                startActivity(intent);
+            });
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (userId != null) {
-            loadThesisOffers();
+        if (isViewingTutorOffers && targetTutorId != null) {
+            loadThesisOffers(targetTutorId);
+        } else if (userId != null) {
+            loadThesisOffers(userId);
         } else {
             Toast.makeText(this, "Fehler: Benutzer-ID nicht gefunden.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void loadThesisOffers() {
+    private void loadThesisOffers(String idToLoad) {
         try {
-            repository.getThesisOffersByUser(UUID.fromString(userId), 1, 50, new Callback<ThesisOfferResponse>() {
+            repository.getThesisOffersByUser(UUID.fromString(idToLoad), 1, 50, new Callback<ThesisOfferResponse>() {
                 @Override
                 public void onResponse(Call<ThesisOfferResponse> call, Response<ThesisOfferResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         List<ThesisOfferApiModel> offers = response.body().getItems();
                         if (offers != null && !offers.isEmpty()) {
                             ThesisOfferAdapter adapter = new ThesisOfferAdapter(offers, offer -> {
-                                Intent intent = new Intent(ThesisOfferDashboardActivity.this, CreateThesisOfferActivity.class);
-                                intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_ID, offer.getId().toString());
-                                intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_TITLE, offer.getTitle());
-                                intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_DESCRIPTION, offer.getDescription());
-                                if (offer.getSubjectAreaId() != null) {
-                                    intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_SUBJECT_AREA_ID, offer.getSubjectAreaId().toString());
+                                if (!isViewingTutorOffers) {
+                                    // Owner mode: Edit offer
+                                    Intent intent = new Intent(ThesisOfferDashboardActivity.this, CreateThesisOfferActivity.class);
+                                    intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_ID, offer.getId().toString());
+                                    intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_TITLE, offer.getTitle());
+                                    intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_DESCRIPTION, offer.getDescription());
+                                    if (offer.getSubjectAreaId() != null) {
+                                        intent.putExtra(CreateThesisOfferActivity.EXTRA_OFFER_SUBJECT_AREA_ID, offer.getSubjectAreaId().toString());
+                                    }
+                                    startActivity(intent);
+                                } else {
+                                    // Viewer mode: Maybe view details or nothing (for now nothing or Toast)
+                                    // Ideally show details activity, but prompt didn't specify viewer details
+                                    // Toast.makeText(ThesisOfferDashboardActivity.this, "Details: " + offer.getTitle(), Toast.LENGTH_SHORT).show();
                                 }
-                                startActivity(intent);
                             });
                             recyclerView.setAdapter(adapter);
                             recyclerView.setVisibility(View.VISIBLE);
@@ -88,6 +117,9 @@ public class ThesisOfferDashboardActivity extends AppCompatActivity {
                         } else {
                             recyclerView.setVisibility(View.GONE);
                             emptyView.setVisibility(View.VISIBLE);
+                            if (isViewingTutorOffers) {
+                                emptyView.setText("Keine Ausschreibungen gefunden.");
+                            }
                         }
                     } else {
                         Toast.makeText(ThesisOfferDashboardActivity.this, "Fehler beim Laden: " + response.code(), Toast.LENGTH_SHORT).show();
@@ -100,7 +132,7 @@ public class ThesisOfferDashboardActivity extends AppCompatActivity {
                 }
             });
         } catch (IllegalArgumentException e) {
-            Toast.makeText(this, "Fehler: Ungültige Benutzer-ID.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Fehler: Ungültige ID.", Toast.LENGTH_SHORT).show();
         }
     }
 }

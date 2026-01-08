@@ -1,6 +1,9 @@
 package com.example.betreuer_app;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,9 +15,16 @@ import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.UserResponse;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,6 +38,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
     private TextView textViewOwner;
     private TextView textViewTutor;
     private TextView textViewSecondSupervisor;
+    private MaterialButton btnDownloadDocument;
 
     private ThesisApiService thesisApiService;
     private UserApiService userApiService;
@@ -50,6 +61,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
         textViewOwner = findViewById(R.id.textViewOwner);
         textViewTutor = findViewById(R.id.textViewTutor);
         textViewSecondSupervisor = findViewById(R.id.textViewSecondSupervisor);
+        btnDownloadDocument = findViewById(R.id.btn_download_document);
 
         thesisApiService = ApiClient.getThesisApiService(this);
         userApiService = ApiClient.getUserApiService(this);
@@ -88,23 +100,68 @@ public class ThesisDetailActivity extends AppCompatActivity {
         textViewTitle.setText(thesis.getTitle());
         textViewStatus.setText(thesis.getStatus());
         textViewBillingStatus.setText(thesis.getBillingStatus());
+        
+        if (thesis.getDocumentFileName() != null && !thesis.getDocumentFileName().isEmpty()) {
+            btnDownloadDocument.setVisibility(View.VISIBLE);
+            btnDownloadDocument.setText("Thesis herunterladen (" + thesis.getDocumentFileName() + ")");
+            btnDownloadDocument.setOnClickListener(v -> downloadDocument(thesis));
+        } else {
+            btnDownloadDocument.setVisibility(View.GONE);
+        }
+    }
+    
+    private void downloadDocument(ThesisApiModel thesis) {
+        if (thesis.getDocumentFileName() == null) return;
+        
+        Toast.makeText(this, "Download gestartet...", Toast.LENGTH_SHORT).show();
+        
+        thesisApiService.downloadThesisDocument(thesis.getId().toString()).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean written = writeResponseBodyToDisk(response.body(), thesis.getDocumentFileName());
+                    if (written) {
+                        Toast.makeText(ThesisDetailActivity.this, "Download erfolgreich: " + thesis.getDocumentFileName(), Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(ThesisDetailActivity.this, "Fehler beim Speichern der Datei", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(ThesisDetailActivity.this, "Download fehlgeschlagen", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(ThesisDetailActivity.this, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    private boolean writeResponseBodyToDisk(ResponseBody body, String fileName) {
+        // Fallback for older versions
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (!path.exists()) {
+            path.mkdirs();
+        }
+        File file = new File(path, fileName);
+
+        try (InputStream inputStream = body.byteStream();
+             OutputStream outputStream = new FileOutputStream(file)) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private void loadAdditionalInfo(ThesisApiModel thesis) {
         // Load Subject Area
         if (thesis.getTopicId() != null) {
-            // Note: If thesis has topicId, usually that topic has a subject area.
-            // The ThesisApiModel might not directly give subject area ID, so we might need to rely on what we have.
-            // The prompt asks to show SubjectArea. If not directly available in ThesisApiModel, we might skip or try to fetch it if possible.
-            // But usually the thesis itself doesn't hold subjectAreaId directly if it comes from a Topic.
-            // Let's assume for now we don't have direct access unless we fetch the topic first. 
-            // However, the user mentioned "SubjectArea" is there (probably meant in the list or generally available).
-            // Let's check ThesisApiModel again. It has topicId.
-            // If the model doesn't have subjectAreaId, we can't fetch it directly without fetching the Topic first.
-            // For now, I will leave SubjectArea blank or "Loading..." if we can't get it easily.
-            // Wait, the user said "Es kann sein dass man nicht alles auf einmal bekommt".
-            // Let's focus on Users first as requested.
-            textViewSubjectArea.setText("N/A"); // Placeholder until we can fetch topic -> subject area
+             textViewSubjectArea.setText("N/A"); // Placeholder until we can fetch topic -> subject area
         } else {
              textViewSubjectArea.setText("N/A");
         }
