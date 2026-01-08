@@ -1,6 +1,10 @@
 package com.example.betreuer_app;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,11 +12,12 @@ import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.SubjectAreaApiService;
 import com.example.betreuer_app.api.ThesisApiService;
 import com.example.betreuer_app.api.UserApiService;
-import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.UserResponse;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import retrofit2.Call;
@@ -23,7 +28,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
     private TextView textViewTitle;
     private TextView textViewStatus;
-    private TextView textViewBillingStatus;
+
     private TextView textViewSubjectArea;
     private TextView textViewOwner;
     private TextView textViewTutor;
@@ -45,7 +50,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
         textViewTitle = findViewById(R.id.textViewTitle);
         textViewStatus = findViewById(R.id.textViewStatus);
-        textViewBillingStatus = findViewById(R.id.textViewBillingStatus);
+
         textViewSubjectArea = findViewById(R.id.textViewSubjectArea);
         textViewOwner = findViewById(R.id.textViewOwner);
         textViewTutor = findViewById(R.id.textViewTutor);
@@ -54,6 +59,40 @@ public class ThesisDetailActivity extends AppCompatActivity {
         thesisApiService = ApiClient.getThesisApiService(this);
         userApiService = ApiClient.getUserApiService(this);
         subjectAreaApiService = ApiClient.getSubjectAreaApiService(this);
+
+        //Rechungsstatus mit Dropdown-Spinner
+
+        Spinner spinner_billingstatus = findViewById(R.id.spinner_billingstatus);
+        spinner_billingstatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+
+
+                Toast.makeText(ThesisDetailActivity.this,
+                        "Ausgewählt: " + selectedItem,
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // optional
+            }
+        });
+        List<String> items = new ArrayList<>();
+        items.add("NONE");
+        items.add("ISSUED");
+        items.add("PAID");
+
+        ArrayAdapter<String> billingstatus_adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                items
+        );
+
+        billingstatus_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner_billingstatus.setAdapter(billingstatus_adapter);
 
         if (getIntent().hasExtra("THESIS_ID")) {
             thesisId = getIntent().getStringExtra("THESIS_ID");
@@ -87,7 +126,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
     private void displayThesisDetails(ThesisApiModel thesis) {
         textViewTitle.setText(thesis.getTitle());
         textViewStatus.setText(thesis.getStatus());
-        textViewBillingStatus.setText(thesis.getBillingStatus());
+
     }
 
     private void loadAdditionalInfo(ThesisApiModel thesis) {
@@ -156,4 +195,6 @@ public class ThesisDetailActivity extends AppCompatActivity {
             targetView.setText("Invalid ID");
         }
     }
+
+
 }
