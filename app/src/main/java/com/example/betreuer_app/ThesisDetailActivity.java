@@ -128,12 +128,9 @@ public class ThesisDetailActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 BillingStatusResponse selectedStatus = (BillingStatusResponse) parent.getItemAtPosition(position);
-                // Prevents the toast from showing on initial load
+                // Prevents the API call from firing on initial load
                 if (currentThesis != null && !selectedStatus.getName().equals(currentThesis.getBillingStatus())) {
-                    Toast.makeText(ThesisDetailActivity.this,
-                            "Selected: " + selectedStatus.getName(),
-                            Toast.LENGTH_SHORT).show();
-                    // TODO: Add a call here to update the billing status on the backend
+                    updateBillingStatus(selectedStatus);
                 }
             }
 
@@ -142,6 +139,45 @@ public class ThesisDetailActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void updateBillingStatus(BillingStatusResponse newStatus) {
+        if (currentThesis == null) return;
+
+        ThesisApiService.BillingStatusUpdateRequest request = new ThesisApiService.BillingStatusUpdateRequest(newStatus.getId());
+
+        thesisApiService.updateBillingStatus(currentThesis.getId().toString(), request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(ThesisDetailActivity.this, "Billing status updated successfully", Toast.LENGTH_SHORT).show();
+                    // Update the local model to prevent repeated updates
+                    currentThesis.setBillingStatus(newStatus.getName());
+                } else {
+                    Toast.makeText(ThesisDetailActivity.this, "Failed to update billing status", Toast.LENGTH_SHORT).show();
+                    // Optionally, revert spinner to the previous state
+                    spinnerBillingStatus.setSelection(((ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter()).getPosition(getBillingStatusByName(currentThesis.getBillingStatus())));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(ThesisDetailActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                 spinnerBillingStatus.setSelection(((ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter()).getPosition(getBillingStatusByName(currentThesis.getBillingStatus())));
+            }
+        });
+    }
+
+    private BillingStatusResponse getBillingStatusByName(String name) {
+        ArrayAdapter<BillingStatusResponse> adapter = (ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            BillingStatusResponse status = adapter.getItem(i);
+            if (status != null && status.getName().equals(name)) {
+                return status;
+            }
+        }
+        return null;
+    }
+
 
     private void loadThesisDetails(String id) {
         thesisApiService.getThesis(id).enqueue(new Callback<ThesisApiModel>() {
