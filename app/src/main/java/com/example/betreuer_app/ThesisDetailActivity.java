@@ -1,7 +1,5 @@
 package com.example.betreuer_app;
 
-import android.app.DownloadManager;
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -140,36 +138,21 @@ public class ThesisDetailActivity extends AppCompatActivity {
     }
     
     private boolean writeResponseBodyToDisk(ResponseBody body, String fileName) {
-        try {
-            // Save to the Downloads folder
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File file = new File(path, fileName);
+        // Fallback for older versions
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (!path.exists()) {
+            path.mkdirs();
+        }
+        File file = new File(path, fileName);
 
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
-
-            try {
-                byte[] fileReader = new byte[4096];
-                long fileSize = body.contentLength();
-                long fileSizeDownloaded = 0;
-
-                inputStream = body.byteStream();
-                outputStream = new FileOutputStream(file);
-
-                while (true) {
-                    int read = inputStream.read(fileReader);
-                    if (read == -1) break;
-                    outputStream.write(fileReader, 0, read);
-                    fileSizeDownloaded += read;
-                }
-                outputStream.flush();
-                return true;
-            } catch (IOException e) {
-                return false;
-            } finally {
-                if (inputStream != null) inputStream.close();
-                if (outputStream != null) outputStream.close();
+        try (InputStream inputStream = body.byteStream();
+             OutputStream outputStream = new FileOutputStream(file)) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
             }
+            return true;
         } catch (IOException e) {
             return false;
         }
