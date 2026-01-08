@@ -13,8 +13,10 @@ import com.example.betreuer_app.model.ThesisApiModel;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -61,7 +63,19 @@ public class ThesisRepository {
         MultipartBody.Part body = MultipartBody.Part.createFormData("Document", file.getName(), requestFile);
 
         Call<ThesisApiModel> call = apiService.createThesisWithFile(titlePart, subjectAreaIdPart, body);
-        call.enqueue(callback);
+        call.enqueue(new Callback<ThesisApiModel>() {
+            @Override
+            public void onResponse(Call<ThesisApiModel> call, retrofit2.Response<ThesisApiModel> response) {
+                file.delete(); // Clean up temp file
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ThesisApiModel> call, Throwable t) {
+                file.delete(); // Clean up temp file
+                callback.onFailure(call, t);
+            }
+        });
     }
 
     private File prepareFilePart(Uri fileUri) {
