@@ -60,5 +60,12 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="userRoles">The list of roles assigned to the user.</param>
         /// <returns>A task representing the asynchronous operation, containing the result of the deletion attempt.</returns>
         Task<DeleteThesisResult> DeleteThesisAsync(Guid id, Guid userId, List<string> userRoles);
+
+        /// <summary>
+        /// Retrieves all billing statuses asynchronously.
+        /// Billing statuses represent the payment states of theses (e.g., None, Issued, Paid).
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation, containing a list of <see cref="BillingStatusBusinessLogicModel"/>.</returns>
+        Task<List<BillingStatusBusinessLogicModel>> GetAllBillingStatusesAsync();
     }
 }
