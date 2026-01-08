@@ -8,6 +8,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,6 +30,7 @@ public class FileDownloader {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private boolean saveFileWithMediaStore(Context context, ResponseBody body, String fileName) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
