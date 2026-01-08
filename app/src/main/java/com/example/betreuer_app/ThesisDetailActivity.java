@@ -1,14 +1,9 @@
 package com.example.betreuer_app;
 
 import android.Manifest;
-import android.content.ContentValues;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,20 +14,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.betreuer_app.api.ApiClient;
-import com.example.betreuer_app.api.SubjectAreaApiService;
 import com.example.betreuer_app.api.ThesisApiService;
 import com.example.betreuer_app.api.UserApiService;
-import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.UserResponse;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 
 import okhttp3.ResponseBody;
@@ -53,7 +41,8 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
     private ThesisApiService thesisApiService;
     private UserApiService userApiService;
-    private SubjectAreaApiService subjectAreaApiService;
+
+    private FileDownloader fileDownloader;
 
     private String thesisId;
     private ThesisApiModel thesisToDownload;
@@ -63,6 +52,8 @@ public class ThesisDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thesis_detail);
+
+        fileDownloader = new FileDownloader();
 
         requestPermissionLauncher =
                 registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -89,7 +80,6 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
         thesisApiService = ApiClient.getThesisApiService(this);
         userApiService = ApiClient.getUserApiService(this);
-        subjectAreaApiService = ApiClient.getSubjectAreaApiService(this);
 
         if (getIntent().hasExtra("THESIS_ID")) {
             thesisId = getIntent().getStringExtra("THESIS_ID");
@@ -157,7 +147,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    boolean written = writeResponseBodyToDisk(response.body(), thesis.getDocumentFileName());
+                    boolean written = fileDownloader.writeResponseBodyToDisk(ThesisDetailActivity.this, response.body(), thesis.getDocumentFileName());
                     if (written) {
                         Toast.makeText(ThesisDetailActivity.this, "Download erfolgreich: " + thesis.getDocumentFileName(), Toast.LENGTH_LONG).show();
                     } else {
@@ -173,82 +163,6 @@ public class ThesisDetailActivity extends AppCompatActivity {
                 Toast.makeText(ThesisDetailActivity.this, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private boolean writeResponseBodyToDisk(ResponseBody body, String fileName) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            // Use MediaStore for Android 10+
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
-            values.put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream");
-            values.put(MediaStore.Downloads.IS_PENDING, 1);
-
-            Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-            if (uri == null) {
-                Log.e("ThesisDetailActivity", "Failed to create new MediaStore record.");
-                return false;
-            }
-
-            try (InputStream inputStream = body.byteStream();
-                 OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
-                if (outputStream == null) {
-                    Log.e("ThesisDetailActivity", "Failed to open output stream.");
-                    return false;
-                }
-
-                byte[] buffer = new byte[4096];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
-
-                values.clear();
-                values.put(MediaStore.Downloads.IS_PENDING, 0);
-                getContentResolver().update(uri, values, null, null);
-                return true;
-            } catch (IOException e) {
-                Log.e("ThesisDetailActivity", "Failed to save file.", e);
-                getContentResolver().delete(uri, null, null);
-                return false;
-            }
-        } else {
-            // Legacy approach for older Android versions
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            if (!path.exists()) {
-                if (!path.mkdirs()) {
-                    Log.e("ThesisDetailActivity", "Failed to create directory: " + path);
-                    return false;
-                }
-            }
-
-            // Handle file name collisions
-            File file = new File(path, fileName);
-            int counter = 1;
-            String baseName = fileName;
-            String extension = "";
-            int dotIndex = fileName.lastIndexOf('.');
-            if (dotIndex > 0) {
-                baseName = fileName.substring(0, dotIndex);
-                extension = fileName.substring(dotIndex);
-            }
-            while (file.exists()) {
-                file = new File(path, baseName + "_" + counter + extension);
-                counter++;
-            }
-
-            try (InputStream inputStream = body.byteStream();
-                 OutputStream outputStream = new FileOutputStream(file)) {
-                byte[] buffer = new byte[4096];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
-                return true;
-            } catch (IOException e) {
-                Log.e("ThesisDetailActivity", "Failed to save file.", e);
-                return false;
-            }
-        }
     }
 
     private void loadAdditionalInfo(ThesisApiModel thesis) {
