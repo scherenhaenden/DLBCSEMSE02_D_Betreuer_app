@@ -1,7 +1,9 @@
 package com.example.betreuer_app.repository;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.ThesisApiService;
@@ -18,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 public class ThesisRepository {
     private ThesisApiService apiService;
@@ -66,20 +69,48 @@ public class ThesisRepository {
             InputStream inputStream = context.getContentResolver().openInputStream(fileUri);
             if (inputStream == null) return null;
 
-            File file = new File(context.getCacheDir(), "upload_temp_file");
-            FileOutputStream outputStream = new FileOutputStream(file);
-            
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
+            String originalName = getFileNameFromUri(fileUri);
+            String uniqueName = originalName != null ? originalName : "upload_temp_file";
+            uniqueName += "_" + UUID.randomUUID().toString();
+
+            File file = new File(context.getCacheDir(), uniqueName);
+
+            try (FileOutputStream outputStream = new FileOutputStream(file);
+                 InputStream in = inputStream) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
             }
-            outputStream.close();
-            inputStream.close();
             return file;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private String getFileNameFromUri(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (index >= 0) {
+                        result = cursor.getString(index);
+                    }
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            if (result != null) {
+                int cut = result.lastIndexOf('/');
+                if (cut != -1) {
+                    result = result.substring(cut + 1);
+                }
+            }
+        }
+        return result;
     }
 }
