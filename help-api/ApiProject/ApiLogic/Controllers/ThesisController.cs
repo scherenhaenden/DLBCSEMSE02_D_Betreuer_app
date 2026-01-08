@@ -133,5 +133,17 @@ namespace ApiProject.ApiLogic.Controllers
                 _ => throw new InvalidOperationException("Unexpected delete result")
             };
         }
+
+        [HttpGet("billing-statuses")]
+        public async Task<ActionResult<List<BillingStatusResponse>>> GetBillingStatuses()
+        {
+            var billingStatuses = await _thesisBusinessLogicService.GetAllBillingStatusesAsync();
+            var response = billingStatuses.Select(bs => new BillingStatusResponse
+            {
+                Id = bs.Id,
+                Name = bs.Name
+            }).ToList();
+            return Ok(response);
+        }
     }
 }
