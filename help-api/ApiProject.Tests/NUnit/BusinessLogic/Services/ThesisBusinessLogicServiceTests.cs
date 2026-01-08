@@ -276,4 +276,18 @@ public class ThesisBusinessLogicServiceTests
             await _thesisService.UpdateThesisAsync(thesis.Id, updateRequest));
         Assert.That(ex.Message, Is.EqualTo("Thesis cannot be modified after submission or defense."));
     }
+
+    [Test]
+    public async Task CanGetAllBillingStatuses()
+    {
+        // Act
+        var billingStatuses = await _thesisService.GetAllBillingStatusesAsync();
+
+        // Assert
+        Assert.That(billingStatuses, Is.Not.Null);
+        Assert.That(billingStatuses.Count, Is.EqualTo(3));
+        Assert.That(billingStatuses.Any(bs => bs.Name == BillingStatuses.None), Is.True);
+        Assert.That(billingStatuses.Any(bs => bs.Name == BillingStatuses.Issued), Is.True);
+        Assert.That(billingStatuses.Any(bs => bs.Name == BillingStatuses.Paid), Is.True);
+    }
 }
