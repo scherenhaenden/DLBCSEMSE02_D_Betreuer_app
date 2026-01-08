@@ -19,12 +19,12 @@ import androidx.core.content.ContextCompat;
 import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.ThesisApiService;
 import com.example.betreuer_app.api.UserApiService;
+import com.example.betreuer_app.model.BillingStatusResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.UserResponse;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +43,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
     private TextView textViewTutor;
     private TextView textViewSecondSupervisor;
     private MaterialButton btnDownloadDocument;
+    private Spinner spinnerBillingStatus;
 
     private ThesisApiService thesisApiService;
     private UserApiService userApiService;
@@ -50,6 +51,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
     private FileDownloader fileDownloader;
 
     private String thesisId;
+    private ThesisApiModel currentThesis;
     private ThesisApiModel thesisToDownload;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
@@ -86,47 +88,59 @@ public class ThesisDetailActivity extends AppCompatActivity {
         thesisApiService = ApiClient.getThesisApiService(this);
         userApiService = ApiClient.getUserApiService(this);
 
-        //Rechungsstatus mit Dropdown-Spinner
-
-        Spinner spinner_billingstatus = findViewById(R.id.spinner_billingstatus);
-        spinner_billingstatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItem = parent.getItemAtPosition(position).toString();
-
-
-                Toast.makeText(ThesisDetailActivity.this,
-                        "Ausgewählt: " + selectedItem,
-                        Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // optional
-            }
-        });
-        List<String> items = new ArrayList<>();
-        items.add("NONE");
-        items.add("ISSUED");
-        items.add("PAID");
-
-        ArrayAdapter<String> billingstatus_adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_item,
-                items
-        );
-
-        billingstatus_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner_billingstatus.setAdapter(billingstatus_adapter);
+        spinnerBillingStatus = findViewById(R.id.spinner_billingstatus);
 
         if (getIntent().hasExtra("THESIS_ID")) {
             thesisId = getIntent().getStringExtra("THESIS_ID");
-            loadThesisDetails(thesisId);
+            loadBillingStatuses(); // This will load statuses, then thesis details
         } else {
             Toast.makeText(this, "Thesis ID not provided", Toast.LENGTH_SHORT).show();
             finish();
         }
+    }
+
+    private void loadBillingStatuses() {
+        thesisApiService.getBillingStatuses().enqueue(new Callback<List<BillingStatusResponse>>() {
+            @Override
+            public void onResponse(Call<List<BillingStatusResponse>> call, Response<List<BillingStatusResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    setupBillingStatusSpinner(response.body());
+                    // Now that the spinner is ready, load the main thesis details
+                    loadThesisDetails(thesisId);
+                } else {
+                    Toast.makeText(ThesisDetailActivity.this, "Failed to load billing statuses", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<BillingStatusResponse>> call, Throwable t) {
+                Toast.makeText(ThesisDetailActivity.this, "Error loading billing statuses: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setupBillingStatusSpinner(List<BillingStatusResponse> statuses) {
+        ArrayAdapter<BillingStatusResponse> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, statuses);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerBillingStatus.setAdapter(adapter);
+
+        spinnerBillingStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                BillingStatusResponse selectedStatus = (BillingStatusResponse) parent.getItemAtPosition(position);
+                // Prevents the toast from showing on initial load
+                if (currentThesis != null && !selectedStatus.getName().equals(currentThesis.getBillingStatus())) {
+                    Toast.makeText(ThesisDetailActivity.this,
+                            "Selected: " + selectedStatus.getName(),
+                            Toast.LENGTH_SHORT).show();
+                    // TODO: Add a call here to update the billing status on the backend
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
     }
 
     private void loadThesisDetails(String id) {
@@ -134,9 +148,9 @@ public class ThesisDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    ThesisApiModel thesis = response.body();
-                    displayThesisDetails(thesis);
-                    loadAdditionalInfo(thesis);
+                    currentThesis = response.body();
+                    displayThesisDetails(currentThesis);
+                    loadAdditionalInfo(currentThesis);
                 } else {
                     Toast.makeText(ThesisDetailActivity.this, "Failed to load thesis details", Toast.LENGTH_SHORT).show();
                 }
@@ -153,7 +167,17 @@ public class ThesisDetailActivity extends AppCompatActivity {
         textViewTitle.setText(thesis.getTitle());
         textViewStatus.setText(thesis.getStatus());
 
-        textViewBillingStatus.setText(thesis.getBillingStatus());
+        // Set spinner selection
+        ArrayAdapter<BillingStatusResponse> adapter = (ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter();
+        if (adapter != null) {
+            for (int i = 0; i < adapter.getCount(); i++) {
+                BillingStatusResponse status = adapter.getItem(i);
+                if (status != null && status.getName().equals(thesis.getBillingStatus())) {
+                    spinnerBillingStatus.setSelection(i);
+                    break;
+                }
+            }
+        }
 
         if (thesis.getDocumentFileName() != null && !thesis.getDocumentFileName().isEmpty()) {
             btnDownloadDocument.setVisibility(View.VISIBLE);
@@ -260,6 +284,4 @@ public class ThesisDetailActivity extends AppCompatActivity {
             targetView.setText("Invalid ID");
         }
     }
-
-
 }

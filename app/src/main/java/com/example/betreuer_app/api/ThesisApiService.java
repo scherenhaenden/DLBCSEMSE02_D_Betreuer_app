@@ -1,5 +1,6 @@
 package com.example.betreuer_app.api;
 
+import com.example.betreuer_app.model.BillingStatusResponse;
 import com.example.betreuer_app.model.CreateThesisRequest;
 import com.example.betreuer_app.model.ThesesResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
@@ -16,6 +17,8 @@ import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.Streaming;
+
+import java.util.List;
 
 /**
  * Interface für API-Endpunkte im Bereich der Abschlussarbeiten.
@@ -44,6 +47,12 @@ public interface ThesisApiService {
     Call<ResponseBody> downloadThesisDocument(@Path("id") String id);
 
     /**
+     * Ruft alle möglichen Abrechnungsstatus ab.
+     */
+    @GET("theses/billing-statuses")
+    Call<List<BillingStatusResponse>> getBillingStatuses();
+
+    /**
      * Aktualisiert den Status einer spezifischen Abschlussarbeit.
      * 
      * @param id Die ID der Arbeit.
@@ -53,12 +62,31 @@ public interface ThesisApiService {
     Call<ThesisApiModel> updateStatus(@Path("id") String id, @Body StatusUpdateRequest request);
 
     /**
+     * Aktualisiert den Abrechnungsstatus einer spezifischen Abschlussarbeit.
+     *
+     * @param id Die ID der Arbeit.
+     * @param request Das Request-Objekt mit der neuen Status-ID.
+     */
+    @PATCH("theses/{id}/billing-status")
+    Call<Void> updateBillingStatus(@Path("id") String id, @Body BillingStatusUpdateRequest request);
+
+    /**
      * Datenmodell für das Status-Update-Request.
      */
     class StatusUpdateRequest {
         public String status;
         public StatusUpdateRequest(String status) {
             this.status = status;
+        }
+    }
+
+    /**
+     * Datenmodell für das Billing-Status-Update-Request.
+     */
+    class BillingStatusUpdateRequest {
+        public String billingStatusId;
+        public BillingStatusUpdateRequest(String billingStatusId) {
+            this.billingStatusId = billingStatusId;
         }
     }
 }
