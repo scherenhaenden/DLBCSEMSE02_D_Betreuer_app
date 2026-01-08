@@ -1,27 +1,26 @@
 package com.example.betreuer_app;
 
-import android.net.Uri;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import com.example.betreuer_app.api.ApiClient;
-import com.example.betreuer_app.api.SubjectAreaApiService;
 import com.example.betreuer_app.api.ThesisApiService;
 import com.example.betreuer_app.api.UserApiService;
-import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.UserResponse;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 
 import okhttp3.ResponseBody;
@@ -42,14 +41,30 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
     private ThesisApiService thesisApiService;
     private UserApiService userApiService;
-    private SubjectAreaApiService subjectAreaApiService;
+
+    private FileDownloader fileDownloader;
 
     private String thesisId;
+    private ThesisApiModel thesisToDownload;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thesis_detail);
+
+        fileDownloader = new FileDownloader();
+
+        requestPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        if (thesisToDownload != null) {
+                            downloadDocument(thesisToDownload);
+                        }
+                    } else {
+                        Toast.makeText(this, "Permission denied to write to storage", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
@@ -65,7 +80,6 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
         thesisApiService = ApiClient.getThesisApiService(this);
         userApiService = ApiClient.getUserApiService(this);
-        subjectAreaApiService = ApiClient.getSubjectAreaApiService(this);
 
         if (getIntent().hasExtra("THESIS_ID")) {
             thesisId = getIntent().getStringExtra("THESIS_ID");
@@ -100,26 +114,40 @@ public class ThesisDetailActivity extends AppCompatActivity {
         textViewTitle.setText(thesis.getTitle());
         textViewStatus.setText(thesis.getStatus());
         textViewBillingStatus.setText(thesis.getBillingStatus());
-        
+
         if (thesis.getDocumentFileName() != null && !thesis.getDocumentFileName().isEmpty()) {
             btnDownloadDocument.setVisibility(View.VISIBLE);
             btnDownloadDocument.setText("Thesis herunterladen (" + thesis.getDocumentFileName() + ")");
-            btnDownloadDocument.setOnClickListener(v -> downloadDocument(thesis));
+            btnDownloadDocument.setOnClickListener(v -> {
+                this.thesisToDownload = thesis;
+                requestDownloadPermission();
+            });
         } else {
             btnDownloadDocument.setVisibility(View.GONE);
         }
     }
-    
+
+    private void requestDownloadPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && ContextCompat.checkSelfPermission(
+                this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        } else {
+            if (thesisToDownload != null) {
+                downloadDocument(thesisToDownload);
+            }
+        }
+    }
+
     private void downloadDocument(ThesisApiModel thesis) {
         if (thesis.getDocumentFileName() == null) return;
-        
+
         Toast.makeText(this, "Download gestartet...", Toast.LENGTH_SHORT).show();
-        
+
         thesisApiService.downloadThesisDocument(thesis.getId().toString()).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    boolean written = writeResponseBodyToDisk(response.body(), thesis.getDocumentFileName());
+                    boolean written = fileDownloader.writeResponseBodyToDisk(ThesisDetailActivity.this, response.body(), thesis.getDocumentFileName());
                     if (written) {
                         Toast.makeText(ThesisDetailActivity.this, "Download erfolgreich: " + thesis.getDocumentFileName(), Toast.LENGTH_LONG).show();
                     } else {
@@ -136,34 +164,13 @@ public class ThesisDetailActivity extends AppCompatActivity {
             }
         });
     }
-    
-    private boolean writeResponseBodyToDisk(ResponseBody body, String fileName) {
-        // Fallback for older versions
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        if (!path.exists()) {
-            path.mkdirs();
-        }
-        File file = new File(path, fileName);
-
-        try (InputStream inputStream = body.byteStream();
-             OutputStream outputStream = new FileOutputStream(file)) {
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
 
     private void loadAdditionalInfo(ThesisApiModel thesis) {
         // Load Subject Area
         if (thesis.getTopicId() != null) {
-             textViewSubjectArea.setText("N/A"); // Placeholder until we can fetch topic -> subject area
+            textViewSubjectArea.setText("N/A"); // Placeholder until we can fetch topic -> subject area
         } else {
-             textViewSubjectArea.setText("N/A");
+            textViewSubjectArea.setText("N/A");
         }
 
         // Load Owner (Student)
@@ -196,8 +203,8 @@ public class ThesisDetailActivity extends AppCompatActivity {
                 public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         UserResponse user = response.body();
-                        String name = (user.getFirstName() != null ? user.getFirstName() : "") + " " + 
-                                      (user.getLastName() != null ? user.getLastName() : "");
+                        String name = (user.getFirstName() != null ? user.getFirstName() : "") + " " +
+                                (user.getLastName() != null ? user.getLastName() : "");
                         targetView.setText(name.trim());
                     } else {
                         targetView.setText("Error loading user");
