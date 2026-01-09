@@ -112,25 +112,25 @@ Deletes a subject area.
 ## Models
 
 ### CreateSubjectAreaRequest
-- `title` (string, required): Subject area title
-- `description` (string, required): Subject area description
-- `subjectArea` (string, required): Subject area content/details
-- `tutorIds` (Guid[], optional): List of tutor identifiers
+- `title` (string, not nullable): Subject area title
+- `description` (string, not nullable): Subject area description
+- `subjectArea` (string, not nullable): Subject area content/details
+- `tutorIds` (Guid[], not nullable): List of tutor identifiers
 
 ### UpdateSubjectAreaRequest
-- `title` (string, optional): Subject area title
-- `description` (string, optional): Subject area description
-- `subjectArea` (string, optional): Subject area content/details
-- `isActive` (boolean, optional): Whether the subject area is active
-- `tutorIds` (Guid[], optional): List of tutor identifiers
+- `title` (string, nullable): Subject area title
+- `description` (string, nullable): Subject area description
+- `subjectArea` (string, nullable): Subject area content/details
+- `isActive` (boolean, nullable): Whether the subject area is active
+- `tutorIds` (Guid[], nullable): List of tutor identifiers
 
 ### SubjectAreaResponse
-- `id` (Guid): Subject area identifier
-- `title` (string): Subject area title
-- `description` (string): Subject area description
-- `subjectArea` (string): Subject area content/details
-- `isActive` (boolean): Whether the subject area is active
-- `tutorIds` (Guid[]): List of tutor identifiers
+- `id` (Guid, not nullable): Subject area identifier
+- `title` (string, not nullable): Subject area title
+- `description` (string, not nullable): Subject area description
+- `subjectArea` (string, not nullable): Subject area content/details
+- `isActive` (boolean, not nullable): Whether the subject area is active
+- `tutorIds` (Guid[], not nullable): List of tutor identifiers assigned to this subject area
 
 ### PaginatedResponse<T>
 - `items` (T[]): Array of items

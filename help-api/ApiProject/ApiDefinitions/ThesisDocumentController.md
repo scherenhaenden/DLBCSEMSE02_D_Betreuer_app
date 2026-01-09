@@ -66,11 +66,11 @@ Deletes the document for a specific thesis.
 ## Models
 
 ### UpdateThesisDocumentRequest
-- `document` (IFormFile, required): Document file to upload
+- `document` (IFormFile, not nullable): Document file to upload
 
 ### ThesisDocumentResponse
-- `id` (Guid): Document identifier
-- `fileName` (string): Document filename
-- `contentType` (string): Document content type (MIME type)
-- `thesisId` (Guid): Associated thesis identifier
-- `userId` (Guid): User who requested the document information
+- `id` (Guid, not nullable): Document identifier
+- `fileName` (string, not nullable): Document filename
+- `contentType` (string, not nullable): Document content type (MIME type)
+- `thesisId` (Guid, not nullable): Associated thesis identifier
+- `userId` (Guid, not nullable): User who requested the document information

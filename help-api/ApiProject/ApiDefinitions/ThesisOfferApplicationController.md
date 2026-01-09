@@ -49,16 +49,16 @@ Creates a new thesis offer application (Student role required).
 ## Models
 
 ### CreateThesisOfferApplicationRequest
-- `thesisOfferId` (Guid, required): Thesis offer identifier
-- `message` (string, optional): Application message
-- `studentId` (Guid): Student identifier (set automatically from authenticated user)
+- `thesisOfferId` (Guid, not nullable): Thesis offer identifier
+- `message` (string, nullable): Application message
+- `studentId` (Guid, not nullable): Student identifier (set automatically from authenticated user)
 
 ### ThesisOfferApplicationResponse
-- `id` (Guid): Application identifier
-- `thesisOfferId` (Guid): Thesis offer identifier
-- `studentId` (Guid): Student identifier
-- `status` (string): Application status
-- `message` (string): Application message
+- `id` (Guid, not nullable): Application identifier
+- `thesisOfferId` (Guid, not nullable): Thesis offer identifier
+- `studentId` (Guid, not nullable): Student identifier
+- `status` (string, nullable): Application status
+- `message` (string, nullable): Application message
 
 ### PaginatedResponse<T>
 - `items` (T[]): Array of items

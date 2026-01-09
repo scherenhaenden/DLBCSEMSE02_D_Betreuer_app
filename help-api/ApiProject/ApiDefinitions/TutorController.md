@@ -57,19 +57,19 @@ Retrieves a specific tutor's profile by ID.
 ## Models
 
 ### TutorProfileResponse
-- `id` (Guid): Tutor identifier
-- `firstName` (string): Tutor's first name
-- `lastName` (string): Tutor's last name
-- `email` (string): Tutor's email address
-- `subjectAreas` (SubjectAreaResponse[]): List of subject areas the tutor is assigned to
+- `id` (Guid, not nullable): Tutor identifier
+- `firstName` (string, not nullable): Tutor's first name
+- `lastName` (string, not nullable): Tutor's last name
+- `email` (string, not nullable): Tutor's email address
+- `subjectAreas` (SubjectAreaResponse[], not nullable): List of subject areas the tutor is assigned to
 
 ### SubjectAreaResponse
-- `id` (Guid): Subject area identifier
-- `title` (string): Subject area title
-- `description` (string): Subject area description
-- `subjectArea` (string): Subject area content/details
-- `isActive` (boolean): Whether the subject area is active
-- `tutorIds` (Guid[]): List of tutor identifiers assigned to this subject area
+- `id` (Guid, not nullable): Subject area identifier
+- `title` (string, not nullable): Subject area title
+- `description` (string, not nullable): Subject area description
+- `subjectArea` (string, not nullable): Subject area content/details
+- `isActive` (boolean, not nullable): Whether the subject area is active
+- `tutorIds` (Guid[], not nullable): List of tutor identifiers assigned to this subject area
 
 ### PaginatedResponse<T>
 - `items` (T[]): Array of items

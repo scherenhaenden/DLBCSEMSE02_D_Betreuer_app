@@ -37,16 +37,16 @@ Authenticates a user and returns a JWT token.
 ## Models
 
 ### LoginRequest
-- `email` (string, required): User's email address
-- `password` (string, required): User's password
+- `email` (string, not nullable): User's email address
+- `password` (string, not nullable): User's password
 
 ### LoginResponse
-- `token` (string): JWT authentication token
-- `user` (UserResponse): User information
+- `token` (string, not nullable): JWT authentication token
+- `user` (UserResponse, not nullable): User information
 
 ### UserResponse
-- `id` (Guid): User identifier
-- `firstName` (string): User's first name
-- `lastName` (string): User's last name
-- `email` (string): User's email address
-- `roles` (string[]): Array of user roles
+- `id` (Guid, not nullable): User identifier
+- `firstName` (string, not nullable): User's first name
+- `lastName` (string, not nullable): User's last name
+- `email` (string, not nullable): User's email address
+- `roles` (string[], not nullable): Array of user roles

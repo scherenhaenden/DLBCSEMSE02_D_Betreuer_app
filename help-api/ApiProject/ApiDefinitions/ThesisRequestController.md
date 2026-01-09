@@ -109,25 +109,25 @@ Retrieves paginated thesis requests where current user is the requester (Tutor r
 ## Models
 
 ### CreateThesisRequestRequest
-- `thesisId` (Guid): Thesis identifier
-- `receiverId` (Guid): Receiver user identifier
-- `requestType` (string): Request type ("SUPERVISION" or "CO_SUPERVISION")
-- `message` (string, optional): Request message
+- `thesisId` (Guid, not nullable): Thesis identifier
+- `receiverId` (Guid, not nullable): Receiver user identifier
+- `requestType` (string, not nullable): Request type ("SUPERVISION" or "CO_SUPERVISION")
+- `message` (string, nullable): Request message
 
 ### RespondToThesisRequestRequest
-- `accepted` (boolean): Whether the request is accepted
-- `message` (string, optional): Response message
+- `accepted` (boolean, not nullable): Whether the request is accepted
+- `message` (string, nullable): Response message
 
 ### ThesisRequestResponse
-- `id` (Guid): Request identifier
-- `thesisId` (Guid): Thesis identifier
-- `thesisTitle` (string): Thesis title
-- `requester` (UserResponse): Requester user information
-- `receiver` (UserResponse): Receiver user information
-- `requestType` (string): Request type
-- `status` (string): Request status
-- `message` (string): Request message
-- `createdAt` (DateTime): Creation timestamp
+- `id` (Guid, not nullable): Request identifier
+- `thesisId` (Guid, not nullable): Thesis identifier
+- `thesisTitle` (string, not nullable): Thesis title
+- `requester` (UserResponse, not nullable): Requester user information
+- `receiver` (UserResponse, not nullable): Receiver user information
+- `requestType` (string, not nullable): Request type
+- `status` (string, not nullable): Request status
+- `message` (string, nullable): Request message
+- `createdAt` (DateTime, not nullable): Creation timestamp
 
 ### UserResponse
 - `id` (Guid): User identifier

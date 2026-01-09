@@ -104,34 +104,34 @@ Retrieves all available thesis offer statuses.
 ## Models
 
 ### CreateThesisOfferRequest
-- `title` (string, required): Thesis offer title
-- `description` (string, optional): Thesis offer description
-- `subjectAreaId` (Guid, required): Subject area identifier
-- `maxStudents` (int, optional): Maximum number of students
-- `expiresAt` (DateTime, optional): Expiration date
-- `tutorId` (Guid): Tutor identifier (set automatically from authenticated user)
+- `title` (string, not nullable): Thesis offer title
+- `description` (string, nullable): Thesis offer description
+- `subjectAreaId` (Guid, not nullable): Subject area identifier
+- `maxStudents` (int, nullable): Maximum number of students
+- `expiresAt` (DateTime, nullable): Expiration date
+- `tutorId` (Guid, not nullable): Tutor identifier (set automatically from authenticated user)
 
 ### UpdateThesisOfferRequest
-- `title` (string, optional): Thesis offer title
-- `description` (string, optional): Thesis offer description
-- `subjectAreaId` (Guid, optional): Subject area identifier
-- `maxStudents` (int, optional): Maximum number of students
-- `expiresAt` (DateTime, optional): Expiration date
-- `thesisOfferStatusId` (Guid, optional): Thesis offer status identifier
+- `title` (string, nullable): Thesis offer title
+- `description` (string, nullable): Thesis offer description
+- `subjectAreaId` (Guid, nullable): Subject area identifier
+- `maxStudents` (int, nullable): Maximum number of students
+- `expiresAt` (DateTime, nullable): Expiration date
+- `thesisOfferStatusId` (Guid, nullable): Thesis offer status identifier
 
 ### ThesisOfferResponse
-- `id` (Guid): Thesis offer identifier
-- `title` (string): Thesis offer title
-- `description` (string): Thesis offer description
-- `subjectAreaId` (Guid): Subject area identifier
-- `tutorId` (Guid): Tutor identifier
-- `status` (string): Thesis offer status
-- `maxStudents` (int): Maximum number of students
-- `expiresAt` (DateTime): Expiration date
+- `id` (Guid, not nullable): Thesis offer identifier
+- `title` (string, not nullable): Thesis offer title
+- `description` (string, nullable): Thesis offer description
+- `subjectAreaId` (Guid, not nullable): Subject area identifier
+- `tutorId` (Guid, not nullable): Tutor identifier
+- `status` (string, nullable): Thesis offer status
+- `maxStudents` (int, nullable): Maximum number of students
+- `expiresAt` (DateTime, nullable): Expiration date
 
 ### ThesisOfferStatusResponse
-- `id` (Guid): Status identifier
-- `name` (string): Status name
+- `id` (Guid, not nullable): Status identifier
+- `name` (string, not nullable): Status name
 
 ### PaginatedResponse<T>
 - `items` (T[]): Array of items

@@ -65,18 +65,18 @@ Retrieves a specific user by ID.
 ## Models
 
 ### CreateUserRequest
-- `firstName` (string, required): User's first name
-- `lastName` (string, required): User's last name
-- `email` (string, required): User's email address (must be valid email format)
-- `password` (string, required): User's password
-- `roles` (string[], optional): List of user roles
+- `firstName` (string, not nullable): User's first name
+- `lastName` (string, not nullable): User's last name
+- `email` (string, not nullable): User's email address (must be valid email format)
+- `password` (string, not nullable): User's password
+- `roles` (string[], not nullable): List of user roles
 
 ### UserResponse
-- `id` (Guid): User identifier
-- `firstName` (string): User's first name
-- `lastName` (string): User's last name
-- `email` (string): User's email address
-- `roles` (string[]): Array of user roles
+- `id` (Guid, not nullable): User identifier
+- `firstName` (string, not nullable): User's first name
+- `lastName` (string, not nullable): User's last name
+- `email` (string, not nullable): User's email address
+- `roles` (string[], not nullable): Array of user roles
 
 ### PaginatedResponse<T>
 - `items` (T[]): Array of items

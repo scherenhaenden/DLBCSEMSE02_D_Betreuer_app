@@ -109,33 +109,33 @@ Retrieves all available billing statuses.
 ## Models
 
 ### CreateThesisApiRequest
-- `title` (string, required): Thesis title
-- `description` (string, optional): Thesis description
-- `subjectAreaId` (Guid, required): Subject area identifier
-- `document` (IFormFile, optional): Document file upload
+- `title` (string, not nullable): Thesis title
+- `description` (string, nullable): Thesis description
+- `subjectAreaId` (Guid, not nullable): Subject area identifier
+- `document` (IFormFile, nullable): Document file upload
 
 ### UpdateThesisRequest
-- `title` (string, optional): Thesis title
-- `description` (string, optional): Thesis description
-- `subjectAreaId` (Guid, optional): Subject area identifier
-- `document` (IFormFile, optional): Document file upload
+- `title` (string, nullable): Thesis title
+- `description` (string, nullable): Thesis description
+- `subjectAreaId` (Guid, nullable): Subject area identifier
+- `document` (IFormFile, nullable): Document file upload
 
 ### ThesisResponse
-- `id` (Guid): Thesis identifier
-- `title` (string): Thesis title
-- `description` (string): Thesis description
-- `status` (string): Thesis status
-- `billingStatus` (string): Billing status
-- `ownerId` (Guid): Owner user identifier
-- `tutorId` (Guid): Tutor user identifier
-- `secondSupervisorId` (Guid): Second supervisor identifier
-- `subjectAreaId` (Guid): Subject area identifier
-- `documentFileName` (string): Document filename
-- `documentId` (Guid): Document identifier
+- `id` (Guid, not nullable): Thesis identifier
+- `title` (string, not nullable): Thesis title
+- `description` (string, nullable): Thesis description
+- `status` (string, not nullable): Thesis status
+- `billingStatus` (string, not nullable): Billing status
+- `ownerId` (Guid, not nullable): Owner user identifier
+- `tutorId` (Guid, nullable): Tutor user identifier
+- `secondSupervisorId` (Guid, nullable): Second supervisor identifier
+- `subjectAreaId` (Guid, nullable): Subject area identifier
+- `documentFileName` (string, nullable): Document filename
+- `documentId` (Guid, nullable): Document identifier
 
 ### BillingStatusResponse
-- `id` (Guid): Billing status identifier
-- `name` (string): Billing status name
+- `id` (Guid, not nullable): Billing status identifier
+- `name` (string, not nullable): Billing status name
 
 ### PaginatedResponse<T>
 - `items` (T[]): Array of items
