@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.constants.AuthConstants;
 import com.example.betreuer_app.constants.ThemeConstants;
 import com.example.betreuer_app.model.LoggedInUser;
@@ -213,6 +214,7 @@ public class LoginActivity extends AppCompatActivity {
         String token = authPreferences.getString(AuthConstants.KEY_JWT_TOKEN, null);
         String savedName = authPreferences.getString(AuthConstants.KEY_USER_NAME, null);
         String savedRole = authPreferences.getString(AuthConstants.KEY_USER_ROLE, null);
+
         if (token != null && savedName != null && savedRole != null) {
             progressBar.setVisibility(View.VISIBLE);
             loginButton.setVisibility(View.GONE);

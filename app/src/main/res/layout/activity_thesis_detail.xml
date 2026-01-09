@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Thesis Details" />
+            app:title="@string/thesis_details_title" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -53,6 +53,14 @@
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         tools:text="Analyse und Implementierung einer Android App zur Betreuung von Abschlussarbeiten" />
 
+                    <TextView
+                        android:id="@+id/textViewDescription"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        tools:text="Eine ausführliche Beschreibung der Arbeit."/>
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -64,6 +72,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_school"
+                            android:contentDescription="@string/subject_area_icon_description"
                             app:tint="?attr/colorOnSurfaceVariant" />
 
                         <TextView
@@ -95,7 +104,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Personen"
+                        android:text="@string/people"
                         android:textAppearance="?attr/textAppearanceSubtitle1" />
 
                     <include layout="@layout/detail_item_person" android:id="@+id/item_owner"/>
@@ -122,7 +131,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Status &amp; Verwaltung"
+                        android:text="@string/status_management"
                         android:textAppearance="?attr/textAppearanceSubtitle1" />
 
                     <LinearLayout
@@ -135,7 +144,7 @@
                         <TextView
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
-                            android:text="Thesis-Status"
+                            android:text="@string/thesis_status"
                             android:textAppearance="?attr/textAppearanceBody2"/>
 
                         <TextView
@@ -162,7 +171,7 @@
                         <TextView
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
-                            android:text="Rechnungsstatus"
+                            android:text="@string/billing_status"
                             android:textAppearance="?attr/textAppearanceBody2"/>
 
                         <Spinner
@@ -179,10 +188,18 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="Exposé herunterladen"
+                        android:text="@string/download_expose"
                         android:visibility="gone"
                         app:icon="@drawable/ic_download"
                         tools:visibility="visible"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_edit_thesis"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/edit"
+                        app:icon="@drawable/ic_edit" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

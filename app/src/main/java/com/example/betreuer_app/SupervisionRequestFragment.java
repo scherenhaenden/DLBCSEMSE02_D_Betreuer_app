@@ -4,13 +4,32 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.betreuer_app.api.ApiClient;
+import com.example.betreuer_app.api.ThesisApiService;
+import com.example.betreuer_app.model.ThesesResponse;
+import com.example.betreuer_app.model.ThesisApiModel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class SupervisionRequestFragment extends Fragment {
+
+    private AutoCompleteTextView thesisTitleInput;
+    private ThesisApiService thesisApiService;
+    private List<ThesisApiModel> thesesList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -79,5 +98,40 @@ public class SupervisionRequestFragment extends Fragment {
             background.setColor(avatarColors[colorIndex]);
             initials.setBackground(background);
         }
+
+        // Setup AutoCompleteTextView for thesis titles
+        thesisTitleInput = view.findViewById(R.id.thesis_title_input);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
+        thesisTitleInput.setAdapter(adapter);
+
+        // Initialize API service
+        thesisApiService = ApiClient.getThesisApiService(getContext());
+
+        // Fetch theses for the logged-in student
+        fetchTheses();
+    }
+
+    private void fetchTheses() {
+        thesisApiService.getTheses(1, 100).enqueue(new Callback<ThesesResponse>() {
+            @Override
+            public void onResponse(Call<ThesesResponse> call, Response<ThesesResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    thesesList = response.body().getItems();
+                    List<String> thesisTitles = new ArrayList<>();
+                    for (ThesisApiModel thesis : thesesList) {
+                        thesisTitles.add(thesis.getTitle());
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, thesisTitles);
+                    thesisTitleInput.setAdapter(adapter);
+                } else {
+                    Toast.makeText(getContext(), "Fehler beim Laden der Daten", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ThesesResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

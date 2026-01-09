@@ -2,6 +2,7 @@ package com.example.betreuer_app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.betreuer_app.constants.AuthConstants;
 import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.SubjectAreaResponsePaginatedResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
@@ -54,6 +56,9 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
 
     /** Input field for entering the thesis title. */
     private TextInputEditText etTitle;
+
+    /** Input field for entering the thesis description. */
+    private TextInputEditText etDescription;
 
     /** AutoCompleteTextView for searching and selecting the subject area (topic). */
     private AutoCompleteTextView dropdownSubjectArea;
@@ -93,6 +98,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
         setContentView(R.layout.student_activity_create_thesis);
 
         etTitle = findViewById(R.id.et_thesis_title);
+        etDescription = findViewById(R.id.et_thesis_description);
         dropdownSubjectArea = findViewById(R.id.subject_area_dropdown);
         btnCreate = findViewById(R.id.btn_create_thesis);
         btnSelectFile = findViewById(R.id.btn_select_file);
@@ -130,6 +136,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
 
         btnCreate.setOnClickListener(v -> {
             String title = String.valueOf(etTitle.getText()).trim();
+            String description = String.valueOf(etDescription.getText()).trim();
             String selectedSubjectAreaName = dropdownSubjectArea.getText().toString();
 
             if (title.isEmpty()) {
@@ -137,10 +144,10 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
                 return;
             }
 
-            String topicId = null;
+            String subjectAreaId = null;
             // Validate and resolve topic ID from the map
             if (!selectedSubjectAreaName.isEmpty() && subjectAreaMap.containsKey(selectedSubjectAreaName)) {
-                topicId = subjectAreaMap.get(selectedSubjectAreaName);
+                subjectAreaId = subjectAreaMap.get(selectedSubjectAreaName);
             } else if (!selectedSubjectAreaName.isEmpty()) {
                 dropdownSubjectArea.setError("Bitte wählen Sie ein gültiges Fachgebiet aus der Suche");
                 return;
@@ -150,9 +157,9 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
             
             // Choose the appropriate API method based on whether a file was selected
             if (selectedFileUri != null) {
-                createThesisWithFile(title, topicId, selectedFileUri);
+                createThesisWithFile(title, description, subjectAreaId, selectedFileUri);
             } else {
-                createThesis(title, topicId);
+                createThesis(title, description, subjectAreaId);
             }
         });
         
@@ -307,10 +314,11 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
      * Initiates the thesis creation process (without file) by calling the API.
      *
      * @param title The title of the thesis.
-     * @param topicId The optional subject area ID.
+     * @param description The optional description of the thesis.
+     * @param subjectAreaId The optional subject area ID.
      */
-    private void createThesis(String title, String topicId) {
-        thesisRepository.createThesis(title, topicId, new Callback<ThesisApiModel>() {
+    private void createThesis(String title, String description, String subjectAreaId) {
+        thesisRepository.createThesis(title, description, subjectAreaId, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 handleResponse(response);
@@ -326,11 +334,12 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
      * Initiates the thesis creation process WITH a file upload by calling the API.
      *
      * @param title The title of the thesis.
-     * @param topicId The optional subject area ID.
+     * @param description The optional description of the thesis.
+     * @param subjectAreaId The optional subject area ID.
      * @param fileUri The URI of the selected file to upload.
      */
-    private void createThesisWithFile(String title, String topicId, Uri fileUri) {
-        thesisRepository.createThesisWithFile(title, topicId, fileUri, new Callback<ThesisApiModel>() {
+    private void createThesisWithFile(String title, String description, String subjectAreaId, Uri fileUri) {
+        thesisRepository.createThesisWithFile(title, description, subjectAreaId, fileUri, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 handleResponse(response);

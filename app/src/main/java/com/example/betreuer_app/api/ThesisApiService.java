@@ -1,9 +1,9 @@
 package com.example.betreuer_app.api;
 
 import com.example.betreuer_app.model.BillingStatusResponse;
-import com.example.betreuer_app.model.CreateThesisRequest;
 import com.example.betreuer_app.model.ThesesResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
+import com.example.betreuer_app.model.ThesisDocumentResponse;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -13,6 +13,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -25,15 +26,23 @@ import java.util.List;
  */
 public interface ThesisApiService {
 
-    @POST("theses")
-    Call<ThesisApiModel> createThesis(@Body CreateThesisRequest request);
-
     @Multipart
     @POST("theses")
-    Call<ThesisApiModel> createThesisWithFile(
+    Call<ThesisApiModel> createThesis(
         @Part("Title") RequestBody title,
+        @Part("Description") RequestBody description,
         @Part("SubjectAreaId") RequestBody subjectAreaId,
         @Part MultipartBody.Part document
+    );
+
+    @Multipart
+    @PUT("theses/{id}")
+    Call<ThesisApiModel> updateThesis(
+            @Path("id") String id,
+            @Part("Title") RequestBody title,
+            @Part("Description") RequestBody description,
+            @Part("SubjectAreaId") RequestBody subjectAreaId,
+            @Part MultipartBody.Part document
     );
 
     @GET("theses")
@@ -45,6 +54,10 @@ public interface ThesisApiService {
     @Streaming
     @GET("theses/{id}/document")
     Call<ResponseBody> downloadThesisDocument(@Path("id") String id);
+
+    @Multipart
+    @PUT("theses/{thesisId}/document")
+    Call<ThesisDocumentResponse> updateThesisDocument(@Path("thesisId") String thesisId, @Part MultipartBody.Part document);
 
     /**
      * Ruft alle möglichen Abrechnungsstatus ab.
