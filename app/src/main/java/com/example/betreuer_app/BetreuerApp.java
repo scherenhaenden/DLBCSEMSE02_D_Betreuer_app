@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatDelegate;
 public class BetreuerApp extends Application {
 
     @Override
+    /**
+     * Initializes the activity and sets the theme based on user preferences.
+     */
     public void onCreate() {
         super.onCreate();
 

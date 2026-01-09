@@ -35,6 +35,9 @@ jobs:
       - name: Copy seed.json
         run: cp help-api/ApiProject/seed.json ./publish/
 
+      - name: Copy ThesisManagement files
+        run: cp help-api/ApiProject/ThesisManagement.* ./publish/
+
       - name: Zip Release
         run: |
           cd publish

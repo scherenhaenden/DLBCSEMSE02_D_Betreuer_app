@@ -10,7 +10,7 @@ package "Entities" {
         + string Email
         + string PasswordHash
         + ICollection<UserRoleDataAccessModel> UserRoles
-        + ICollection<UserTopicDataAccessModel> UserTopics
+        + ICollection<UserToSubjectAreas> UserToSubjectAreas
     }
 
     class RoleDataAccessModel {
@@ -32,20 +32,20 @@ package "Entities" {
         + Guid OwnerId
         + Guid TutorId
         + Guid? SecondSupervisorId
-        + Guid? TopicId
+        + Guid? SubjectAreaId
     }
 
-    class TopicDataAccessModel {
+    class SubjectAreaDataAccessModel {
         + Guid Id
         + string Title
         + string Description
         + bool IsActive
-        + ICollection<UserTopicDataAccessModel> UserTopics
+        + ICollection<UserToSubjectAreas> UserToSubjectAreas
     }
 
-    class UserTopicDataAccessModel {
+    class UserToSubjectAreas {
         + Guid UserId
-        + Guid TopicId
+        + Guid UserToSubjectAreaId
     }
 
     class BaseEntity {
@@ -57,16 +57,16 @@ package "Entities" {
     UserDataAccessModel --|> BaseEntity
     RoleDataAccessModel --|> BaseEntity
     ThesisDataAccessModel --|> BaseEntity
-    TopicDataAccessModel --|> BaseEntity
+    SubjectAreaDataAccessModel --|> BaseEntity
 
     UserRoleDataAccessModel --> UserDataAccessModel
     UserRoleDataAccessModel --> RoleDataAccessModel
-    UserTopicDataAccessModel --> UserDataAccessModel
-    UserTopicDataAccessModel --> TopicDataAccessModel
+    UserToSubjectAreas --> UserDataAccessModel
+    UserToSubjectAreas --> SubjectAreaDataAccessModel
     ThesisDataAccessModel --> UserDataAccessModel : "Owner"
     ThesisDataAccessModel --> UserDataAccessModel : "Tutor"
     ThesisDataAccessModel --> UserDataAccessModel : "SecondSupervisor"
-    ThesisDataAccessModel --> TopicDataAccessModel
+    ThesisDataAccessModel --> SubjectAreaDataAccessModel
 }
 
 package "DataAccess" {
@@ -75,8 +75,8 @@ package "DataAccess" {
         + DbSet<RoleDataAccessModel> Roles
         + DbSet<UserRoleDataAccessModel> UserRoles
         + DbSet<ThesisDataAccessModel> Theses
-        + DbSet<TopicDataAccessModel> Topics
-        + DbSet<UserTopicDataAccessModel> UserTopics
+        + DbSet<SubjectAreaDataAccessModel> SubjectAreas
+        + DbSet<UserToSubjectAreas> UserToSubjectAreas
     }
 }
 
@@ -88,7 +88,7 @@ package "Services" {
         + Task<UserBusinessLogicModel> CreateUserAsync(...)
         + Task<bool> VerifyPasswordAsync(string email, string password)
         + Task<bool> UserHasRoleAsync(Guid userId, string roleName)
-        + Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? topicId, string? topicName, int page, int pageSize)
+        + Task<PaginatedResponse<TutorProfileResponse>> GetTutorsAsync(Guid? subjectAreaId, string? subjectAreaName, int page, int pageSize)
         + Task<TutorProfileResponse> GetTutorByIdAsync(Guid id)
     }
 
@@ -100,22 +100,22 @@ package "Services" {
         + Task<bool> DeleteThesisAsync(Guid id)
     }
 
-    interface ITopicService {
+    interface ISubjectAreaService {
         + Task<PaginatedResult<...>> GetAllAsync(...)
-        + Task<TopicBusinessLogicModel> GetByIdAsync(Guid id)
-        + Task<List<TopicBusinessLogicModel>> SearchAsync(string query, ...)
-        + Task<TopicBusinessLogicModel> CreateTopicAsync(...)
-        + Task<TopicBusinessLogicModel> UpdateTopicAsync(...)
-        + Task<bool> DeleteTopicAsync(Guid id)
+        + Task<SubjectAreaBusinessLogicModel> GetByIdAsync(Guid id)
+        + Task<List<SubjectAreaBusinessLogicModel>> SearchAsync(string query, ...)
+        + Task<SubjectAreaBusinessLogicModel> CreateSubjectAreaAsync(...)
+        + Task<SubjectAreaBusinessLogicModel> UpdateSubjectAreaAsync(...)
+        + Task<bool> DeleteSubjectAreaAsync(Guid id)
     }
 
     class UserBusinessLogicService
     class ThesisService
-    class TopicService
+    class SubjectAreaService
 
     UserBusinessLogicService ..|> IUserBusinessLogicService
     ThesisService ..|> IThesisService
-    TopicService ..|> ITopicService
+    SubjectAreaService ..|> ISubjectAreaService
 }
 
 package "Controllers" {
@@ -127,15 +127,15 @@ package "Controllers" {
         + Task<IActionResult> Create(CreateUserRequest request)
     }
     class TutorController {
-        + Task<IActionResult> GetTutors(Guid? topicId, string? topicName, int page, int pageSize)
+        + Task<IActionResult> GetTutors(Guid? subjectAreaId, string? subjectAreaName, int page, int pageSize)
         + Task<IActionResult> GetTutorById(Guid id)
     }
-    class TopicController {
+    class SubjectAreaController {
         + Task<IActionResult> GetAll(...)
         + Task<IActionResult> Search(...)
         + Task<IActionResult> GetById(Guid id)
-        + Task<IActionResult> Create(CreateTopicRequest request)
-        + Task<IActionResult> Update(Guid id, UpdateTopicRequest request)
+        + Task<IActionResult> Create(CreateSubjectAreaRequest request)
+        + Task<IActionResult> Update(Guid id, UpdateSubjectAreaRequest request)
         + Task<IActionResult> Delete(Guid id)
     }
     class ThesisController {
@@ -154,9 +154,9 @@ package "Models" {
     class UserResponse
     class PaginatedResponse<T>
     class TutorProfileResponse
-    class TopicResponse
-    class CreateTopicRequest
-    class UpdateTopicRequest
+    class SubjectAreaResponse
+    class CreateSubjectAreaRequest
+    class UpdateSubjectAreaRequest
     class CreateThesisRequest
     class UpdateThesisRequest
 }
@@ -164,11 +164,11 @@ package "Models" {
 AuthController --> IUserBusinessLogicService
 UserController --> IUserBusinessLogicService
 TutorController --> IUserBusinessLogicService
-TopicController --> ITopicService
+SubjectAreaController --> ISubjectAreaService
 ThesisController --> IThesisService
 
 UserBusinessLogicService --> ThesisDbContext
 ThesisService --> ThesisDbContext
-TopicService --> ThesisDbContext
+SubjectAreaService --> ThesisDbContext
 
 @enduml

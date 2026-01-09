@@ -26,6 +26,8 @@
 
     <ItemGroup>
       <Folder Include="N2N\" />
+      <Folder Include="NUnit\Controllers\" />
+      <Folder Include="NUnit\Services\" />
       <Folder Include="Tools\" />
     </ItemGroup>
 

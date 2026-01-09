@@ -11,14 +11,17 @@ public class ThesisDbContext : DbContext
     public DbSet<RoleDataAccessModel> Roles { get; set; }
     public DbSet<UserRoleDataAccessModel> UserRoles { get; set; }
     public DbSet<ThesisDataAccessModel> Theses { get; set; }
-    public DbSet<TopicDataAccessModel> Topics { get; set; }
-    public DbSet<UserTopicDataAccessModel> UserTopics { get; set; }
+    public DbSet<SubjectAreaDataAccessModel> SubjectAreas { get; set; }
+    public DbSet<UserToSubjectAreas> UserToSubjectAreas { get; set; }
     public DbSet<ThesisStatusDataAccessModel> ThesisStatuses { get; set; }
     public DbSet<BillingStatusDataAccessModel> BillingStatuses { get; set; }
     public DbSet<ThesisDocumentDataAccessModel> ThesisDocuments { get; set; }
     public DbSet<ThesisRequestDataAccessModel> ThesisRequests { get; set; }
     public DbSet<RequestTypeDataAccessModel> RequestTypes { get; set; }
     public DbSet<RequestStatusDataAccessModel> RequestStatuses { get; set; }
+    public DbSet<ThesisOfferDataAccessModel> ThesisOffers { get; set; }
+    public DbSet<ThesisOfferStatusDataAccessModel> ThesisOfferStatuses { get; set; }
+    public DbSet<ThesisOfferApplicationDataAccessModel> ThesisOfferApplications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,7 +29,7 @@ public class ThesisDbContext : DbContext
 
         // --- Composite Keys ---
         modelBuilder.Entity<UserRoleDataAccessModel>().HasKey(ur => new { ur.UserId, ur.RoleId });
-        modelBuilder.Entity<UserTopicDataAccessModel>().HasKey(ut => new { ut.UserId, ut.TopicId });
+        modelBuilder.Entity<UserToSubjectAreas>().HasKey(ut => new { ut.UserId, ut.SubjectAreaId });
 
         // --- Relationships ---
         modelBuilder.Entity<UserRoleDataAccessModel>()
@@ -39,15 +42,15 @@ public class ThesisDbContext : DbContext
             .WithMany(r => r.UserRoles)
             .HasForeignKey(ur => ur.RoleId);
 
-        modelBuilder.Entity<UserTopicDataAccessModel>()
+        modelBuilder.Entity<UserToSubjectAreas>()
             .HasOne(ut => ut.User)
-            .WithMany(u => u.UserTopics)
+            .WithMany(u => u.UserToSubjectAreas)
             .HasForeignKey(ut => ut.UserId);
 
-        modelBuilder.Entity<UserTopicDataAccessModel>()
-            .HasOne(ut => ut.Topic)
-            .WithMany(t => t.UserTopics)
-            .HasForeignKey(ut => ut.TopicId);
+        modelBuilder.Entity<UserToSubjectAreas>()
+            .HasOne(ut => ut.SubjectArea)
+            .WithMany(t => t.UserToSubjectAreas)
+            .HasForeignKey(ut => ut.SubjectAreaId);
 
         modelBuilder.Entity<ThesisDataAccessModel>()
             .HasOne(t => t.Owner)
@@ -84,8 +87,32 @@ public class ThesisDbContext : DbContext
             .HasForeignKey(tr => tr.ThesisId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<ThesisOfferDataAccessModel>()
+            .HasOne(to => to.SubjectArea)
+            .WithMany()
+            .HasForeignKey(to => to.SubjectAreaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ThesisOfferDataAccessModel>()
+            .HasOne(to => to.Tutor)
+            .WithMany()
+            .HasForeignKey(to => to.TutorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ThesisOfferDataAccessModel>()
+            .HasOne(to => to.ThesisOfferStatus)
+            .WithMany(tos => tos.ThesisOffers)
+            .HasForeignKey(to => to.ThesisOfferStatusId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ThesisOfferDataAccessModel>()
+            .HasMany(to => to.Applications)
+            .WithOne(toa => toa.ThesisOffer)
+            .HasForeignKey(toa => toa.ThesisOfferId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // --- Seed Data ---
-        modelBuilder.Entity<RoleDataAccessModel>().HasData(
+        /*modelBuilder.Entity<RoleDataAccessModel>().HasData(
             new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "STUDENT", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
             new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "TUTOR", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
             new RoleDataAccessModel { Id = Guid.NewGuid(), Name = "ADMIN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
@@ -114,5 +141,11 @@ public class ThesisDbContext : DbContext
             new RequestStatusDataAccessModel { Id = Guid.NewGuid(), Name = "ACCEPTED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
             new RequestStatusDataAccessModel { Id = Guid.NewGuid(), Name = "REJECTED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
         );
+
+        modelBuilder.Entity<ThesisOfferStatusDataAccessModel>().HasData(
+            new ThesisOfferStatusDataAccessModel { Id = new Guid("11111111-1111-1111-1111-111111111111"), Name = "OPEN", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new ThesisOfferStatusDataAccessModel { Id = new Guid("22222222-2222-2222-2222-222222222222"), Name = "CLOSED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new ThesisOfferStatusDataAccessModel { Id = new Guid("33333333-3333-3333-3333-333333333333"), Name = "ARCHIVED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+        );*/
     }
 }

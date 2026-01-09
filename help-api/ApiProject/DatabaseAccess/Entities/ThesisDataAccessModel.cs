@@ -7,6 +7,8 @@ namespace ApiProject.DatabaseAccess.Entities
     {
         public required string Title { get; set; }
 
+        public string? Description { get; set; }
+
         public Guid StatusId { get; set; }
         public ThesisStatusDataAccessModel Status { get; set; }
 
@@ -22,8 +24,8 @@ namespace ApiProject.DatabaseAccess.Entities
         public Guid? SecondSupervisorId { get; set; }
         public UserDataAccessModel? SecondSupervisor { get; set; }
 
-        public Guid? TopicId { get; set; }
-        public TopicDataAccessModel? Topic { get; set; }
+        public Guid? SubjectAreaId { get; set; }
+        public SubjectAreaDataAccessModel? SubjectArea { get; set; }
         
         public ThesisDocumentDataAccessModel? Document { get; set; }
     }

@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".BetreuerApp"
@@ -40,6 +42,70 @@
         <activity
             android:name=".ThesisListActivity"
             android:exported="false" />
+
+        <!-- Student Create Thesis Activity (Renamed) -->
+        <activity
+            android:name=".StudentCreateThesisActivity"
+            android:exported="false" />
+
+        <!-- TutorList Activity -->
+        <activity
+            android:name=".TutorListActivity"
+            android:exported="false" />
+        
+        <!-- Tutor Profile Activity (New) -->
+        <activity
+            android:name=".TutorProfileActivity"
+            android:exported="false"
+            android:label="Tutor Profil"
+            android:parentActivityName=".TutorListActivity" />
+            
+        <!-- Supervision Request Activity -->
+        <activity
+            android:name=".SupervisionRequestActivity"
+            android:exported="false"
+            android:label="Betreuungsanfrage"
+            android:parentActivityName=".TutorProfileActivity" />
+
+        <!-- Create Thesis Offer Activity (Renamed from Topic) -->
+        <activity
+            android:name=".CreateThesisOfferActivity"
+            android:exported="false"
+            android:label="Thesis ausschreiben"
+            android:parentActivityName=".ThesisOfferDashboardActivity" />
+            
+        <!-- Thesis Offer Dashboard Activity -->
+        <activity
+            android:name=".ThesisOfferDashboardActivity"
+            android:exported="false"
+            android:label="Meine Ausschreibungen"
+            android:parentActivityName=".DashboardActivity" />
+
+        <!-- Thesis Request Activity (New) -->
+        <activity
+            android:name=".ThesisRequestActivity"
+            android:exported="false"
+            android:label="Betreuungsanfragen"
+            android:parentActivityName=".DashboardActivity" />
+            
+        <!-- Thesis Request Detail Activity (New) -->
+        <activity
+            android:name=".ThesisRequestDetailActivity"
+            android:exported="false"
+            android:label="Anfrage Details"
+            android:parentActivityName=".ThesisRequestActivity" />
+
+        <activity
+            android:name=".ThesisDetailActivity"
+            android:exported="false"
+            android:label="Abschlussarbeit Details"
+            android:parentActivityName=".ThesisListActivity" />
+
+        <activity
+            android:name=".EditThesisActivity"
+            android:exported="false"
+            android:label="Abschlussarbeit bearbeiten"
+            android:parentActivityName=".ThesisDetailActivity" />
 
     </application>
 

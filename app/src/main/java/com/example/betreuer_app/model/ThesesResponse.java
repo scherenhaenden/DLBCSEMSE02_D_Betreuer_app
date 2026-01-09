@@ -3,23 +3,23 @@ package com.example.betreuer_app.model;
 import java.util.List;
 
 public class ThesesResponse {
-    private List<ThesisApi> items;
+    private List<ThesisApiModel> items;
     private int totalCount;
     private int page;
     private int pageSize;
 
-    public ThesesResponse(List<ThesisApi> items, int totalCount, int page, int pageSize) {
+    public ThesesResponse(List<ThesisApiModel> items, int totalCount, int page, int pageSize) {
         this.items = items;
         this.totalCount = totalCount;
         this.page = page;
         this.pageSize = pageSize;
     }
 
-    public List<ThesisApi> getItems() {
+    public List<ThesisApiModel> getItems() {
         return items;
     }
 
-    public void setItems(List<ThesisApi> items) {
+    public void setItems(List<ThesisApiModel> items) {
         this.items = items;
     }
 

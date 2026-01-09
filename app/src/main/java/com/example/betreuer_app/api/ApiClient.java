@@ -28,4 +28,24 @@ public class ApiClient {
     public static UserApiService getUserApiService(Context context) {
         return getClient(context).create(UserApiService.class);
     }
+
+    public static ThesisApiService getThesisApiService(Context context) {
+        return getClient(context).create(ThesisApiService.class);
+    }
+
+    public static SubjectAreaApiService getSubjectAreaApiService(Context context) {
+        return getClient(context).create(SubjectAreaApiService.class);
+    }
+
+    public static TutorApiService getTutorApiService(Context context) {
+        return getClient(context).create(TutorApiService.class);
+    }
+
+    public static ThesisOfferApiService getThesisOfferApiService(Context context) {
+        return getClient(context).create(ThesisOfferApiService.class);
+    }
+
+    public static ThesisRequestApiService getThesisRequestApiService(Context context) {
+        return getClient(context).create(ThesisRequestApiService.class);
+    }
 }

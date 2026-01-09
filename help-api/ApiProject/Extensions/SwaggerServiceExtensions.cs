@@ -12,7 +12,7 @@ namespace ApiProject.Extensions
                 {
                     Title = "Thesis Management API",
                     Version = "v1",
-                    Description = "API for managing theses, users, roles, and topics."
+                    Description = "API for managing theses, users, roles, and subject areas."
                 });
 
                 // Add JWT Authentication

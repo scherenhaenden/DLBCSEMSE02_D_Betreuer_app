@@ -16,13 +16,17 @@ public static class ThesisBusinessLogicMapper
         {
             Id = dataAccessModel.Id,
             Title = dataAccessModel.Title,
+
+            Description = dataAccessModel.Description,
+
             Status = dataAccessModel.Status?.Name,
             BillingStatus = dataAccessModel.BillingStatus != null ? BillingStatusBusinessLogicMapper.ToBusinessModel(dataAccessModel.BillingStatus) : null,
             OwnerId = dataAccessModel.OwnerId,
             TutorId = dataAccessModel.TutorId,
             SecondSupervisorId = dataAccessModel.SecondSupervisorId,
-            TopicId = dataAccessModel.TopicId,
-            DocumentFileName = dataAccessModel.Document?.FileName
+            SubjectAreaId = dataAccessModel.SubjectAreaId,
+            DocumentFileName = dataAccessModel.Document?.FileName,
+            DocumentId = dataAccessModel.Document?.Id
         };
     }
 }
