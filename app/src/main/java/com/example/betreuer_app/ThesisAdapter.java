@@ -1,5 +1,6 @@
 package com.example.betreuer_app;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import java.util.List;
 public class ThesisAdapter extends RecyclerView.Adapter<ThesisAdapter.ThesisViewHolder> {
 
     private List<ThesisApiModel> thesisList;
+    private static final String TAG = "ThesisAdapter";
 
     public ThesisAdapter(List<ThesisApiModel> thesisList) {
         this.thesisList = thesisList;
@@ -35,16 +37,25 @@ public class ThesisAdapter extends RecyclerView.Adapter<ThesisAdapter.ThesisView
      * Binds the data of a Thesis object to the views in the ThesisViewHolder.
      */
     public void onBindViewHolder(@NonNull ThesisViewHolder holder, int position) {
-        ThesisApiModel thesis = thesisList.get(position);
-        holder.textViewTitel.setText(thesis.getTitle());
-        holder.textViewFachgebiet.setText("Fachgebiet: " + thesis.getSubjectAreaId());
-        holder.textViewStatus.setText("Status: " + thesis.getStatus());
-        holder.textViewRechnungsstatus.setText("Rechnung: " + thesis.getBillingStatus());
+        try {
+            ThesisApiModel thesis = thesisList.get(position);
+            holder.textViewTitel.setText(thesis.getTitle());
+            holder.textViewFachgebiet.setText("Fachgebiet: " + thesis.getSubjectAreaId());
+            holder.textViewStatus.setText("Status: " + thesis.getStatus());
+            holder.textViewRechnungsstatus.setText("Rechnung: " + thesis.getBillingStatus());
+        } catch (Exception e) {
+            Log.e(TAG, "Error binding view for position " + position, e);
+            // Setzt die Views auf einen Fehlerzustand, um den Benutzer zu informieren
+            holder.textViewTitel.setText("Fehler beim Laden der Daten");
+            holder.textViewFachgebiet.setText("");
+            holder.textViewStatus.setText("");
+            holder.textViewRechnungsstatus.setText("");
+        }
     }
 
     @Override
     public int getItemCount() {
-        return thesisList.size();
+        return thesisList != null ? thesisList.size() : 0;
     }
 
     public static class ThesisViewHolder extends RecyclerView.ViewHolder {
