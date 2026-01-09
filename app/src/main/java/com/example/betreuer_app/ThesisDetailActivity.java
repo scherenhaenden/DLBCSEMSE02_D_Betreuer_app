@@ -311,52 +311,42 @@ public class ThesisDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void loadUser(String userId, TextView targetView) {
-        try {
-            UUID uuid = UUID.fromString(userId);
-            userApiService.getUser(uuid).enqueue(new Callback<UserResponse>() {
-                @Override
-                public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        UserResponse user = response.body();
-                        String name = (user.getFirstName() != null ? user.getFirstName() : "") + " " +
-                                (user.getLastName() != null ? user.getLastName() : "");
-                        targetView.setText(name.trim());
-                    } else {
-                        targetView.setText("Error loading user");
-                    }
+    private void loadUser(UUID userId, TextView targetView) {
+        userApiService.getUser(userId).enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserResponse user = response.body();
+                    String name = (user.getFirstName() != null ? user.getFirstName() : "") + " " +
+                            (user.getLastName() != null ? user.getLastName() : "");
+                    targetView.setText(name.trim());
+                } else {
+                    targetView.setText("Error loading user");
                 }
+            }
 
-                @Override
-                public void onFailure(Call<UserResponse> call, Throwable t) {
-                    targetView.setText("Error");
-                }
-            });
-        } catch (IllegalArgumentException e) {
-            targetView.setText("Invalid ID");
-        }
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                targetView.setText("Error");
+            }
+        });
     }
 
-    private void loadSubjectArea(String subjectAreaId) {
-        try {
-            UUID uuid = UUID.fromString(subjectAreaId);
-            subjectAreaApiService.getSubjectArea(uuid).enqueue(new Callback<SubjectAreaResponse>() {
-                @Override
-                public void onResponse(Call<SubjectAreaResponse> call, Response<SubjectAreaResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        textViewSubjectArea.setText(response.body().getTitle());
-                    } else {
-                        textViewSubjectArea.setText("N/A");
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<SubjectAreaResponse> call, Throwable t) {
+    private void loadSubjectArea(UUID subjectAreaId) {
+        subjectAreaApiService.getSubjectArea(subjectAreaId).enqueue(new Callback<SubjectAreaResponse>() {
+            @Override
+            public void onResponse(Call<SubjectAreaResponse> call, Response<SubjectAreaResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    textViewSubjectArea.setText(response.body().getTitle());
+                } else {
                     textViewSubjectArea.setText("N/A");
                 }
-            });
-        } catch (IllegalArgumentException e) {
-            textViewSubjectArea.setText("N/A");
-        }
+            }
+
+            @Override
+            public void onFailure(Call<SubjectAreaResponse> call, Throwable t) {
+                textViewSubjectArea.setText("N/A");
+            }
+        });
     }
 }
