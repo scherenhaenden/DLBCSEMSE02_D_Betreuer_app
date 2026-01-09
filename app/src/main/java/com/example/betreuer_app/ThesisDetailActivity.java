@@ -1,6 +1,7 @@
 package com.example.betreuer_app;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,9 +18,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.betreuer_app.api.ApiClient;
+import com.example.betreuer_app.api.SubjectAreaApiService;
 import com.example.betreuer_app.api.ThesisApiService;
 import com.example.betreuer_app.api.UserApiService;
 import com.example.betreuer_app.model.BillingStatusResponse;
+import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.UserResponse;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -36,9 +39,11 @@ import retrofit2.Response;
 public class ThesisDetailActivity extends AppCompatActivity {
 
     private TextView textViewTitle;
+    private TextView textViewDescription;
     private TextView textViewStatus;
     private TextView textViewSubjectArea;
     private MaterialButton btnDownloadDocument;
+    private MaterialButton btnEditThesis;
     private Spinner spinnerBillingStatus;
 
     // Views for the person details
@@ -48,6 +53,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
     private ThesisApiService thesisApiService;
     private UserApiService userApiService;
+    private SubjectAreaApiService subjectAreaApiService;
 
     private FileDownloader fileDownloader;
 
@@ -79,9 +85,11 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
         // Initialize views from the main layout
         textViewTitle = findViewById(R.id.textViewTitle);
+        textViewDescription = findViewById(R.id.textViewDescription);
         textViewStatus = findViewById(R.id.textViewStatus);
         textViewSubjectArea = findViewById(R.id.textViewSubjectArea);
         btnDownloadDocument = findViewById(R.id.btn_download_document);
+        btnEditThesis = findViewById(R.id.btn_edit_thesis);
         spinnerBillingStatus = findViewById(R.id.spinner_billingstatus);
 
         // Initialize views from the included person layouts
@@ -99,6 +107,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
         thesisApiService = ApiClient.getThesisApiService(this);
         userApiService = ApiClient.getUserApiService(this);
+        subjectAreaApiService = ApiClient.getSubjectAreaApiService(this);
 
         if (getIntent().hasExtra("THESIS_ID")) {
             thesisId = getIntent().getStringExtra("THESIS_ID");
@@ -107,6 +116,12 @@ public class ThesisDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Thesis ID not provided", Toast.LENGTH_SHORT).show();
             finish();
         }
+
+        btnEditThesis.setOnClickListener(v -> {
+            Intent intent = new Intent(ThesisDetailActivity.this, EditThesisActivity.class);
+            intent.putExtra("THESIS_ID", thesisId);
+            startActivity(intent);
+        });
     }
 
     private void loadBillingStatuses() {
@@ -206,6 +221,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
     private void displayThesisDetails(ThesisApiModel thesis) {
         textViewTitle.setText(thesis.getTitle());
+        textViewDescription.setText(thesis.getDescription());
         textViewStatus.setText(thesis.getStatus());
 
         ArrayAdapter<BillingStatusResponse> adapter = (ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter();
@@ -270,8 +286,8 @@ public class ThesisDetailActivity extends AppCompatActivity {
     }
 
     private void loadAdditionalInfo(ThesisApiModel thesis) {
-        if (thesis.getTopicId() != null) {
-            textViewSubjectArea.setText("N/A");
+        if (thesis.getSubjectAreaId() != null) {
+            loadSubjectArea(thesis.getSubjectAreaId());
         } else {
             textViewSubjectArea.setText("N/A");
         }
@@ -318,6 +334,29 @@ public class ThesisDetailActivity extends AppCompatActivity {
             });
         } catch (IllegalArgumentException e) {
             targetView.setText("Invalid ID");
+        }
+    }
+
+    private void loadSubjectArea(String subjectAreaId) {
+        try {
+            UUID uuid = UUID.fromString(subjectAreaId);
+            subjectAreaApiService.getSubjectArea(uuid).enqueue(new Callback<SubjectAreaResponse>() {
+                @Override
+                public void onResponse(Call<SubjectAreaResponse> call, Response<SubjectAreaResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        textViewSubjectArea.setText(response.body().getTitle());
+                    } else {
+                        textViewSubjectArea.setText("N/A");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<SubjectAreaResponse> call, Throwable t) {
+                    textViewSubjectArea.setText("N/A");
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            textViewSubjectArea.setText("N/A");
         }
     }
 }
