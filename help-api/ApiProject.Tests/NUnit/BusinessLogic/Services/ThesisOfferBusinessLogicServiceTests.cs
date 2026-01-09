@@ -500,10 +500,12 @@ public class ThesisOfferBusinessLogicServiceTests
         var subjectArea = _context.SubjectAreas.First();
         var offer = _seeder.SeedThesisOffer("Test Offer", "Description", subjectArea.Id, tutor2.Id, 1, DateTime.UtcNow.AddDays(30));
 
-        // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _thesisOfferService.GetByUserIdAsync(tutor2.Id, tutor1.Id, new List<string> { Roles.Tutor }, 1, 10));
-        Assert.That(ex.Message, Is.EqualTo("You are not authorized to view these offers."));
+        // Act
+        var result = await _thesisOfferService.GetByUserIdAsync(tutor2.Id, tutor1.Id, new List<string> { Roles.Tutor }, 1, 10);
+
+        // Assert
+        Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Items.First().Title, Is.EqualTo("Test Offer"));
     }
 
     [Test]

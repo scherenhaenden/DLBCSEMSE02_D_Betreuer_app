@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Betreuer-App</string>
+    <string name="thesis_details_title">Thesis Details</string>
+    <string name="people">Personen</string>
+    <string name="status_management">Status &amp; Verwaltung</string>
+    <string name="thesis_status">Thesis-Status</string>
+    <string name="billing_status">Rechnungsstatus</string>
+    <string name="download_expose">Exposé herunterladen</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="subject_area_icon_description">Fachbereich Icon</string>
 </resources>

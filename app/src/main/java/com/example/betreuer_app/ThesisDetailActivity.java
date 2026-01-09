@@ -1,10 +1,14 @@
 package com.example.betreuer_app;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,13 +18,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.betreuer_app.api.ApiClient;
+import com.example.betreuer_app.api.SubjectAreaApiService;
 import com.example.betreuer_app.api.ThesisApiService;
 import com.example.betreuer_app.api.UserApiService;
+import com.example.betreuer_app.model.BillingStatusResponse;
+import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.UserResponse;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
+import java.util.List;
 import java.util.UUID;
 
 import okhttp3.ResponseBody;
@@ -31,20 +39,26 @@ import retrofit2.Response;
 public class ThesisDetailActivity extends AppCompatActivity {
 
     private TextView textViewTitle;
+    private TextView textViewDescription;
     private TextView textViewStatus;
-    private TextView textViewBillingStatus;
     private TextView textViewSubjectArea;
-    private TextView textViewOwner;
-    private TextView textViewTutor;
-    private TextView textViewSecondSupervisor;
     private MaterialButton btnDownloadDocument;
+    private MaterialButton btnEditThesis;
+    private Spinner spinnerBillingStatus;
+
+    // Views for the person details
+    private TextView ownerName;
+    private TextView tutorName;
+    private TextView secondSupervisorName;
 
     private ThesisApiService thesisApiService;
     private UserApiService userApiService;
+    private SubjectAreaApiService subjectAreaApiService;
 
     private FileDownloader fileDownloader;
 
     private String thesisId;
+    private ThesisApiModel currentThesis;
     private ThesisApiModel thesisToDownload;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
@@ -69,25 +83,120 @@ public class ThesisDetailActivity extends AppCompatActivity {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
 
+        // Initialize views from the main layout
         textViewTitle = findViewById(R.id.textViewTitle);
+        textViewDescription = findViewById(R.id.textViewDescription);
         textViewStatus = findViewById(R.id.textViewStatus);
-        textViewBillingStatus = findViewById(R.id.textViewBillingStatus);
         textViewSubjectArea = findViewById(R.id.textViewSubjectArea);
-        textViewOwner = findViewById(R.id.textViewOwner);
-        textViewTutor = findViewById(R.id.textViewTutor);
-        textViewSecondSupervisor = findViewById(R.id.textViewSecondSupervisor);
         btnDownloadDocument = findViewById(R.id.btn_download_document);
+        btnEditThesis = findViewById(R.id.btn_edit_thesis);
+        spinnerBillingStatus = findViewById(R.id.spinner_billingstatus);
+
+        // Initialize views from the included person layouts
+        View ownerItem = findViewById(R.id.item_owner);
+        ((TextView) ownerItem.findViewById(R.id.person_label)).setText("Student");
+        ownerName = ownerItem.findViewById(R.id.person_name);
+
+        View tutorItem = findViewById(R.id.item_tutor);
+        ((TextView) tutorItem.findViewById(R.id.person_label)).setText("Betreuer");
+        tutorName = tutorItem.findViewById(R.id.person_name);
+
+        View secondSupervisorItem = findViewById(R.id.item_second_supervisor);
+        ((TextView) secondSupervisorItem.findViewById(R.id.person_label)).setText("Zweitkorrektor");
+        secondSupervisorName = secondSupervisorItem.findViewById(R.id.person_name);
 
         thesisApiService = ApiClient.getThesisApiService(this);
         userApiService = ApiClient.getUserApiService(this);
+        subjectAreaApiService = ApiClient.getSubjectAreaApiService(this);
 
         if (getIntent().hasExtra("THESIS_ID")) {
             thesisId = getIntent().getStringExtra("THESIS_ID");
-            loadThesisDetails(thesisId);
+            loadBillingStatuses(); // This will load statuses, then thesis details
         } else {
             Toast.makeText(this, "Thesis ID not provided", Toast.LENGTH_SHORT).show();
             finish();
         }
+
+        btnEditThesis.setOnClickListener(v -> {
+            Intent intent = new Intent(ThesisDetailActivity.this, EditThesisActivity.class);
+            intent.putExtra("THESIS_ID", thesisId);
+            startActivity(intent);
+        });
+    }
+
+    private void loadBillingStatuses() {
+        thesisApiService.getBillingStatuses().enqueue(new Callback<List<BillingStatusResponse>>() {
+            @Override
+            public void onResponse(Call<List<BillingStatusResponse>> call, Response<List<BillingStatusResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    setupBillingStatusSpinner(response.body());
+                    loadThesisDetails(thesisId);
+                } else {
+                    Toast.makeText(ThesisDetailActivity.this, "Failed to load billing statuses", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<BillingStatusResponse>> call, Throwable t) {
+                Toast.makeText(ThesisDetailActivity.this, "Error loading billing statuses: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setupBillingStatusSpinner(List<BillingStatusResponse> statuses) {
+        ArrayAdapter<BillingStatusResponse> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, statuses);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerBillingStatus.setAdapter(adapter);
+
+        spinnerBillingStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                BillingStatusResponse selectedStatus = (BillingStatusResponse) parent.getItemAtPosition(position);
+                if (currentThesis != null && !selectedStatus.getName().equals(currentThesis.getBillingStatus())) {
+                    updateBillingStatus(selectedStatus);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void updateBillingStatus(BillingStatusResponse newStatus) {
+        if (currentThesis == null) return;
+
+        ThesisApiService.BillingStatusUpdateRequest request = new ThesisApiService.BillingStatusUpdateRequest(newStatus.getId());
+
+        thesisApiService.updateBillingStatus(currentThesis.getId().toString(), request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(ThesisDetailActivity.this, "Billing status updated successfully", Toast.LENGTH_SHORT).show();
+                    currentThesis.setBillingStatus(newStatus.getName());
+                } else {
+                    Toast.makeText(ThesisDetailActivity.this, "Failed to update billing status", Toast.LENGTH_SHORT).show();
+                    spinnerBillingStatus.setSelection(((ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter()).getPosition(getBillingStatusByName(currentThesis.getBillingStatus())));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(ThesisDetailActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                spinnerBillingStatus.setSelection(((ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter()).getPosition(getBillingStatusByName(currentThesis.getBillingStatus())));
+            }
+        });
+    }
+
+    private BillingStatusResponse getBillingStatusByName(String name) {
+        ArrayAdapter<BillingStatusResponse> adapter = (ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            BillingStatusResponse status = adapter.getItem(i);
+            if (status != null && status.getName().equals(name)) {
+                return status;
+            }
+        }
+        return null;
     }
 
     private void loadThesisDetails(String id) {
@@ -95,9 +204,9 @@ public class ThesisDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    ThesisApiModel thesis = response.body();
-                    displayThesisDetails(thesis);
-                    loadAdditionalInfo(thesis);
+                    currentThesis = response.body();
+                    displayThesisDetails(currentThesis);
+                    loadAdditionalInfo(currentThesis);
                 } else {
                     Toast.makeText(ThesisDetailActivity.this, "Failed to load thesis details", Toast.LENGTH_SHORT).show();
                 }
@@ -112,12 +221,23 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
     private void displayThesisDetails(ThesisApiModel thesis) {
         textViewTitle.setText(thesis.getTitle());
+        textViewDescription.setText(thesis.getDescription());
         textViewStatus.setText(thesis.getStatus());
-        textViewBillingStatus.setText(thesis.getBillingStatus());
+
+        ArrayAdapter<BillingStatusResponse> adapter = (ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter();
+        if (adapter != null) {
+            for (int i = 0; i < adapter.getCount(); i++) {
+                BillingStatusResponse status = adapter.getItem(i);
+                if (status != null && status.getName().equals(thesis.getBillingStatus())) {
+                    spinnerBillingStatus.setSelection(i);
+                    break;
+                }
+            }
+        }
 
         if (thesis.getDocumentFileName() != null && !thesis.getDocumentFileName().isEmpty()) {
             btnDownloadDocument.setVisibility(View.VISIBLE);
-            btnDownloadDocument.setText("Thesis herunterladen (" + thesis.getDocumentFileName() + ")");
+            btnDownloadDocument.setText("Exposé herunterladen (" + thesis.getDocumentFileName() + ")");
             btnDownloadDocument.setOnClickListener(v -> {
                 this.thesisToDownload = thesis;
                 requestDownloadPermission();
@@ -166,58 +286,67 @@ public class ThesisDetailActivity extends AppCompatActivity {
     }
 
     private void loadAdditionalInfo(ThesisApiModel thesis) {
-        // Load Subject Area
-        if (thesis.getTopicId() != null) {
-            textViewSubjectArea.setText("N/A"); // Placeholder until we can fetch topic -> subject area
+        if (thesis.getSubjectAreaId() != null) {
+            loadSubjectArea(thesis.getSubjectAreaId());
         } else {
             textViewSubjectArea.setText("N/A");
         }
 
-        // Load Owner (Student)
         if (thesis.getOwnerId() != null) {
-            loadUser(thesis.getOwnerId(), textViewOwner);
+            loadUser(thesis.getOwnerId(), ownerName);
         } else {
-            textViewOwner.setText("Unknown");
+            ownerName.setText("Unknown");
         }
 
-        // Load Tutor
         if (thesis.getTutorId() != null) {
-            loadUser(thesis.getTutorId(), textViewTutor);
+            loadUser(thesis.getTutorId(), tutorName);
         } else {
-            textViewTutor.setText("None");
+            tutorName.setText("None");
         }
 
-        // Load Second Supervisor
         if (thesis.getSecondSupervisorId() != null) {
-            loadUser(thesis.getSecondSupervisorId(), textViewSecondSupervisor);
+            loadUser(thesis.getSecondSupervisorId(), secondSupervisorName);
         } else {
-            textViewSecondSupervisor.setText("None");
+            secondSupervisorName.setText("None");
         }
     }
 
-    private void loadUser(String userId, TextView targetView) {
-        try {
-            UUID uuid = UUID.fromString(userId);
-            userApiService.getUser(uuid).enqueue(new Callback<UserResponse>() {
-                @Override
-                public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        UserResponse user = response.body();
-                        String name = (user.getFirstName() != null ? user.getFirstName() : "") + " " +
-                                (user.getLastName() != null ? user.getLastName() : "");
-                        targetView.setText(name.trim());
-                    } else {
-                        targetView.setText("Error loading user");
-                    }
+    private void loadUser(UUID userId, TextView targetView) {
+        userApiService.getUser(userId).enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserResponse user = response.body();
+                    String name = (user.getFirstName() != null ? user.getFirstName() : "") + " " +
+                            (user.getLastName() != null ? user.getLastName() : "");
+                    targetView.setText(name.trim());
+                } else {
+                    targetView.setText("Error loading user");
                 }
+            }
 
-                @Override
-                public void onFailure(Call<UserResponse> call, Throwable t) {
-                    targetView.setText("Error");
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                targetView.setText("Error");
+            }
+        });
+    }
+
+    private void loadSubjectArea(UUID subjectAreaId) {
+        subjectAreaApiService.getSubjectArea(subjectAreaId).enqueue(new Callback<SubjectAreaResponse>() {
+            @Override
+            public void onResponse(Call<SubjectAreaResponse> call, Response<SubjectAreaResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    textViewSubjectArea.setText(response.body().getTitle());
+                } else {
+                    textViewSubjectArea.setText("N/A");
                 }
-            });
-        } catch (IllegalArgumentException e) {
-            targetView.setText("Invalid ID");
-        }
+            }
+
+            @Override
+            public void onFailure(Call<SubjectAreaResponse> call, Throwable t) {
+                textViewSubjectArea.setText("N/A");
+            }
+        });
     }
 }

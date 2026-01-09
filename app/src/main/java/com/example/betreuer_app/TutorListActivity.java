@@ -26,9 +26,9 @@ import retrofit2.Response;
 
 /**
  * TutorListActivity displays a list of tutors with search and filtering capabilities.
- * Users can search for tutors by name and filter by topic using chips.
+ * Users can search for tutors by name and filter by subject area using chips.
  * The activity implements debounced search to avoid excessive API calls during typing.
- * It loads topics dynamically to populate filter chips and fetches tutors based on search criteria.
+ * It loads subject areas dynamically to populate filter chips and fetches tutors based on search criteria.
  */
 public class TutorListActivity extends AppCompatActivity {
 
@@ -47,11 +47,14 @@ public class TutorListActivity extends AppCompatActivity {
     /** EditText for user input to search tutors by name. */
     private EditText searchInput;
 
-    /** ChipGroup for displaying topic filter chips. */
-    private ChipGroup topicChipGroup;
+    /** ChipGroup for displaying subject area filter chips. */
+    private ChipGroup subjectAreaChipGroup;
 
-    /** The currently selected topic ID for filtering tutors. Null if no topic is selected. */
-    private String selectedTopicId = null;
+    /** The currently selected subject area ID for filtering tutors. Null if no subject area is selected. */
+    private String selectedSubjectAreaId = null;
+
+    /** The pre-selected subject area ID from intent extras, if any. */
+    private String preSelectedSubjectAreaId = null;
 
     /** Delay in milliseconds for debouncing search requests. */
     private static final long SEARCH_DEBOUNCE_DELAY_MS = 300L;
@@ -80,12 +83,15 @@ public class TutorListActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.tutorsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         searchInput = findViewById(R.id.search_input);
-        topicChipGroup = findViewById(R.id.topic_chip_group);
+        subjectAreaChipGroup = findViewById(R.id.subject_area_chip_group);
 
         tutorRepository = new TutorRepository(getApplicationContext());
         subjectAreaRepository = new SubjectAreaRepository(getApplicationContext());
 
-        loadTopics();
+        // Get pre-selected subject area ID from intent extras, if available
+        preSelectedSubjectAreaId = getIntent().getStringExtra("SELECTED_SUBJECT_AREA_ID");
+
+        loadSubjectAreas();
         loadTutors(null);
 
         searchInput.addTextChangedListener(new TextWatcher() {
@@ -108,20 +114,20 @@ public class TutorListActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads the list of topics from the API and populates the ChipGroup with filter chips.
-     * Each chip represents a topic and allows users to filter tutors by that topic.
+     * Loads the list of subject areas from the API and populates the ChipGroup with filter chips.
+     * Each chip represents a subject area and allows users to filter tutors by that subject area.
      * If the API call fails, an error message is displayed to the user.
      */
-    private void loadTopics() {
+    private void loadSubjectAreas() {
         subjectAreaRepository.getSubjectAreas(1, 10, new Callback<SubjectAreaResponsePaginatedResponse>() {
             @Override
             public void onResponse(Call<SubjectAreaResponsePaginatedResponse> call, Response<SubjectAreaResponsePaginatedResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    topicChipGroup.removeAllViews();
+                    subjectAreaChipGroup.removeAllViews();
                     var items = response.body().getItems();
                     if (items != null) {
                         for (SubjectAreaResponse subjectArea : items) {
-                            addTopicChip(subjectArea);
+                            addSubjectAreaChip(subjectArea);
                         }
                     }
                 } else {
@@ -141,7 +147,7 @@ public class TutorListActivity extends AppCompatActivity {
      * The chip is checkable and triggers a tutor reload when its checked state changes.
      * @param subjectArea The subject area model containing the title and ID for the chip.
      */
-    private void addTopicChip(SubjectAreaResponse subjectArea) {
+    private void addSubjectAreaChip(SubjectAreaResponse subjectArea) {
         Chip chip = new Chip(this);
         chip.setText(subjectArea.getTitle());
         chip.setCheckable(true);
@@ -151,25 +157,31 @@ public class TutorListActivity extends AppCompatActivity {
         }
         chip.setTag(subjectArea.getId());
 
+        // Pre-select the chip if it matches the pre-selected subject area ID
+        if (preSelectedSubjectAreaId != null && preSelectedSubjectAreaId.equals(subjectArea.getId())) {
+            chip.setChecked(true);
+            selectedSubjectAreaId = subjectArea.getId() != null ? subjectArea.getId().toString() : null;
+        }
+
         chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                selectedTopicId = subjectArea.getId() != null ? subjectArea.getId().toString() : null;
+                selectedSubjectAreaId = subjectArea.getId() != null ? subjectArea.getId().toString() : null;
             } else {
-                selectedTopicId = null;
+                selectedSubjectAreaId = null;
             }
             loadTutors(searchInput.getText().toString());
         });
 
-        topicChipGroup.addView(chip);
+        subjectAreaChipGroup.addView(chip);
     }
 
     /**
-     * Loads the list of tutors from the API based on the selected topic and search name.
+     * Loads the list of tutors from the API based on the selected subject area and search name.
      * Updates the RecyclerView with the fetched tutors or displays an error message if the request fails.
      * @param name The search query for tutor names. Can be null or empty for no name filter.
      */
     private void loadTutors(String name) {
-        tutorRepository.getTutors(selectedTopicId, null, name, 1, 20, new Callback<TutorsResponse>() {
+        tutorRepository.getTutors(selectedSubjectAreaId, null, name, 1, 20, new Callback<TutorsResponse>() {
             @Override
             public void onResponse(Call<TutorsResponse> call, Response<TutorsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {

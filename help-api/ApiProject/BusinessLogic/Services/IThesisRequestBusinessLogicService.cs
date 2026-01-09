@@ -97,5 +97,13 @@ namespace ApiProject.BusinessLogic.Services
         /// <exception cref="KeyNotFoundException">Thrown if the request is not found.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the user is not authorized to respond to the request.</exception>
         Task RespondToRequestAsync(Guid requestId, Guid receiverId, bool accepted, string? message);
+
+        /// <summary>
+        /// Allows the requester of a thesis request to delete it, provided it is still in PENDING status.
+        /// </summary>
+        /// <param name="requestId">The unique identifier of the request to delete.</param>
+        /// <param name="requesterId">The unique identifier of the user requesting deletion (must be the requester).</param>
+        /// <returns>A task representing the asynchronous operation, returning true if deleted, false if not found or not authorized.</returns>
+        Task<bool> DeleteRequestAsync(Guid requestId, Guid requesterId);
     }
 }

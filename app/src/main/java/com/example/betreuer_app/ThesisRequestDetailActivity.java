@@ -1,5 +1,6 @@
 package com.example.betreuer_app;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.ThesisRequestApiService;
+import com.example.betreuer_app.constants.RequestStatuses;
 import com.example.betreuer_app.model.RespondToThesisRequestRequest;
 import com.example.betreuer_app.model.ThesisRequestResponse;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -123,25 +125,84 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
         
         date.setText(request.getCreatedAt() != null ? request.getCreatedAt() : "Unknown date");
 
-        if ("ACCEPTED".equalsIgnoreCase(statusText) || "REJECTED".equalsIgnoreCase(statusText)) {
+        // Get current user ID
+        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+        String currentUserId = authPreferences.getString("user_id", null);
+
+        // Check if user is the requester or receiver
+        boolean isRequester = currentUserId != null && request.getRequester() != null &&
+                            currentUserId.equals(request.getRequester().getId().toString());
+        boolean isReceiver = currentUserId != null && request.getReceiver() != null &&
+                           currentUserId.equals(request.getReceiver().getId().toString());
+
+        if (RequestStatuses.ACCEPTED.equalsIgnoreCase(statusText) || RequestStatuses.REJECTED.equalsIgnoreCase(statusText)) {
             actionsLayout.setVisibility(View.GONE);
         } else {
             actionsLayout.setVisibility(View.VISIBLE);
+
+            if (isReceiver) {
+                // User is receiver (tutor) - show Accept/Reject
+                btnAccept.setVisibility(View.VISIBLE);
+                btnReject.setVisibility(View.VISIBLE);
+                btnAccept.setText("Annehmen");
+                btnReject.setText("Ablehnen");
+            } else if (isRequester) {
+                // User is requester (student) - show only Delete
+                btnAccept.setVisibility(View.GONE);
+                btnReject.setVisibility(View.VISIBLE);
+                btnReject.setText("Löschen");
+            } else {
+                // Fallback - hide actions
+                actionsLayout.setVisibility(View.GONE);
+            }
         }
     }
 
     private void respondToRequest(boolean accept) {
-        RespondToThesisRequestRequest body = new RespondToThesisRequestRequest(accept, accept ? "Accepted" : "Rejected");
-        
-        apiService.respondToRequest(requestId, body).enqueue(new Callback<Void>() {
+        // Get current user ID to determine if this is a delete action
+        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+        String currentUserId = authPreferences.getString("user_id", null);
+
+        // Check if we need to load the request details to determine user role
+        // For now, we'll assume the button text determines the action
+        boolean isDeleteAction = "Löschen".equals(btnReject.getText().toString());
+
+        if (isDeleteAction) {
+            // Use DELETE API for deletion
+            deleteRequest();
+        } else {
+            // Use respond API for accept/reject
+            RespondToThesisRequestRequest body = new RespondToThesisRequestRequest(accept, accept ? "Accepted" : "Rejected");
+
+            apiService.respondToRequest(requestId, body).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        String msg = accept ? "Request accepted" : "Request rejected";
+                        Toast.makeText(ThesisRequestDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
+                        loadRequestDetails(); // Refresh view
+                    } else {
+                        Toast.makeText(ThesisRequestDetailActivity.this, "Action failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(ThesisRequestDetailActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void deleteRequest() {
+        apiService.deleteRequest(requestId).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    String msg = accept ? "Request accepted" : "Request rejected";
-                    Toast.makeText(ThesisRequestDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
-                    loadRequestDetails(); // Refresh view
+                    Toast.makeText(ThesisRequestDetailActivity.this, "Request deleted", Toast.LENGTH_SHORT).show();
+                    finish(); // Close the detail activity since the request is deleted
                 } else {
-                    Toast.makeText(ThesisRequestDetailActivity.this, "Action failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ThesisRequestDetailActivity.this, "Delete failed: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 

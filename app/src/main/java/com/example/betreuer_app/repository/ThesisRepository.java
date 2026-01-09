@@ -4,29 +4,25 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
-import android.webkit.MimeTypeMap;
 import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.ThesisApiService;
-import com.example.betreuer_app.model.CreateThesisRequest;
 import com.example.betreuer_app.model.ThesesResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
 public class ThesisRepository {
-    private ThesisApiService apiService;
-    private Context context;
+    private final ThesisApiService apiService;
+    private final Context context;
 
     public ThesisRepository(Context context) {
         this.context = context;
@@ -38,41 +34,56 @@ public class ThesisRepository {
         call.enqueue(callback);
     }
 
-    public void createThesis(String title, String topicId, Callback<ThesisApiModel> callback) {
-        CreateThesisRequest request = new CreateThesisRequest(title, topicId);
-        Call<ThesisApiModel> call = apiService.createThesis(request);
-        call.enqueue(callback);
+    public void createThesis(String title, String description, String topicId, Callback<ThesisApiModel> callback) {
+        executeCreateThesis(title, description, topicId, null, callback);
     }
 
-    public void createThesisWithFile(String title, String topicId, Uri fileUri, Callback<ThesisApiModel> callback) {
-        File file = prepareFilePart(fileUri);
-        if (file == null) {
-            callback.onFailure(null, new Exception("Konnte Datei nicht verarbeiten"));
-            return;
+    public void createThesisWithFile(String title, String description, String topicId, Uri fileUri, Callback<ThesisApiModel> callback) {
+        executeCreateThesis(title, description, topicId, fileUri, callback);
+    }
+
+    private void executeCreateThesis(String title, String description, String topicId, Uri fileUri, Callback<ThesisApiModel> callback) {
+        RequestBody titlePart = RequestBody.create(MediaType.parse("text/plain"), title);
+        RequestBody descriptionPart = RequestBody.create(MediaType.parse("text/plain"), description != null ? description : "");
+        RequestBody subjectAreaIdPart = topicId != null
+                ? RequestBody.create(MediaType.parse("text/plain"), topicId)
+                : null;
+
+        MultipartBody.Part documentPart = null;
+        File fileToDelete = null;
+
+        if (fileUri != null) {
+            File file = prepareFilePart(fileUri);
+            if (file == null) {
+                callback.onFailure(null, new Exception("Konnte Datei nicht verarbeiten"));
+                return;
+            }
+            fileToDelete = file;
+
+            String mimeType = context.getContentResolver().getType(fileUri);
+            if (mimeType == null) mimeType = "application/octet-stream";
+
+            RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
+            documentPart = MultipartBody.Part.createFormData("Document", file.getName(), requestFile);
         }
 
-        RequestBody titlePart = RequestBody.create(MediaType.parse("text/plain"), title);
-        RequestBody subjectAreaIdPart = topicId != null 
-            ? RequestBody.create(MediaType.parse("text/plain"), topicId) 
-            : null;
+        Call<ThesisApiModel> call = apiService.createThesis(titlePart, descriptionPart, subjectAreaIdPart, documentPart);
 
-        String mimeType = context.getContentResolver().getType(fileUri);
-        if (mimeType == null) mimeType = "application/octet-stream";
-        
-        RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("Document", file.getName(), requestFile);
-
-        Call<ThesisApiModel> call = apiService.createThesisWithFile(titlePart, subjectAreaIdPart, body);
-        call.enqueue(new Callback<ThesisApiModel>() {
+        final File finalFileToDelete = fileToDelete;
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, retrofit2.Response<ThesisApiModel> response) {
-                file.delete(); // Clean up temp file
+                if (finalFileToDelete != null) {
+                    finalFileToDelete.delete();
+                }
                 callback.onResponse(call, response);
             }
 
             @Override
             public void onFailure(Call<ThesisApiModel> call, Throwable t) {
-                file.delete(); // Clean up temp file
+                if (finalFileToDelete != null) {
+                    finalFileToDelete.delete();
+                }
                 callback.onFailure(call, t);
             }
         });
@@ -84,16 +95,14 @@ public class ThesisRepository {
             if (inputStream == null) return null;
 
             String originalName = getFileNameFromUri(fileUri);
-            String uniqueName = originalName != null ? originalName : "upload_temp_file";
-            uniqueName += "_" + UUID.randomUUID().toString();
+            String uniqueName = (originalName != null ? originalName : "upload_temp_file") + "_" + UUID.randomUUID().toString();
 
             File file = new File(context.getCacheDir(), uniqueName);
 
-            try (FileOutputStream outputStream = new FileOutputStream(file);
-                 InputStream in = inputStream) {
+            try (FileOutputStream outputStream = new FileOutputStream(file)) {
                 byte[] buffer = new byte[4096];
                 int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) {
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
                 }
             }
@@ -106,7 +115,7 @@ public class ThesisRepository {
 
     private String getFileNameFromUri(Uri uri) {
         String result = null;
-        if (uri.getScheme().equals("content")) {
+        if (uri.getScheme() != null && uri.getScheme().equals("content")) {
             try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);

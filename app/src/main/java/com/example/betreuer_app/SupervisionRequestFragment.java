@@ -4,13 +4,37 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.betreuer_app.api.ApiClient;
+import com.example.betreuer_app.api.ThesisApiService;
+import com.example.betreuer_app.api.ThesisRequestApiService;
+import com.example.betreuer_app.model.CreateThesisRequestRequest;
+import com.example.betreuer_app.model.ThesesResponse;
+import com.example.betreuer_app.model.ThesisApiModel;
+import com.example.betreuer_app.model.ThesisRequestResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class SupervisionRequestFragment extends Fragment {
+
+    private AutoCompleteTextView thesisTitleInput;
+    private ThesisApiService thesisApiService;
+    private ThesisRequestApiService thesisRequestApiService;
+    private List<ThesisApiModel> thesesList = new ArrayList<>();
+    private String tutorId;
 
     @Nullable
     @Override
@@ -26,6 +50,7 @@ public class SupervisionRequestFragment extends Fragment {
         String tutorName = "Unbekannter Tutor";
         if (getActivity() != null && getActivity().getIntent() != null) {
             tutorName = getActivity().getIntent().getStringExtra("TUTOR_NAME");
+            tutorId = getActivity().getIntent().getStringExtra("TUTOR_ID");
         }
         
         // Populate the included tutor card view
@@ -79,5 +104,94 @@ public class SupervisionRequestFragment extends Fragment {
             background.setColor(avatarColors[colorIndex]);
             initials.setBackground(background);
         }
+
+        // Setup AutoCompleteTextView for thesis titles
+        thesisTitleInput = view.findViewById(R.id.thesis_title_input);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
+        thesisTitleInput.setAdapter(adapter);
+
+        // Initialize API services
+        thesisApiService = ApiClient.getThesisApiService(getContext());
+        thesisRequestApiService = ApiClient.getThesisRequestApiService(getContext());
+
+        // Fetch theses for the logged-in student
+        fetchTheses();
+
+        // Setup submit button
+        view.findViewById(R.id.send_request_button).setOnClickListener(v -> sendSupervisionRequest());
+    }
+
+    private void fetchTheses() {
+        thesisApiService.getTheses(1, 100).enqueue(new Callback<ThesesResponse>() {
+            @Override
+            public void onResponse(Call<ThesesResponse> call, Response<ThesesResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    thesesList = response.body().getItems();
+                    List<String> thesisTitles = new ArrayList<>();
+                    for (ThesisApiModel thesis : thesesList) {
+                        thesisTitles.add(thesis.getTitle());
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, thesisTitles);
+                    thesisTitleInput.setAdapter(adapter);
+                } else {
+                    Toast.makeText(getContext(), "Fehler beim Laden der Daten", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ThesesResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void sendSupervisionRequest() {
+        // Validate inputs
+        String selectedTitle = thesisTitleInput.getText().toString().trim();
+        ThesisApiModel selectedThesis = null;
+        for (ThesisApiModel thesis : thesesList) {
+            if (thesis.getTitle().equals(selectedTitle)) {
+                selectedThesis = thesis;
+                break;
+            }
+        }
+
+        if (selectedThesis == null) {
+            Toast.makeText(getContext(), "Bitte wählen Sie einen gültigen Titel aus.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (tutorId == null) {
+            Toast.makeText(getContext(), "Tutor-ID fehlt.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create request object
+        CreateThesisRequestRequest request = new CreateThesisRequestRequest(
+            selectedThesis.getId(),
+            java.util.UUID.fromString(tutorId),
+            "SUPERVISION",
+            null // message can be null
+        );
+
+        // Send request
+        thesisRequestApiService.createRequest(request).enqueue(new Callback<ThesisRequestResponse>() {
+            @Override
+            public void onResponse(Call<ThesisRequestResponse> call, Response<ThesisRequestResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(getContext(), "Anfrage erfolgreich gesendet.", Toast.LENGTH_SHORT).show();
+                    if (getActivity() != null) {
+                        getActivity().finish();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Fehler beim Senden der Anfrage", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ThesisRequestResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

@@ -122,6 +122,9 @@ namespace ApiProject.BusinessLogic.Services
             var thesis = new ThesisDataAccessModel
             {
                 Title = request.Title.Trim(),
+
+                Description = request.Description,
+
                 OwnerId = request.OwnerId,
                 SubjectAreaId = request.SubjectAreaId,
                 StatusId = initialStatus.Id,
@@ -189,6 +192,9 @@ namespace ApiProject.BusinessLogic.Services
             }
 
             if (request.Title != null) thesis.Title = request.Title.Trim();
+
+            if (request.Description != null) thesis.Description = request.Description;
+
             if (request.SubjectAreaId.HasValue) thesis.SubjectAreaId = request.SubjectAreaId.Value;
 
             if (request.DocumentContent != null)
@@ -254,6 +260,27 @@ namespace ApiProject.BusinessLogic.Services
             _context.Theses.Remove(thesis);
             await _context.SaveChangesAsync();
             return DeleteThesisResult.Deleted;
+        }
+
+        /// <summary>
+        /// Retrieves all billing statuses from the database.
+        /// Billing statuses are used to track the payment state of theses.
+        /// 
+        /// What: Fetches all billing status records from the database.
+        /// How: Queries the BillingStatuses table and maps to business logic models.
+        /// Why: Provides a list of available billing statuses for UI dropdowns or validation.
+        /// Ensures data consistency by retrieving from the database rather than hardcoding.
+        /// </summary>
+        /// <returns>A list of billing status business logic models.</returns>
+        public async Task<List<BillingStatusBusinessLogicModel>> GetAllBillingStatusesAsync()
+        {
+            return await _context.BillingStatuses
+                .Select(bs => new BillingStatusBusinessLogicModel
+                {
+                    Id = bs.Id,
+                    Name = bs.Name
+                })
+                .ToListAsync();
         }
     }
 }

@@ -13,5 +13,6 @@ namespace ApiProject.ApiLogic.Models
 
         public IFormFile? Document { get; set; }
         public Guid OwnerId { get; set; }
+        public string? Description { get; set; }
     }
 }

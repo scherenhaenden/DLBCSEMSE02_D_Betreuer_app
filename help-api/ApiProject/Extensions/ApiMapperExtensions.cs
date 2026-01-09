@@ -9,6 +9,7 @@ namespace ApiProject.Extensions
             services.AddScoped<IThesisApiMapper, ThesisApiMapper>();
             services.AddScoped<IThesisOfferApiMapper, ThesisOfferApiMapper>();
             services.AddScoped<IThesisOfferApplicationApiMapper, ThesisOfferApplicationApiMapper>();
+            services.AddScoped<IThesisDocumentApiMapper, ThesisDocumentApiMapper>();
         }
     }
 }
