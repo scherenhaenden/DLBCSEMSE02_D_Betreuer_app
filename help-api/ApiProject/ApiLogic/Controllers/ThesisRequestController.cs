@@ -88,6 +88,14 @@ namespace ApiProject.ApiLogic.Controllers
             return Ok(response);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRequest(Guid id)
+        {
+            var requesterId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _requestBusinessLogicService.DeleteRequestAsync(id, requesterId);
+            return result ? NoContent() : NotFound();
+        }
+
         private ThesisRequestResponse MapToResponse(ThesisRequestBusinessLogicModel model)
         {
             return new ThesisRequestResponse

@@ -1,6 +1,7 @@
 package com.example.betreuer_app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -56,6 +57,12 @@ public class ThesisRequestActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         adapter = new ThesisRequestAdapter();
+
+        // Get current user ID from SharedPreferences
+        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+        String currentUserId = authPreferences.getString("user_id", null);
+        adapter.setCurrentUserId(currentUserId);
+
         adapter.setOnRequestActionClickListener(new ThesisRequestAdapter.OnRequestActionClickListener() {
             @Override
             public void onAccept(ThesisRequestResponse request) {
@@ -65,6 +72,16 @@ public class ThesisRequestActivity extends AppCompatActivity {
             @Override
             public void onReject(ThesisRequestResponse request) {
                 respondToRequest(request, false);
+            }
+
+            @Override
+            public void onCancel(ThesisRequestResponse request) {
+                cancelRequest(request);
+            }
+
+            @Override
+            public void onDelete(ThesisRequestResponse request) {
+                deleteRequest(request);
             }
         });
 
@@ -123,6 +140,46 @@ public class ThesisRequestActivity extends AppCompatActivity {
                     loadRequests(); // Reload list to update status
                 } else {
                     Toast.makeText(ThesisRequestActivity.this, "Action failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(ThesisRequestActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void cancelRequest(ThesisRequestResponse request) {
+        RespondToThesisRequestRequest body = new RespondToThesisRequestRequest(false, "Request canceled by sender");
+
+        apiService.respondToRequest(request.getId(), body).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(ThesisRequestActivity.this, "Request canceled", Toast.LENGTH_SHORT).show();
+                    loadRequests(); // Reload list to update status
+                } else {
+                    Toast.makeText(ThesisRequestActivity.this, "Cancel failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(ThesisRequestActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void deleteRequest(ThesisRequestResponse request) {
+        apiService.deleteRequest(request.getId()).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(ThesisRequestActivity.this, "Request deleted", Toast.LENGTH_SHORT).show();
+                    loadRequests(); // Reload list to update status
+                } else {
+                    Toast.makeText(ThesisRequestActivity.this, "Delete failed: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 

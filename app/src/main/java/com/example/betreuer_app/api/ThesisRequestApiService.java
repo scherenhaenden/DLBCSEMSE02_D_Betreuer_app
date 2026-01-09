@@ -1,5 +1,6 @@
 package com.example.betreuer_app.api;
 
+import com.example.betreuer_app.model.CreateThesisRequestRequest;
 import com.example.betreuer_app.model.RespondToThesisRequestRequest;
 import com.example.betreuer_app.model.ThesisRequestResponse;
 import com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -30,5 +32,15 @@ public interface ThesisRequestApiService {
     Call<Void> respondToRequest(
             @Path("id") UUID id,
             @Body RespondToThesisRequestRequest request
+    );
+
+    @POST("thesis-requests")
+    Call<ThesisRequestResponse> createRequest(
+            @Body CreateThesisRequestRequest request
+    );
+
+    @DELETE("thesis-requests/{id}")
+    Call<Void> deleteRequest(
+            @Path("id") UUID id
     );
 }

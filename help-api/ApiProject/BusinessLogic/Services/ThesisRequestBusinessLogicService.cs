@@ -362,6 +362,29 @@ namespace ApiProject.BusinessLogic.Services
             };
         }
 
+        /// <summary>
+        /// Deletes a thesis request if the requester is the current user and the request is still pending.
+        /// </summary>
+        /// <param name="requestId">The unique identifier of the request to delete.</param>
+        /// <param name="requesterId">The unique identifier of the user requesting deletion.</param>
+        /// <returns>True if the request was deleted, false if not found or not authorized.</returns>
+        public async Task<bool> DeleteRequestAsync(Guid requestId, Guid requesterId)
+        {
+            var request = await _context.ThesisRequests
+                .Include(r => r.Status)
+                .FirstOrDefaultAsync(r => r.Id == requestId);
+
+            if (request == null) return false;
+
+            // Only allow deletion if the requester is the current user and status is pending
+            if (request.RequesterId != requesterId || request.Status.Name != RequestStatuses.Pending)
+                return false;
+
+            _context.ThesisRequests.Remove(request);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         private static ThesisRequestBusinessLogicModel MapToResponse(ThesisRequestDataAccessModel r)
         {
             return new ThesisRequestBusinessLogicModel

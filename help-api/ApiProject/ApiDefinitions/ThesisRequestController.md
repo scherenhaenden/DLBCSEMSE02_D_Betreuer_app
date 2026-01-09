@@ -82,6 +82,16 @@ Responds to a thesis request.
 
 **Output Model:** None
 
+### DELETE /thesis-requests/{id}
+Deletes a thesis request (only the requester can delete their own pending requests).
+
+**Path Parameters:**
+- `id` (Guid): Thesis request identifier
+
+**Input Model:** None
+
+**Output Model:** None
+
 ### GET /thesis-requests/tutor/receiver
 Retrieves paginated thesis requests where current user is the receiver (Tutor role).
 
@@ -130,14 +140,14 @@ Retrieves paginated thesis requests where current user is the requester (Tutor r
 - `createdAt` (DateTime, not nullable): Creation timestamp
 
 ### UserResponse
-- `id` (Guid): User identifier
-- `firstName` (string): User's first name
-- `lastName` (string): User's last name
-- `email` (string): User's email address
-- `roles` (string[]): Array of user roles
+- `id` (Guid, not nullable): User identifier
+- `firstName` (string, not nullable): User's first name
+- `lastName` (string, not nullable): User's last name
+- `email` (string, not nullable): User's email address
+- `roles` (string[], not nullable): Array of user roles
 
 ### PaginatedResponse<T>
-- `items` (T[]): Array of items
-- `totalCount` (int): Total number of items
-- `page` (int): Current page number
-- `pageSize` (int): Items per page
+- `items` (T[], not nullable): Array of items
+- `totalCount` (int, not nullable): Total number of items
+- `page` (int, not nullable): Current page number
+- `pageSize` (int, not nullable): Items per page
