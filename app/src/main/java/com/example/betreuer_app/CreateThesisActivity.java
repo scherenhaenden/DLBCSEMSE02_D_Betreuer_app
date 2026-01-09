@@ -25,6 +25,9 @@ public class CreateThesisActivity extends AppCompatActivity {
     /** Input field for entering the thesis title. */
     private TextInputEditText etTitle;
 
+    /** Input field for entering the thesis description. */
+    private TextInputEditText etDescription;
+
     /** Input field for entering the subject area ID (optional). */
     private TextInputEditText etSubjectAreaId;
 
@@ -48,6 +51,7 @@ public class CreateThesisActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_thesis);
 
         etTitle = findViewById(R.id.et_thesis_title);
+        etDescription = findViewById(R.id.et_thesis_description);
         etSubjectAreaId = findViewById(R.id.et_topic_id); // Assuming ID in layout is still et_topic_id
         btnCreate = findViewById(R.id.btn_create_thesis);
 
@@ -55,6 +59,7 @@ public class CreateThesisActivity extends AppCompatActivity {
 
         btnCreate.setOnClickListener(v -> {
             String title = String.valueOf(etTitle.getText()).trim();
+            String description = String.valueOf(etDescription.getText()).trim();
             String subjectAreaId = String.valueOf(etSubjectAreaId.getText()).trim();
 
             if (title.isEmpty()) {
@@ -64,7 +69,7 @@ public class CreateThesisActivity extends AppCompatActivity {
 
             btnCreate.setEnabled(false);
             
-            createThesis(title, subjectAreaId.isEmpty() ? null : subjectAreaId);
+            createThesis(title, description, subjectAreaId.isEmpty() ? null : subjectAreaId);
         });
     }
 
@@ -72,10 +77,11 @@ public class CreateThesisActivity extends AppCompatActivity {
      * Initiates the thesis creation process by calling the API with the provided title and subject area ID.
      * Handles the API response asynchronously, showing success or error messages accordingly.
      * @param title The title of the thesis to be created. Must not be null or empty.
+     * @param description The description of the thesis to be created.
      * @param subjectAreaId The optional subject area ID associated with the thesis. Can be null if not specified.
      */
-    private void createThesis(String title, String subjectAreaId) {
-        thesisRepository.createThesis(title, subjectAreaId, new Callback<ThesisApiModel>() {
+    private void createThesis(String title, String description, String subjectAreaId) {
+        thesisRepository.createThesis(title, description, subjectAreaId, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 btnCreate.setEnabled(true);
