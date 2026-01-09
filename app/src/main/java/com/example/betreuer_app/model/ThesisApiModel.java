@@ -8,12 +8,13 @@ import java.util.UUID;
  */
 public class ThesisApiModel extends BaseEntityApiModel {
     private String title;
+    private String description;
     private String status;
     private String billingStatus;
     private String ownerId;
     private String tutorId;
     private String secondSupervisorId;
-    private String topicId;
+    private String subjectAreaId;
     private String documentFileName;
 
     /**
@@ -25,31 +26,33 @@ public class ThesisApiModel extends BaseEntityApiModel {
     /**
      * Constructor with basic fields.
      */
-    public ThesisApiModel(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId) {
+    public ThesisApiModel(String id, String title, String description, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String subjectAreaId) {
         super();
         setId(UUID.fromString(id));
         this.title = title;
+        this.description = description;
         this.status = status;
         this.billingStatus = billingStatus;
         this.ownerId = ownerId;
         this.tutorId = tutorId;
         this.secondSupervisorId = secondSupervisorId;
-        this.topicId = topicId;
+        this.subjectAreaId = subjectAreaId;
     }
 
     /**
      * Full constructor.
      */
-    public ThesisApiModel(String id, String title, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String topicId, String documentFileName) {
+    public ThesisApiModel(String id, String title, String description, String status, String billingStatus, String ownerId, String tutorId, String secondSupervisorId, String subjectAreaId, String documentFileName) {
         super();
         setId(UUID.fromString(id));
         this.title = title;
+        this.description = description;
         this.status = status;
         this.billingStatus = billingStatus;
         this.ownerId = ownerId;
         this.tutorId = tutorId;
         this.secondSupervisorId = secondSupervisorId;
-        this.topicId = topicId;
+        this.subjectAreaId = subjectAreaId;
         this.documentFileName = documentFileName;
     }
 
@@ -60,6 +63,14 @@ public class ThesisApiModel extends BaseEntityApiModel {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getStatus() {
@@ -102,12 +113,12 @@ public class ThesisApiModel extends BaseEntityApiModel {
         this.secondSupervisorId = secondSupervisorId;
     }
 
-    public String getTopicId() {
-        return topicId;
+    public String getSubjectAreaId() {
+        return subjectAreaId;
     }
 
-    public void setTopicId(String topicId) {
-        this.topicId = topicId;
+    public void setSubjectAreaId(String subjectAreaId) {
+        this.subjectAreaId = subjectAreaId;
     }
 
     public String getDocumentFileName() {
