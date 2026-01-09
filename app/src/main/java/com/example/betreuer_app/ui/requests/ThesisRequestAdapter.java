@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.betreuer_app.R;
+import com.example.betreuer_app.constants.RequestStatuses;
 import com.example.betreuer_app.model.ThesisRequestResponse;
 import com.example.betreuer_app.model.UserResponse;
 
@@ -22,10 +23,13 @@ public class ThesisRequestAdapter extends RecyclerView.Adapter<ThesisRequestAdap
     private List<ThesisRequestResponse> requests = new ArrayList<>();
     private OnRequestActionClickListener actionListener;
     private OnItemClickListener itemClickListener;
+    private String currentUserId;
 
     public interface OnRequestActionClickListener {
         void onAccept(ThesisRequestResponse request);
         void onReject(ThesisRequestResponse request);
+        void onCancel(ThesisRequestResponse request);
+        void onDelete(ThesisRequestResponse request);
     }
 
     public interface OnItemClickListener {
@@ -42,6 +46,11 @@ public class ThesisRequestAdapter extends RecyclerView.Adapter<ThesisRequestAdap
 
     public void setRequests(List<ThesisRequestResponse> requests) {
         this.requests = requests;
+        notifyDataSetChanged();
+    }
+
+    public void setCurrentUserId(String userId) {
+        this.currentUserId = userId;
         notifyDataSetChanged();
     }
 
@@ -110,10 +119,32 @@ public class ThesisRequestAdapter extends RecyclerView.Adapter<ThesisRequestAdap
             String statusText = request.getStatus() != null ? request.getStatus() : "PENDING";
             status.setText("Status: " + statusText);
 
-            if ("ACCEPTED".equalsIgnoreCase(statusText) || "REJECTED".equalsIgnoreCase(statusText)) {
+            // Check if user is the requester or receiver
+            boolean isRequester = currentUserId != null && request.getRequester() != null &&
+                                currentUserId.equals(request.getRequester().getId().toString());
+            boolean isReceiver = currentUserId != null && request.getReceiver() != null &&
+                               currentUserId.equals(request.getReceiver().getId().toString());
+
+            if (RequestStatuses.ACCEPTED.equalsIgnoreCase(statusText) || RequestStatuses.REJECTED.equalsIgnoreCase(statusText)) {
                 actionsLayout.setVisibility(View.GONE);
             } else {
                 actionsLayout.setVisibility(View.VISIBLE);
+
+                if (isReceiver) {
+                    // User is receiver (tutor) - show Accept/Reject
+                    btnAccept.setVisibility(View.VISIBLE);
+                    btnReject.setVisibility(View.VISIBLE);
+                    btnAccept.setText("Annehmen");
+                    btnReject.setText("Ablehnen");
+                } else if (isRequester) {
+                    // User is requester (student) - show only Delete
+                    btnAccept.setVisibility(View.GONE);
+                    btnReject.setVisibility(View.VISIBLE);
+                    btnReject.setText("Löschen");
+                } else {
+                    // Fallback - hide actions
+                    actionsLayout.setVisibility(View.GONE);
+                }
             }
 
             btnAccept.setOnClickListener(v -> {
@@ -121,7 +152,13 @@ public class ThesisRequestAdapter extends RecyclerView.Adapter<ThesisRequestAdap
             });
 
             btnReject.setOnClickListener(v -> {
-                if (actionListener != null) actionListener.onReject(request);
+                if (actionListener != null) {
+                    if (isRequester) {
+                        actionListener.onDelete(request);
+                    } else {
+                        actionListener.onReject(request);
+                    }
+                }
             });
         }
     }

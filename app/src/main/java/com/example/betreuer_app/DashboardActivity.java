@@ -41,6 +41,7 @@ public class DashboardActivity extends AppCompatActivity {
     private Button btnCreateNewThesis;
     private Button btnManageThesisOffers;
     private Button btnFindTutor;
+    private Button btnPendingRequests;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +87,8 @@ public class DashboardActivity extends AppCompatActivity {
                     studentThesisCard = studentView.findViewById(R.id.student_thesis_card);
                     btnCreateNewThesis = studentView.findViewById(R.id.btn_create_new_thesis);
                     btnFindTutor = studentView.findViewById(R.id.btn_find_tutor);
-                    
+                    btnPendingRequests = studentView.findViewById(R.id.btn_pending_requests);
+
                     studentThesisCard.setOnClickListener(openThesisList);
                     
                     btnCreateNewThesis.setOnClickListener(v -> {
@@ -96,6 +98,11 @@ public class DashboardActivity extends AppCompatActivity {
 
                     btnFindTutor.setOnClickListener(v -> {
                         Intent intent = new Intent(DashboardActivity.this, TutorListActivity.class);
+                        startActivity(intent);
+                    });
+
+                    btnPendingRequests.setOnClickListener(v -> {
+                        Intent intent = new Intent(DashboardActivity.this, ThesisRequestActivity.class);
                         startActivity(intent);
                     });
                 }

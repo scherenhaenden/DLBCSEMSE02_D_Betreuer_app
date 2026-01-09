@@ -26,10 +26,10 @@ public class SeedData
     public List<RequestTypeDataAccessModel> RequestTypes { get; set; }
     public List<RequestStatusDataAccessModel> RequestStatuses { get; set; }
     public List<ThesisOfferStatusDataAccessModel> ThesisOfferStatuses { get; set; }
-    public List<SubjectAreaDataAccessModel> Topics { get; set; }
+    public List<SubjectAreaDataAccessModel> SubjectAreas { get; set; }
     public List<UserSeed> Users { get; set; }
     public List<UserRoleDataAccessModel> UserRoles { get; set; }
-    public List<UserToSubjectAreas> UserTopics { get; set; }
+    public List<UserToSubjectAreas> UserSubjectAreas { get; set; }
     public List<ThesisOfferDataAccessModel> ThesisOffers { get; set; }
     public List<ThesisOfferApplicationDataAccessModel> ThesisOfferApplications { get; set; }
     public List<ThesisDataAccessModel> Theses { get; set; }
@@ -102,15 +102,15 @@ public class Seeder
             new() { Id = Guid.NewGuid(), Name = RequestStatuses.Rejected, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
         };
 
-        // --- 5. Topics ---
-        var topicsFromMethod = TopicForSeeding();
-        var topicsToSeed = new List<SubjectAreaDataAccessModel>();
-        foreach (var topicItem in topicsFromMethod)
+        // --- 5. SubjectAreas ---
+        var subjectAreasFromMethod = TopicForSeeding();
+        var subjectAreasToSeed = new List<SubjectAreaDataAccessModel>();
+        foreach (var SubjectAreaItem in subjectAreasFromMethod)
         {
-            topicsToSeed.Add(new Faker<SubjectAreaDataAccessModel>()
+            subjectAreasToSeed.Add(new Faker<SubjectAreaDataAccessModel>()
                 .RuleFor(t => t.Id, _ => Guid.NewGuid())
-                .RuleFor(t => t.Title, topicItem.Title)
-                .RuleFor(t => t.Description, topicItem.Description)
+                .RuleFor(t => t.Title, SubjectAreaItem.Title)
+                .RuleFor(t => t.Description, SubjectAreaItem.Description)
                 .RuleFor(t => t.CreatedAt, f => f.Date.Recent())
                 .RuleFor(t => t.UpdatedAt, (_, t) => t.CreatedAt)
                 .Generate());
@@ -161,38 +161,38 @@ public class Seeder
             }
         }
         
-        // --- 8. Tutors & Topics Assignment ---
+        // --- 8. Tutors & SubjectAreas Assignment ---
         var tutorRole = rolesToSeed.First(r => r.Name == Roles.Tutor);
         var tutorUserIds = userRolesToSeed.Where(ur => ur.RoleId == tutorRole.Id).Select(ur => ur.UserId);
         
         var tutors = users.Where(u => tutorUserIds.Contains(u.Id)).ToList();
         
-        var userTopicAssignments = new HashSet<(Guid UserId, Guid TopicId)>();
+        var userTopicAssignments = new HashSet<(Guid UserId, Guid SubjectAreaId)>();
 
-        // Assign 2-7 topics to each tutor
+        // Assign 2-7 subjectAreas to each tutor
         foreach (var tutor in tutors)
         {
-            var numTopics = faker.Random.Int(2, 7);
-            var topicsToAssign = faker.PickRandom(topicsToSeed, numTopics);
-            foreach (var topic in topicsToAssign) userTopicAssignments.Add((tutor.Id, topic.Id));
+            var numSubjectAreas = faker.Random.Int(2, 7);
+            var subjectAreasToAssign = faker.PickRandom(subjectAreasToSeed, numSubjectAreas);
+            foreach (var subjectArea in subjectAreasToAssign) userTopicAssignments.Add((tutor.Id, subjectArea.Id));
         }
 
-        // Ensure coverage (min 4 tutors per topic)
-        foreach (var topic in topicsToSeed)
+        // Ensure coverage (min 4 tutors per subjectArea)
+        foreach (var subjectArea in subjectAreasToSeed)
         {
-            var assignmentsForTopic = userTopicAssignments.Count(ut => ut.TopicId == topic.Id);
+            var assignmentsForTopic = userTopicAssignments.Count(ut => ut.SubjectAreaId == subjectArea.Id);
             var needed = 4 - assignmentsForTopic;
             if (needed > 0)
             {
-                var assignedTutorIds = userTopicAssignments.Where(ut => ut.TopicId == topic.Id).Select(ut => ut.UserId);
+                var assignedTutorIds = userTopicAssignments.Where(ut => ut.SubjectAreaId == subjectArea.Id).Select(ut => ut.UserId);
                 var assignableTutors = tutors.Where(t => !assignedTutorIds.Contains(t.Id)).ToList();
                 var tutorsToAssign = faker.PickRandom(assignableTutors, Math.Min(needed, assignableTutors.Count));
-                foreach (var tutor in tutorsToAssign) userTopicAssignments.Add((tutor.Id, topic.Id));
+                foreach (var tutor in tutorsToAssign) userTopicAssignments.Add((tutor.Id, subjectArea.Id));
             }
         }
 
-        var userTopicsToSeed = userTopicAssignments
-            .Select(ut => new UserToSubjectAreas { UserId = ut.UserId, SubjectAreaId = ut.TopicId })
+        var userSubjectAreasToSeed = userTopicAssignments
+            .Select(ut => new UserToSubjectAreas { UserId = ut.UserId, SubjectAreaId = ut.SubjectAreaId })
             .ToList();
         
         // --- 9. Theses & Requests Generation ---
@@ -207,6 +207,9 @@ public class Seeder
         var thesisFaker = new Faker<ThesisDataAccessModel>()
             .RuleFor(t => t.Id, _ => Guid.NewGuid())
             .RuleFor(t => t.Title, f => f.Lorem.Sentence(3))
+
+            .RuleFor(t => t.Description, f => f.Lorem.Sentence(1))
+
             .RuleFor(t => t.BillingStatusId, f => f.PickRandom(billingStatusesToSeed).Id)
             .RuleFor(t => t.CreatedAt, f => f.Date.Past())
             .RuleFor(t => t.UpdatedAt, f => f.Date.Recent());
@@ -225,9 +228,9 @@ public class Seeder
             .RuleFor(td => td.CreatedAt, f => f.Date.Past())
             .RuleFor(td => td.UpdatedAt, f => f.Date.Recent());
 
-        List<UserSeed> GetTutorsForTopic(Guid topicId)
+        List<UserSeed> GetTutorsForTopic(Guid SubjectAreaId)
         {
-            var eligibleIds = userTopicAssignments.Where(ut => ut.TopicId == topicId).Select(ut => ut.UserId);
+            var eligibleIds = userTopicAssignments.Where(ut => ut.SubjectAreaId == SubjectAreaId).Select(ut => ut.UserId);
             return tutors.Where(t => eligibleIds.Contains(t.Id)).ToList();
         }
 
@@ -238,10 +241,10 @@ public class Seeder
             thesis.OwnerId = faker.PickRandom(students).Id;
             thesis.StatusId = faker.PickRandom(thesisStatusesToSeed.Where(s => s.Name != ThesisStatuses.InDiscussion)).Id;
             
-            var topic = faker.PickRandom(topicsToSeed);
-            thesis.SubjectAreaId = topic.Id;
+            var subjectArea = faker.PickRandom(subjectAreasToSeed);
+            thesis.SubjectAreaId = subjectArea.Id;
 
-            var eligibleTutors = GetTutorsForTopic(topic.Id);
+            var eligibleTutors = GetTutorsForTopic(subjectArea.Id);
             var tutor = faker.PickRandom(eligibleTutors);
             thesis.TutorId = tutor.Id;
 
@@ -286,10 +289,10 @@ public class Seeder
             thesis.StatusId = thesisStatusesToSeed.First(s => s.Name == ThesisStatuses.InDiscussion).Id;
             thesis.TutorId = null; // CORRECTED: TutorId is null until request is accepted
             
-            var topic = faker.PickRandom(topicsToSeed);
-            thesis.SubjectAreaId = topic.Id;
+            var subjectArea = faker.PickRandom(subjectAreasToSeed);
+            thesis.SubjectAreaId = subjectArea.Id;
 
-            var eligibleTutors = GetTutorsForTopic(topic.Id);
+            var eligibleTutors = GetTutorsForTopic(subjectArea.Id);
             var proposedTutor = faker.PickRandom(eligibleTutors);
 
             thesesToSeed.Add(thesis);
@@ -300,7 +303,7 @@ public class Seeder
             req.ThesisId = thesis.Id;
             req.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == RequestTypes.Supervision).Id;
             req.StatusId = requestStatusesToSeed.First(rs => rs.Name == RequestStatuses.Pending).Id;
-            req.Message = "Dear Professor, I would like to write my thesis about " + topic.Title;
+            req.Message = "Dear Professor, I would like to write my thesis about " + subjectArea.Title;
             thesisRequestsToSeed.Add(req);
 
             if (i < 5)
@@ -315,7 +318,7 @@ public class Seeder
                     rejectedReq.ThesisId = thesis.Id;
                     rejectedReq.RequestTypeId = requestTypesToSeed.First(rt => rt.Name == RequestTypes.Supervision).Id;
                     rejectedReq.StatusId = requestStatusesToSeed.First(rs => rs.Name == RequestStatuses.Rejected).Id;
-                    rejectedReq.Message = "I am interested in your topic.";
+                    rejectedReq.Message = "I am interested in your subjectArea.";
                     rejectedReq.CreatedAt = DateTime.Now.AddMonths(-1);
                     thesisRequestsToSeed.Add(rejectedReq);
                 }
@@ -342,13 +345,13 @@ public class Seeder
             // Subject areas this tutor supervises
             var tutorAreas = userTopicAssignments
                 .Where(ut => ut.UserId == tutor.Id)
-                .Select(ut => ut.TopicId)
+                .Select(ut => ut.SubjectAreaId)
                 .ToList();
 
             if (!tutorAreas.Any())
                 continue;
 
-            // Each tutor offers 1–3 topics
+            // Each tutor offers 1–3 subjectAreas
             var offerCount = faker.Random.Int(1, 3);
 
             for (int i = 0; i < offerCount; i++)
@@ -403,10 +406,10 @@ public class Seeder
             RequestTypes = requestTypesToSeed,
             RequestStatuses = requestStatusesToSeed,
             ThesisOfferStatuses = thesisOfferStatusesToSeed,
-            Topics = topicsToSeed,
+            SubjectAreas = subjectAreasToSeed,
             Users = users,
             UserRoles = userRolesToSeed,
-            UserTopics = userTopicsToSeed,
+            UserSubjectAreas = userSubjectAreasToSeed,
             ThesisOffers = thesisOffersToSeed,
             ThesisOfferApplications = thesisOfferApplicationsToSeed,
             Theses = thesesToSeed,
@@ -521,9 +524,9 @@ public class Seeder
 
             try
             {
-                context.SubjectAreas.AddRange(seedData.Topics);
+                context.SubjectAreas.AddRange(seedData.SubjectAreas);
                 context.SaveChanges();
-                Console.WriteLine($"Subject areas seeded successfully: {seedData.Topics.Count} items.");
+                Console.WriteLine($"Subject areas seeded successfully: {seedData.SubjectAreas.Count} items.");
             }
             catch (Exception ex)
             {
@@ -557,9 +560,9 @@ public class Seeder
 
             try
             {
-                context.UserToSubjectAreas.AddRange(seedData.UserTopics);
+                context.UserToSubjectAreas.AddRange(seedData.UserSubjectAreas);
                 context.SaveChanges();
-                Console.WriteLine($"User to subject areas seeded successfully: {seedData.UserTopics.Count} items.");
+                Console.WriteLine($"User to subject areas seeded successfully: {seedData.UserSubjectAreas.Count} items.");
             }
             catch (Exception ex)
             {
@@ -661,7 +664,7 @@ public class Seeder
         context.ThesisOfferStatuses.AddRange(seedData.ThesisOfferStatuses);
         context.SaveChanges();
 
-        context.SubjectAreas.AddRange(seedData.Topics);
+        context.SubjectAreas.AddRange(seedData.SubjectAreas);
         context.SaveChanges();
 
         context.Users.AddRange(seedData.Users);
@@ -670,7 +673,7 @@ public class Seeder
         context.UserRoles.AddRange(seedData.UserRoles);
         context.SaveChanges();
 
-        context.UserToSubjectAreas.AddRange(seedData.UserTopics);
+        context.UserToSubjectAreas.AddRange(seedData.UserSubjectAreas);
         context.SaveChanges();
 
         context.Theses.AddRange(seedData.Theses);
@@ -691,6 +694,8 @@ public class Seeder
         Console.WriteLine("Database seeded successfully!");
     }
 }
+
+
 
 
 

@@ -16,7 +16,7 @@ import retrofit2.Response;
 
 /**
  * CreateThesisActivity provides a user interface for creating a new thesis.
- * Users can input the thesis title and optionally specify a topic ID.
+ * Users can input the thesis title and optionally specify a subject area ID.
  * Upon successful creation, the activity displays a success message and closes.
  * If creation fails, an error message is shown.
  */
@@ -25,8 +25,11 @@ public class CreateThesisActivity extends AppCompatActivity {
     /** Input field for entering the thesis title. */
     private TextInputEditText etTitle;
 
-    /** Input field for entering the topic ID (optional). */
-    private TextInputEditText etTopicId;
+    /** Input field for entering the thesis description. */
+    private TextInputEditText etDescription;
+
+    /** Input field for entering the subject area ID (optional). */
+    private TextInputEditText etSubjectAreaId;
 
     /** Button to trigger the thesis creation process. */
     private MaterialButton btnCreate;
@@ -48,14 +51,16 @@ public class CreateThesisActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_thesis);
 
         etTitle = findViewById(R.id.et_thesis_title);
-        etTopicId = findViewById(R.id.et_topic_id);
+        etDescription = findViewById(R.id.et_thesis_description);
+        etSubjectAreaId = findViewById(R.id.et_topic_id); // Assuming ID in layout is still et_topic_id
         btnCreate = findViewById(R.id.btn_create_thesis);
 
         thesisRepository = new ThesisRepository(getApplicationContext());
 
         btnCreate.setOnClickListener(v -> {
             String title = String.valueOf(etTitle.getText()).trim();
-            String topicId = String.valueOf(etTopicId.getText()).trim();
+            String description = String.valueOf(etDescription.getText()).trim();
+            String subjectAreaId = String.valueOf(etSubjectAreaId.getText()).trim();
 
             if (title.isEmpty()) {
                 etTitle.setError("Titel ist erforderlich");
@@ -63,20 +68,20 @@ public class CreateThesisActivity extends AppCompatActivity {
             }
 
             btnCreate.setEnabled(false);
-            // Optional: validate topicId format if needed
-
-            createThesis(title, topicId.isEmpty() ? null : topicId);
+            
+            createThesis(title, description, subjectAreaId.isEmpty() ? null : subjectAreaId);
         });
     }
 
     /**
-     * Initiates the thesis creation process by calling the API with the provided title and topic ID.
+     * Initiates the thesis creation process by calling the API with the provided title and subject area ID.
      * Handles the API response asynchronously, showing success or error messages accordingly.
      * @param title The title of the thesis to be created. Must not be null or empty.
-     * @param topicId The optional topic ID associated with the thesis. Can be null if not specified.
+     * @param description The description of the thesis to be created.
+     * @param subjectAreaId The optional subject area ID associated with the thesis. Can be null if not specified.
      */
-    private void createThesis(String title, String topicId) {
-        thesisRepository.createThesis(title, topicId, new Callback<ThesisApiModel>() {
+    private void createThesis(String title, String description, String subjectAreaId) {
+        thesisRepository.createThesis(title, description, subjectAreaId, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 btnCreate.setEnabled(true);

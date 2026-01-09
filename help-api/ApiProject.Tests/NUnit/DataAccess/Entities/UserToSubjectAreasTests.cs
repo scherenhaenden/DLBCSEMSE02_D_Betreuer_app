@@ -6,7 +6,7 @@ namespace ApiProject.Tests.NUnit.DataAccess.Entities;
 public class UserToSubjectAreasTests
 {
     [Test]
-    public void CanCreateUserTopicDataAccessModel()
+    public void CanCreateUserToSubjectAreasDataAccessModel()
     {
         var model = new UserToSubjectAreas();
         Assert.That(model, Is.Not.Null);
@@ -21,10 +21,10 @@ public class UserToSubjectAreasTests
     }
 
     [Test]
-    public void CanSetTopicId()
+    public void CanSetSubjectAreaId()
     {
-        var topicId = Guid.NewGuid();
-        var model = new UserToSubjectAreas { SubjectAreaId = topicId };
-        Assert.That(model.SubjectAreaId, Is.EqualTo(topicId));
+        var subjectAreaId = Guid.NewGuid();
+        var model = new UserToSubjectAreas { SubjectAreaId = subjectAreaId };
+        Assert.That(model.SubjectAreaId, Is.EqualTo(subjectAreaId));
     }
 }

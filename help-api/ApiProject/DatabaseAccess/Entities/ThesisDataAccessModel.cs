@@ -7,6 +7,8 @@ namespace ApiProject.DatabaseAccess.Entities
     {
         public required string Title { get; set; }
 
+        public string? Description { get; set; }
+
         public Guid StatusId { get; set; }
         public ThesisStatusDataAccessModel Status { get; set; }
 

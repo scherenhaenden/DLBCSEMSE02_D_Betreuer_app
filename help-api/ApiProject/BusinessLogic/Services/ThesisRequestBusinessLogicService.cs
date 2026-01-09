@@ -275,8 +275,9 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="tutorId">The unique identifier of the tutor who is the receiver of the requests.</param>
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
+        /// <param name="status">Optional status filter (PENDING, ACCEPTED, REJECTED).</param>
         /// <returns>A paginated result containing the list of thesis request responses and pagination metadata.</returns>
-        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize)
+        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize, string? status = null)
         {
             var query = _context.ThesisRequests
                 .Include(r => r.Thesis)
@@ -284,8 +285,14 @@ namespace ApiProject.BusinessLogic.Services
                 .Include(r => r.Receiver).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.RequestType)
                 .Include(r => r.Status)
-                .Where(r => r.ReceiverId == tutorId)
-                .OrderByDescending(r => r.CreatedAt);
+                .Where(r => r.ReceiverId == tutorId);
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(r => r.Status.Name == status.ToUpper());
+            }
+
+            query = query.OrderByDescending(r => r.CreatedAt);
 
             var totalCount = await query.CountAsync();
             var items = await query
@@ -320,8 +327,9 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="tutorId">The unique identifier of the tutor who is the requester of the requests.</param>
         /// <param name="page">The page number for pagination (1-based).</param>
         /// <param name="pageSize">The number of items per page.</param>
+        /// <param name="status">Optional status filter (PENDING, ACCEPTED, REJECTED).</param>
         /// <returns>A paginated result containing the list of thesis request responses and pagination metadata.</returns>
-        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize)
+        public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize, string? status = null)
         {
             var query = _context.ThesisRequests
                 .Include(r => r.Thesis)
@@ -329,8 +337,14 @@ namespace ApiProject.BusinessLogic.Services
                 .Include(r => r.Receiver).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.RequestType)
                 .Include(r => r.Status)
-                .Where(r => r.RequesterId == tutorId)
-                .OrderByDescending(r => r.CreatedAt);
+                .Where(r => r.RequesterId == tutorId);
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(r => r.Status.Name == status.ToUpper());
+            }
+
+            query = query.OrderByDescending(r => r.CreatedAt);
 
             var totalCount = await query.CountAsync();
             var items = await query
@@ -346,6 +360,29 @@ namespace ApiProject.BusinessLogic.Services
                 Page = page,
                 PageSize = pageSize
             };
+        }
+
+        /// <summary>
+        /// Deletes a thesis request if the requester is the current user and the request is still pending.
+        /// </summary>
+        /// <param name="requestId">The unique identifier of the request to delete.</param>
+        /// <param name="requesterId">The unique identifier of the user requesting deletion.</param>
+        /// <returns>True if the request was deleted, false if not found or not authorized.</returns>
+        public async Task<bool> DeleteRequestAsync(Guid requestId, Guid requesterId)
+        {
+            var request = await _context.ThesisRequests
+                .Include(r => r.Status)
+                .FirstOrDefaultAsync(r => r.Id == requestId);
+
+            if (request == null) return false;
+
+            // Only allow deletion if the requester is the current user and status is pending
+            if (request.RequesterId != requesterId || request.Status.Name != RequestStatuses.Pending)
+                return false;
+
+            _context.ThesisRequests.Remove(request);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         private static ThesisRequestBusinessLogicModel MapToResponse(ThesisRequestDataAccessModel r)

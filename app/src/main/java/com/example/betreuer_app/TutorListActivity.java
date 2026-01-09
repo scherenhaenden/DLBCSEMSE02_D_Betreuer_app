@@ -1,5 +1,6 @@
 package com.example.betreuer_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,16 +20,15 @@ import com.example.betreuer_app.ui.tutorlist.TutorListAdapter;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import java.util.UUID;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
  * TutorListActivity displays a list of tutors with search and filtering capabilities.
- * Users can search for tutors by name and filter by topic using chips.
+ * Users can search for tutors by name and filter by subject area using chips.
  * The activity implements debounced search to avoid excessive API calls during typing.
- * It loads topics dynamically to populate filter chips and fetches tutors based on search criteria.
+ * It loads subject areas dynamically to populate filter chips and fetches tutors based on search criteria.
  */
 public class TutorListActivity extends AppCompatActivity {
 
@@ -47,11 +47,14 @@ public class TutorListActivity extends AppCompatActivity {
     /** EditText for user input to search tutors by name. */
     private EditText searchInput;
 
-    /** ChipGroup for displaying topic filter chips. */
-    private ChipGroup topicChipGroup;
+    /** ChipGroup for displaying subject area filter chips. */
+    private ChipGroup subjectAreaChipGroup;
 
-    /** The currently selected topic ID for filtering tutors. Null if no topic is selected. */
-    private String selectedTopicId = null;
+    /** The currently selected subject area ID for filtering tutors. Null if no subject area is selected. */
+    private String selectedSubjectAreaId = null;
+
+    /** The pre-selected subject area ID from intent extras, if any. */
+    private String preSelectedSubjectAreaId = null;
 
     /** Delay in milliseconds for debouncing search requests. */
     private static final long SEARCH_DEBOUNCE_DELAY_MS = 300L;
@@ -80,12 +83,15 @@ public class TutorListActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.tutorsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         searchInput = findViewById(R.id.search_input);
-        topicChipGroup = findViewById(R.id.topic_chip_group);
+        subjectAreaChipGroup = findViewById(R.id.subject_area_chip_group);
 
         tutorRepository = new TutorRepository(getApplicationContext());
         subjectAreaRepository = new SubjectAreaRepository(getApplicationContext());
 
-        loadTopics();
+        // Get pre-selected subject area ID from intent extras, if available
+        preSelectedSubjectAreaId = getIntent().getStringExtra("SELECTED_SUBJECT_AREA_ID");
+
+        loadSubjectAreas();
         loadTutors(null);
 
         searchInput.addTextChangedListener(new TextWatcher() {
@@ -108,20 +114,20 @@ public class TutorListActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads the list of topics from the API and populates the ChipGroup with filter chips.
-     * Each chip represents a topic and allows users to filter tutors by that topic.
+     * Loads the list of subject areas from the API and populates the ChipGroup with filter chips.
+     * Each chip represents a subject area and allows users to filter tutors by that subject area.
      * If the API call fails, an error message is displayed to the user.
      */
-    private void loadTopics() {
+    private void loadSubjectAreas() {
         subjectAreaRepository.getSubjectAreas(1, 10, new Callback<SubjectAreaResponsePaginatedResponse>() {
             @Override
             public void onResponse(Call<SubjectAreaResponsePaginatedResponse> call, Response<SubjectAreaResponsePaginatedResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    topicChipGroup.removeAllViews();
+                    subjectAreaChipGroup.removeAllViews();
                     var items = response.body().getItems();
                     if (items != null) {
                         for (SubjectAreaResponse subjectArea : items) {
-                            addTopicChip(subjectArea);
+                            addSubjectAreaChip(subjectArea);
                         }
                     }
                 } else {
@@ -141,7 +147,7 @@ public class TutorListActivity extends AppCompatActivity {
      * The chip is checkable and triggers a tutor reload when its checked state changes.
      * @param subjectArea The subject area model containing the title and ID for the chip.
      */
-    private void addTopicChip(SubjectAreaResponse subjectArea) {
+    private void addSubjectAreaChip(SubjectAreaResponse subjectArea) {
         Chip chip = new Chip(this);
         chip.setText(subjectArea.getTitle());
         chip.setCheckable(true);
@@ -151,52 +157,41 @@ public class TutorListActivity extends AppCompatActivity {
         }
         chip.setTag(subjectArea.getId());
 
+        // Pre-select the chip if it matches the pre-selected subject area ID
+        if (preSelectedSubjectAreaId != null && preSelectedSubjectAreaId.equals(subjectArea.getId())) {
+            chip.setChecked(true);
+            selectedSubjectAreaId = subjectArea.getId() != null ? subjectArea.getId().toString() : null;
+        }
+
         chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                selectedTopicId = subjectArea.getId() != null ? subjectArea.getId().toString() : null;
+                selectedSubjectAreaId = subjectArea.getId() != null ? subjectArea.getId().toString() : null;
             } else {
-                selectedTopicId = null;
+                selectedSubjectAreaId = null;
             }
             loadTutors(searchInput.getText().toString());
         });
 
-        topicChipGroup.addView(chip);
+        subjectAreaChipGroup.addView(chip);
     }
 
     /**
-     * Loads the list of tutors from the API based on the selected topic and search name.
+     * Loads the list of tutors from the API based on the selected subject area and search name.
      * Updates the RecyclerView with the fetched tutors or displays an error message if the request fails.
      * @param name The search query for tutor names. Can be null or empty for no name filter.
      */
     private void loadTutors(String name) {
-        tutorRepository.getTutors(selectedTopicId, null, name, 1, 20, new Callback<TutorsResponse>() {
+        tutorRepository.getTutors(selectedSubjectAreaId, null, name, 1, 20, new Callback<TutorsResponse>() {
             @Override
             public void onResponse(Call<TutorsResponse> call, Response<TutorsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     var items = response.body().getItems();
                     if (items != null) {
                         adapter = new TutorListAdapter(items, tutor -> {
-                            // Handle tutor click: Navigate to supervision request
-                            SupervisionRequestFragment fragment = new SupervisionRequestFragment();
-                            // TODO: Pass tutor data to fragment if needed
-                            
-                            // For now, just show the fragment in a container or open a new activity
-                            // Since this activity seems to be a standalone list, maybe we should start a new activity
-                            // But for now let's assume we want to replace the current content or use a container.
-                            // However, TutorListActivity uses a specific layout 'activity_tutor_list'.
-                            // It might not have a FragmentContainerView.
-                            
-                            // Let's check layout file activity_tutor_list.xml first to see if we can replace content.
-                            // If not, we might need to launch a new activity that hosts the fragment, 
-                            // or simple replace the root view if that's acceptable, but usually navigation is better.
-                            
-                            // Given the prompt "when I click onto one of the tutors ... I have to see something like this",
-                            // let's try to launch a new Activity that hosts this fragment.
-                            
-                            android.content.Intent intent = new android.content.Intent(TutorListActivity.this, SupervisionRequestActivity.class);
-                            // We would pass tutor ID here
+                            // Changed navigation: Go to TutorProfileActivity instead of SupervisionRequestActivity directly
+                            Intent intent = new Intent(TutorListActivity.this, TutorProfileActivity.class);
                             intent.putExtra("TUTOR_ID", tutor.getId().toString());
-                             intent.putExtra("TUTOR_NAME", (tutor.getFirstName() != null ? tutor.getFirstName() : "") + " " + (tutor.getLastName() != null ? tutor.getLastName() : ""));
+                            intent.putExtra("TUTOR_NAME", (tutor.getFirstName() != null ? tutor.getFirstName() : "") + " " + (tutor.getLastName() != null ? tutor.getLastName() : ""));
                             startActivity(intent);
                         });
                         recyclerView.setAdapter(adapter);

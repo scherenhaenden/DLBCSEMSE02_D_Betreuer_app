@@ -50,7 +50,7 @@ namespace ApiProject.ApiLogic.Controllers
 
         [HttpPost]
         [Authorize(Roles = "STUDENT")]
-        public async Task<ActionResult<ThesisResponse>> Create([FromForm] CreateThesisRequest request)
+        public async Task<ActionResult<ThesisResponse>> Create([FromForm] CreateThesisApiRequest request)
         {
             var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
@@ -70,6 +70,9 @@ namespace ApiProject.ApiLogic.Controllers
             var created = await _thesisBusinessLogicService.CreateThesisAsync(new ThesisCreateRequestBusinessLogicModel
             {
                 Title = request.Title,
+
+                Description = request.Description,
+
                 OwnerId = ownerId,
                 SubjectAreaId = request.SubjectAreaId,
                 DocumentFileName = fileName,
@@ -101,6 +104,9 @@ namespace ApiProject.ApiLogic.Controllers
                 var updated = await _thesisBusinessLogicService.UpdateThesisAsync(id, new ThesisUpdateRequestBusinessLogicModel
                 {
                     Title = request.Title,
+
+                    Description = request.Description,
+
                     SubjectAreaId = request.SubjectAreaId,
                     DocumentFileName = fileName,
                     DocumentContentType = contentType,
@@ -132,6 +138,18 @@ namespace ApiProject.ApiLogic.Controllers
                 DeleteThesisResult.Deleted => NoContent(),
                 _ => throw new InvalidOperationException("Unexpected delete result")
             };
+        }
+
+        [HttpGet("billing-statuses")]
+        public async Task<ActionResult<List<BillingStatusResponse>>> GetBillingStatuses()
+        {
+            var billingStatuses = await _thesisBusinessLogicService.GetAllBillingStatusesAsync();
+            var response = billingStatuses.Select(bs => new BillingStatusResponse
+            {
+                Id = bs.Id,
+                Name = bs.Name
+            }).ToList();
+            return Ok(response);
         }
     }
 }

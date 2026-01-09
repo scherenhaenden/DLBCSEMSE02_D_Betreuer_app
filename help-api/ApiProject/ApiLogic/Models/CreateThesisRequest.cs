@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApiProject.ApiLogic.Models
 {
-    public class CreateThesisRequest
+    public class CreateThesisApiRequest
     {
         [Required]
         public required string Title { get; set; }
@@ -13,5 +13,6 @@ namespace ApiProject.ApiLogic.Models
 
         public IFormFile? Document { get; set; }
         public Guid OwnerId { get; set; }
+        public string? Description { get; set; }
     }
 }

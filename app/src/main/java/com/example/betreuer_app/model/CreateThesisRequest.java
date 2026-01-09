@@ -2,11 +2,13 @@ package com.example.betreuer_app.model;
 
 public class CreateThesisRequest {
     private String title;
-    private String topicId;
+    private String description;
+    private String subjectAreaId;
 
-    public CreateThesisRequest(String title, String topicId) {
+    public CreateThesisRequest(String title, String description, String subjectAreaId) {
         this.title = title;
-        this.topicId = topicId;
+        this.description = description;
+        this.subjectAreaId = subjectAreaId;
     }
 
     public String getTitle() {
@@ -17,11 +19,19 @@ public class CreateThesisRequest {
         this.title = title;
     }
 
-    public String getTopicId() {
-        return topicId;
+    public String getDescription() {
+        return description;
     }
 
-    public void setTopicId(String topicId) {
-        this.topicId = topicId;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getSubjectAreaId() {
+        return subjectAreaId;
+    }
+
+    public void setSubjectAreaId(String subjectAreaId) {
+        this.subjectAreaId = subjectAreaId;
     }
 }
