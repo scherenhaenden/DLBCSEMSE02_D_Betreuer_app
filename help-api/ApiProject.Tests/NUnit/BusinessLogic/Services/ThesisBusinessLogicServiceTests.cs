@@ -290,4 +290,30 @@ public class ThesisBusinessLogicServiceTests
         Assert.That(billingStatuses.Any(bs => bs.Name == BillingStatuses.Issued), Is.True);
         Assert.That(billingStatuses.Any(bs => bs.Name == BillingStatuses.Paid), Is.True);
     }
+
+    [Test]
+    public async Task CanCreateThesisWithDescription()
+    {
+        // Arrange
+        var student = _seeder.SeedUser("Ivy", "Green", "ivy@example.com", "password", Roles.Student);
+        var subjectArea = _context.SubjectAreas.First();
+
+        var request = new ThesisCreateRequestBusinessLogicModel
+        {
+            Title = "Thesis with Description",
+            Description = "This is a sample description for the thesis.",
+            SubjectArea = subjectArea.Title,
+            OwnerId = student.Id,
+            SubjectAreaId = subjectArea.Id
+        };
+
+        // Act
+        var createdThesis = await _thesisService.CreateThesisAsync(request);
+
+        // Assert
+        Assert.That(createdThesis, Is.Not.Null);
+        Assert.That(createdThesis.Title, Is.EqualTo("Thesis with Description"));
+        Assert.That(createdThesis.Description, Is.EqualTo("This is a sample description for the thesis."));
+        Assert.That(createdThesis.OwnerId, Is.EqualTo(student.Id));
+    }
 }

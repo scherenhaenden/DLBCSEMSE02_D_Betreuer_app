@@ -207,6 +207,9 @@ public class Seeder
         var thesisFaker = new Faker<ThesisDataAccessModel>()
             .RuleFor(t => t.Id, _ => Guid.NewGuid())
             .RuleFor(t => t.Title, f => f.Lorem.Sentence(3))
+
+            .RuleFor(t => t.Description, f => f.Lorem.Sentence(1))
+
             .RuleFor(t => t.BillingStatusId, f => f.PickRandom(billingStatusesToSeed).Id)
             .RuleFor(t => t.CreatedAt, f => f.Date.Past())
             .RuleFor(t => t.UpdatedAt, f => f.Date.Recent());
@@ -691,6 +694,8 @@ public class Seeder
         Console.WriteLine("Database seeded successfully!");
     }
 }
+
+
 
 
 
