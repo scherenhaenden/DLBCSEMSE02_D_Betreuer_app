@@ -1,5 +1,6 @@
 package com.example.betreuer_app;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -46,6 +47,7 @@ public class EditThesisActivity extends AppCompatActivity {
     private TextView tvCurrentDocument;
     private MaterialButton btnDownloadDocument;
     private MaterialButton btnUploadDocument;
+    private MaterialButton btnFindTutors;
     private MaterialButton btnSave;
 
     private ThesisApiService thesisApiService;
@@ -75,6 +77,7 @@ public class EditThesisActivity extends AppCompatActivity {
             btnDownloadDocument = findViewById(R.id.btn_download_document);
             btnUploadDocument = findViewById(R.id.btn_upload_document);
             btnSave = findViewById(R.id.btn_save_thesis);
+            btnFindTutors = findViewById(R.id.btn_find_tutors);
 
             MaterialToolbar toolbar = findViewById(R.id.toolbar);
             if (toolbar != null) {
@@ -97,6 +100,7 @@ public class EditThesisActivity extends AppCompatActivity {
             btnSave.setOnClickListener(v -> saveThesisDetails());
             btnDownloadDocument.setOnClickListener(v -> downloadDocument());
             btnUploadDocument.setOnClickListener(v -> selectDocumentForUpload());
+            btnFindTutors.setOnClickListener(v -> findTutors());
 
             filePickerLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(),
                     uri -> {
@@ -534,6 +538,16 @@ public class EditThesisActivity extends AppCompatActivity {
             btnDownloadDocument.setVisibility(View.GONE);
             tvCurrentDocument.setVisibility(View.VISIBLE);
             tvCurrentDocument.setText("Kein Dokument hochgeladen");
+        }
+    }
+
+    private void findTutors() {
+        if (currentThesis != null && currentThesis.getSubjectAreaId() != null) {
+            Intent intent = new Intent(EditThesisActivity.this, TutorListActivity.class);
+            intent.putExtra("SELECTED_SUBJECT_AREA_ID", currentThesis.getSubjectAreaId().toString());
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Kein Fachgebiet für die Thesis ausgewählt", Toast.LENGTH_SHORT).show();
         }
     }
 }
