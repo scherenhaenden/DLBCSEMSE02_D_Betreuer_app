@@ -122,6 +122,9 @@ namespace ApiProject.BusinessLogic.Services
             var thesis = new ThesisDataAccessModel
             {
                 Title = request.Title.Trim(),
+
+                Description = request.Description,
+
                 OwnerId = request.OwnerId,
                 SubjectAreaId = request.SubjectAreaId,
                 StatusId = initialStatus.Id,
@@ -189,6 +192,9 @@ namespace ApiProject.BusinessLogic.Services
             }
 
             if (request.Title != null) thesis.Title = request.Title.Trim();
+
+            if (request.Description != null) thesis.Description = request.Description;
+
             if (request.SubjectAreaId.HasValue) thesis.SubjectAreaId = request.SubjectAreaId.Value;
 
             if (request.DocumentContent != null)

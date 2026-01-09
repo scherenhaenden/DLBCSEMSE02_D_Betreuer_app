@@ -70,6 +70,9 @@ namespace ApiProject.ApiLogic.Controllers
             var created = await _thesisBusinessLogicService.CreateThesisAsync(new ThesisCreateRequestBusinessLogicModel
             {
                 Title = request.Title,
+
+                Description = request.Description,
+
                 OwnerId = ownerId,
                 SubjectAreaId = request.SubjectAreaId,
                 DocumentFileName = fileName,
@@ -101,6 +104,9 @@ namespace ApiProject.ApiLogic.Controllers
                 var updated = await _thesisBusinessLogicService.UpdateThesisAsync(id, new ThesisUpdateRequestBusinessLogicModel
                 {
                     Title = request.Title,
+
+                    Description = request.Description,
+
                     SubjectAreaId = request.SubjectAreaId,
                     DocumentFileName = fileName,
                     DocumentContentType = contentType,

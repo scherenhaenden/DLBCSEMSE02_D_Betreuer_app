@@ -13,6 +13,9 @@ namespace ApiProject.ApiLogic.Mappers
             {
                 Id = thesis.Id,
                 Title = thesis.Title,
+
+                Description = thesis.Description,
+
                 Status = thesis.Status,
                 BillingStatus = thesis.BillingStatus?.Name,
                 OwnerId = thesis.OwnerId,

@@ -277,15 +277,15 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
     private void updateDropdown(List<SubjectAreaResponse> areas) {
         if (areas != null) {
             List<String> areaNames = new ArrayList<>();
+            subjectAreaMap.clear();
             
             for (SubjectAreaResponse area : areas) {
                 String name = area.getTitle();
                 UUID id = area.getId();
                 
                 if (name != null && id != null) {
-                    String displayName = name + " (" + id.toString() + ")";
-                    areaNames.add(displayName);
-                    subjectAreaMap.put(displayName, id.toString());
+                    areaNames.add(name);
+                    subjectAreaMap.put(name, id.toString());
                 }
             }
 
