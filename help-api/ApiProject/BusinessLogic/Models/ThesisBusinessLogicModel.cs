@@ -13,5 +13,6 @@ namespace ApiProject.BusinessLogic.Models
         public Guid? SecondSupervisorId { get; set; }
         public Guid? SubjectAreaId { get; set; }
         public string? DocumentFileName { get; set; }
+        public Guid? DocumentId { get; set; }
     }
 }

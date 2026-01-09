@@ -25,7 +25,8 @@ public static class ThesisBusinessLogicMapper
             TutorId = dataAccessModel.TutorId,
             SecondSupervisorId = dataAccessModel.SecondSupervisorId,
             SubjectAreaId = dataAccessModel.SubjectAreaId,
-            DocumentFileName = dataAccessModel.Document?.FileName
+            DocumentFileName = dataAccessModel.Document?.FileName,
+            DocumentId = dataAccessModel.Document?.Id
         };
     }
 }

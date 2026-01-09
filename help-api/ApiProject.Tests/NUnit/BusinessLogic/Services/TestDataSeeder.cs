@@ -84,7 +84,7 @@ public class TestDataSeeder
         return user;
     }
 
-    public ThesisDataAccessModel SeedThesis(string title, Guid ownerId, Guid subjectAreaId, Guid statusId, Guid billingStatusId)
+    public ThesisDataAccessModel SeedThesis(string title, Guid ownerId, Guid subjectAreaId, Guid statusId, Guid billingStatusId, string? description = null)
     {
         var thesis = new ThesisDataAccessModel
         {
@@ -94,6 +94,7 @@ public class TestDataSeeder
             SubjectAreaId = subjectAreaId,
             StatusId = statusId,
             BillingStatusId = billingStatusId,
+            Description = description,
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now
         };

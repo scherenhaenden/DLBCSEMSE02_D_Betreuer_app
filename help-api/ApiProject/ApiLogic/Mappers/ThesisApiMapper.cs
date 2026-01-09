@@ -22,7 +22,8 @@ namespace ApiProject.ApiLogic.Mappers
                 TutorId = thesis.TutorId,
                 SecondSupervisorId = thesis.SecondSupervisorId,
                 SubjectAreaId = thesis.SubjectAreaId,
-                DocumentFileName = thesis.DocumentFileName
+                DocumentFileName = thesis.DocumentFileName,
+                DocumentId = thesis.DocumentId
             };
         }
     }
