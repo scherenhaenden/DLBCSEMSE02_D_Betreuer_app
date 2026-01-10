@@ -218,7 +218,9 @@ public class Seeder
             .RuleFor(tr => tr.Id, _ => Guid.NewGuid())
             .RuleFor(tr => tr.Message, f => f.Lorem.Sentence())
             .RuleFor(tr => tr.CreatedAt, f => f.Date.Past())
-            .RuleFor(tr => tr.UpdatedAt, f => f.Date.Recent());
+            .RuleFor(tr => tr.UpdatedAt, f => f.Date.Recent())
+            .RuleFor(tr => tr.PlannedStartOfSupervision, f => f.Date.Soon(90)) // Next 3 months
+            .RuleFor(tr => tr.PlannedEndOfSupervision, (f, tr) => tr.PlannedStartOfSupervision.AddMonths(6)); // 6 months after start (approx 9 months from now max)
 
         var thesisDocumentFaker = new Faker<ThesisDocumentDataAccessModel>()
             .RuleFor(td => td.Id, _ => Guid.NewGuid())
@@ -694,10 +696,3 @@ public class Seeder
         Console.WriteLine("Database seeded successfully!");
     }
 }
-
-
-
-
-
-
-

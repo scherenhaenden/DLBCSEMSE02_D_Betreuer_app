@@ -23,7 +23,7 @@ namespace ApiProject.ApiLogic.Controllers
         public async Task<IActionResult> CreateRequest([FromBody] CreateThesisRequestRequest request)
         {
             var requesterId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var createdRequest = await _requestBusinessLogicService.CreateRequestAsync(requesterId, request.ThesisId, request.ReceiverId, request.RequestType, request.Message);
+            var createdRequest = await _requestBusinessLogicService.CreateRequestAsync(requesterId, request.ThesisId, request.ReceiverId, request.RequestType, request.Message, request.PlannedStartOfSupervision, request.PlannedEndOfSupervision);
             return CreatedAtAction(nameof(GetRequestById), new { id = createdRequest.Id }, MapToResponse(createdRequest));
         }
 
@@ -122,7 +122,9 @@ namespace ApiProject.ApiLogic.Controllers
                 RequestType = model.RequestType,
                 Status = model.Status,
                 Message = model.Message,
-                CreatedAt = model.CreatedAt
+                CreatedAt = model.CreatedAt,
+                PlannedStartOfSupervision = model.PlannedStartOfSupervision,
+                PlannedEndOfSupervision = model.PlannedEndOfSupervision
             };
         }
     }
