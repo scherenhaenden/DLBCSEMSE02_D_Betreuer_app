@@ -27,7 +27,7 @@ public class ThesisOfferDashboardActivity extends AppCompatActivity {
     private TextView emptyView;
     private ThesisOfferRepository repository;
     private String userId;
-    
+
     // Flag to determine if we are viewing another tutor's offers
     private boolean isViewingTutorOffers = false;
     private String targetTutorId = null;
@@ -53,14 +53,14 @@ public class ThesisOfferDashboardActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.rv_thesis_offers);
         emptyView = findViewById(R.id.tv_empty_list);
-        
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         FloatingActionButton fab = findViewById(R.id.fab_add_thesis_offer);
-        
+
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
-        
+
         if (isViewingTutorOffers) {
             // If viewing another tutor's offers, hide the FAB (only owner creates offers)
             fab.setVisibility(View.GONE);
@@ -106,9 +106,12 @@ public class ThesisOfferDashboardActivity extends AppCompatActivity {
                                     }
                                     startActivity(intent);
                                 } else {
-                                    // Viewer mode: Maybe view details or nothing (for now nothing or Toast)
-                                    // Ideally show details activity, but prompt didn't specify viewer details
-                                    // Toast.makeText(ThesisOfferDashboardActivity.this, "Details: " + offer.getTitle(), Toast.LENGTH_SHORT).show();
+                                    // Viewer mode: View offer details and apply
+                                    Intent intent = new Intent(ThesisOfferDashboardActivity.this, ThesisOfferDetailActivity.class);
+                                    intent.putExtra("THESIS_OFFER_ID", offer.getId().toString());
+                                    intent.putExtra("THESIS_OFFER_TITLE", offer.getTitle());
+                                    intent.putExtra("THESIS_OFFER_DESCRIPTION", offer.getDescription());
+                                    startActivity(intent);
                                 }
                             });
                             recyclerView.setAdapter(adapter);

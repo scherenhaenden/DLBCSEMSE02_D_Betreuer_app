@@ -32,6 +32,8 @@ public interface ThesisApiService {
         @Part("Title") RequestBody title,
         @Part("Description") RequestBody description,
         @Part("SubjectAreaId") RequestBody subjectAreaId,
+        @Part("PlannedStartOfSupervision") RequestBody plannedStartOfSupervision,
+        @Part("PlannedEndOfSupervision") RequestBody plannedEndOfSupervision,
         @Part MultipartBody.Part document
     );
 
@@ -67,7 +69,7 @@ public interface ThesisApiService {
 
     /**
      * Aktualisiert den Status einer spezifischen Abschlussarbeit.
-     * 
+     *
      * @param id Die ID der Arbeit.
      * @param request Das Request-Objekt mit dem neuen Status.
      */

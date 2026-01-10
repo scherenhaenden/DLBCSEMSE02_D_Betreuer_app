@@ -81,6 +81,13 @@
             android:label="Meine Ausschreibungen"
             android:parentActivityName=".DashboardActivity" />
 
+        <!-- Thesis Offer Detail Activity (New) -->
+        <activity
+            android:name=".ThesisOfferDetailActivity"
+            android:exported="false"
+            android:label="Ausschreibung-Details"
+            android:parentActivityName=".ThesisOfferDashboardActivity" />
+
         <!-- Thesis Request Activity (New) -->
         <activity
             android:name=".ThesisRequestActivity"

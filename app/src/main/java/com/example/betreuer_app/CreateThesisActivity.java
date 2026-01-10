@@ -81,7 +81,7 @@ public class CreateThesisActivity extends AppCompatActivity {
      * @param subjectAreaId The optional subject area ID associated with the thesis. Can be null if not specified.
      */
     private void createThesis(String title, String description, String subjectAreaId) {
-        thesisRepository.createThesis(title, description, subjectAreaId, new Callback<ThesisApiModel>() {
+        thesisRepository.createThesis(title, description, subjectAreaId, null, null, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 btnCreate.setEnabled(true);

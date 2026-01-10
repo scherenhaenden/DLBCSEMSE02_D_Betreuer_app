@@ -151,8 +151,11 @@ public class ThesisDetailActivity extends AppCompatActivity {
         spinnerBillingStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (currentThesis == null) {
+                    return; // Don't proceed if thesis details are not loaded yet
+                }
                 BillingStatusResponse selectedStatus = (BillingStatusResponse) parent.getItemAtPosition(position);
-                if (currentThesis != null && !selectedStatus.getName().equals(currentThesis.getBillingStatus())) {
+                if (!selectedStatus.getName().equals(currentThesis.getBillingStatus())) {
                     updateBillingStatus(selectedStatus);
                 }
             }
@@ -190,6 +193,9 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
     private BillingStatusResponse getBillingStatusByName(String name) {
         ArrayAdapter<BillingStatusResponse> adapter = (ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter();
+        if (adapter == null) {
+            return null;
+        }
         for (int i = 0; i < adapter.getCount(); i++) {
             BillingStatusResponse status = adapter.getItem(i);
             if (status != null && status.getName().equals(name)) {

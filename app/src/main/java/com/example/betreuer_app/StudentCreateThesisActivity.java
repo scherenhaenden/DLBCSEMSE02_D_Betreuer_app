@@ -1,8 +1,8 @@
 package com.example.betreuer_app;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,7 +18,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.betreuer_app.constants.AuthConstants;
 import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.SubjectAreaResponsePaginatedResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
@@ -27,9 +26,12 @@ import com.example.betreuer_app.repository.ThesisRepository;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -62,6 +64,12 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
 
     /** AutoCompleteTextView for searching and selecting the subject area (topic). */
     private AutoCompleteTextView dropdownSubjectArea;
+
+    /** Input field for selecting the start date. */
+    private TextInputEditText etStartDate;
+
+    /** Input field for selecting the end date. */
+    private TextInputEditText etEndDate;
 
     /** Button to trigger the thesis creation process. */
     private MaterialButton btnCreate;
@@ -100,6 +108,8 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
         etTitle = findViewById(R.id.et_thesis_title);
         etDescription = findViewById(R.id.et_thesis_description);
         dropdownSubjectArea = findViewById(R.id.subject_area_dropdown);
+        etStartDate = findViewById(R.id.et_start_date);
+        etEndDate = findViewById(R.id.et_end_date);
         btnCreate = findViewById(R.id.btn_create_thesis);
         btnSelectFile = findViewById(R.id.btn_select_file);
         tvSelectedFile = findViewById(R.id.tv_selected_file);
@@ -109,9 +119,12 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
 
         // Load the initial list of subject areas (e.g., top 100) to populate the dropdown before searching.
         loadInitialSubjectAreas();
-        
+
         // Setup text watcher and listeners for the search functionality
         setupSubjectAreaSearch();
+
+        etStartDate.setOnClickListener(v -> showDatePickerDialog(etStartDate));
+        etEndDate.setOnClickListener(v -> showDatePickerDialog(etEndDate));
 
         // File Selection Launcher using ActivityResultContracts
         ActivityResultLauncher<Intent> filePickerLauncher = registerForActivityResult(
@@ -138,6 +151,8 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
             String title = String.valueOf(etTitle.getText()).trim();
             String description = String.valueOf(etDescription.getText()).trim();
             String selectedSubjectAreaName = dropdownSubjectArea.getText().toString();
+            String startDate = String.valueOf(etStartDate.getText());
+            String endDate = String.valueOf(etEndDate.getText());
 
             if (title.isEmpty()) {
                 etTitle.setError("Titel ist erforderlich");
@@ -154,17 +169,39 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
             }
 
             btnCreate.setEnabled(false);
-            
+
             // Choose the appropriate API method based on whether a file was selected
             if (selectedFileUri != null) {
-                createThesisWithFile(title, description, subjectAreaId, selectedFileUri);
+                createThesisWithFile(title, description, subjectAreaId, startDate, endDate, selectedFileUri);
             } else {
-                createThesis(title, description, subjectAreaId);
+                createThesis(title, description, subjectAreaId, startDate, endDate);
             }
         });
-        
+
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
+    }
+
+    /**
+     * Shows a DatePickerDialog and sets the selected date on the given TextInputEditText.
+     *
+     * @param editText The TextInputEditText to set the date on.
+     */
+    private void showDatePickerDialog(TextInputEditText editText) {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    Calendar newDate = Calendar.getInstance();
+                    newDate.set(year, month, dayOfMonth);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    editText.setText(sdf.format(newDate.getTime()));
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
     }
 
     /**
@@ -242,14 +279,14 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
-        
+
         // Ensure dropdown shows when focused even if empty (showing initial list)
         dropdownSubjectArea.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus && dropdownSubjectArea.getText().length() == 0) {
                  dropdownSubjectArea.showDropDown();
             }
         });
-        
+
         dropdownSubjectArea.setOnClickListener(v -> dropdownSubjectArea.showDropDown());
     }
 
@@ -274,7 +311,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
             }
         });
     }
-    
+
     /**
      * Updates the dropdown adapter with a list of subject areas.
      * Also updates the internal map for name-to-ID resolution.
@@ -285,11 +322,11 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
         if (areas != null) {
             List<String> areaNames = new ArrayList<>();
             subjectAreaMap.clear();
-            
+
             for (SubjectAreaResponse area : areas) {
                 String name = area.getTitle();
                 UUID id = area.getId();
-                
+
                 if (name != null && id != null) {
                     areaNames.add(name);
                     subjectAreaMap.put(name, id.toString());
@@ -302,7 +339,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
                     areaNames
             );
             dropdownSubjectArea.setAdapter(adapter);
-            
+
             // If user is typing, filtering might hide results, force show to display new API results
             if (dropdownSubjectArea.hasFocus()) {
                 dropdownSubjectArea.showDropDown();
@@ -316,9 +353,11 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
      * @param title The title of the thesis.
      * @param description The optional description of the thesis.
      * @param subjectAreaId The optional subject area ID.
+     * @param startDate The planned start date of the thesis.
+     * @param endDate The planned end date of the thesis.
      */
-    private void createThesis(String title, String description, String subjectAreaId) {
-        thesisRepository.createThesis(title, description, subjectAreaId, new Callback<ThesisApiModel>() {
+    private void createThesis(String title, String description, String subjectAreaId, String startDate, String endDate) {
+        thesisRepository.createThesis(title, description, subjectAreaId, startDate, endDate, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 handleResponse(response);
@@ -336,10 +375,12 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
      * @param title The title of the thesis.
      * @param description The optional description of the thesis.
      * @param subjectAreaId The optional subject area ID.
+     * @param startDate The planned start date of the thesis.
+     * @param endDate The planned end date of the thesis.
      * @param fileUri The URI of the selected file to upload.
      */
-    private void createThesisWithFile(String title, String description, String subjectAreaId, Uri fileUri) {
-        thesisRepository.createThesisWithFile(title, description, subjectAreaId, fileUri, new Callback<ThesisApiModel>() {
+    private void createThesisWithFile(String title, String description, String subjectAreaId, String startDate, String endDate, Uri fileUri) {
+        thesisRepository.createThesisWithFile(title, description, subjectAreaId, startDate, endDate, fileUri, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 handleResponse(response);
