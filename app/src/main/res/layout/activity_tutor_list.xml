@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout für Betreuerliste, zugänglich für Studenten und Betreuer. Zeigt eine Liste von verfügbaren Betreuern in TutorListActivity. -->
+<!--
+  Layout für Betreuerliste, zugänglich für Studenten und Betreuer. Zeigt eine Liste von verfügbaren Betreuern in TutorListActivity.
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

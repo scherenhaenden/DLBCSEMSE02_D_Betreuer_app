@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Fragment-Layout für Betreuungsanfragen, nur für Studenten zugänglich. Zeigt und verwaltet Betreuungsanfragen. -->
+<!--
+  Fragment-Layout für Betreuungsanfragen, nur für Studenten zugänglich. Zeigt und verwaltet Betreuungsanfragen.
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
