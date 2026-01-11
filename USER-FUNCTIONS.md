@@ -6,11 +6,11 @@
 | **Alle**       | das Dark/Light-Thema ändern und in SP speichern      | `LoginActivity` (Theme-Switch)             | ✅         | `ThemeConstants`, `BetreuerApp` **(App-Initialisierung)** **[Gemacht]** |
 | **Alle**       | automatisch wieder anmelden                          | Splash/App-Start                           | ✅         | `LoginActivity.checkAutoLogin()` **[Gemacht]**            |
 | **Alle**       | mich abmelden                                       | Dashboard-Menü                             | ✅         | `DashboardActivity.logout()` **[Gemacht]**                |
-| **Student**    | meine Abschlussarbeiten sehen                         | `DashboardActivity` (Student-Ansicht)     | ❌         | `dashboard_student.xml`, `DashboardActivity` **[Gemacht]** |
+| **Student**    | meine Abschlussarbeiten sehen                         | `DashboardActivity` (Student-Ansicht)     | ✅         | `dashboard_student.xml`, `DashboardActivity` **[Gemacht]** |
 | **Betreuer**   | meine Thesenangebote verwalten                        | `DashboardActivity` (Betreuer-Ansicht)    | ❌         | `dashboard_lecturer.xml`, `DashboardActivity` **[Gemacht]** |
-| **Student**    | Tutoren suchen                                       | `DashboardActivity` (Student)              | ❌         | `btn_find_tutor` in `dashboard_student.xml` **[Gemacht]** |
+| **Student**    | Tutoren suchen                                       | `DashboardActivity` (Student)              | ✅         | `btn_find_tutor` in `dashboard_student.xml` **[Gemacht]** |
 | **Betreuer**   | offene Anfragen verwalten                           | `DashboardActivity` (Betreuer)             | ❌         | `btn_pending_requests`, `lecturer_requests_card` **[Gemacht]** |
-| **Student**    | meine Anfragen einsehen                              | `ThesisRequestActivity`                    | ❌         | `recyclerViewRequests` in `activity_thesis_request.xml` **[Gemacht]** |
+| **Student**    | meine Anfragen einsehen                              | `ThesisRequestActivity`                    | ✅         | `recyclerViewRequests` in `activity_thesis_request.xml` **[Gemacht]** |
 | **Betreuer**   | neue Thesenausschreibungen erstellen                 | `ThesisOfferDashboardActivity`             | ❌         | `fab_add_thesis_offer` in `activity_thesis_offer_dashboard.xml` **[Gemacht]** |
 | **Betreuer**   | Thesenangebote in einer Liste sehen                  | `ThesisOfferDashboardActivity`             | ❌         | `rv_thesis_offers`, `ThesisOfferAdapter` **[Gemacht (UI)]** |
 | **Betreuer**   | neue Ausschreibung erstellen                         | `CreateThesisOfferActivity`                | ❌         | `et_thesis_title`, `subject_area_dropdown` **[Gemacht (UI)]** |
@@ -23,7 +23,7 @@
 | **Student**    | Tutoren mit Fachrichtung filtern                    | `TutorListActivity`                        | ❌         | `fach_chip_group`, `subject_area_chip_group` **[Gemacht (UI)]** |
 | **Student**    | Tutorenprofil ansehen                               | `TutorProfileActivity`                     | ❌         | Profil-Layout existiert, aber Details unvollständig **[Gemacht (UI)]** |
 | **Student**    | Thema bei Tutor anfragen                            | `SupervisionRequestFragment`               | ❌         | `send_request_button`, `et_student_message` **[Gemacht (UI)]** |
-| **Student**    | Abschlussarbeit erstellen                           | `StudentCreateThesisActivity`              | ❌         | `et_thesis_title`, `btn_create_thesis` **[Gemacht (UI)]** |
+| **Student**    | Abschlussarbeit erstellen                           | `StudentCreateThesisActivity`              | ✅         | `et_thesis_title`, `btn_create_thesis` **[Gemacht (UI)]** |
 | **Student**    | Abschlussarbeit bearbeiten                          | `EditThesisActivity`                       | ❌         | `et_thesis_title`, `dropdown_subject_area` **[Gemacht (UI)]** |
 | **Student**    | Dokument zur Abschlussarbeit hochladen               | `EditThesisActivity` / `DocumentUploadFragment` | ❌ | `btn_upload_document`, `documents_recycler_view` **[Gemacht (UI)]** |
 | **Student**    | Dokument herunterladen                               | `ThesisDetailActivity`                     | ❌         | `btn_download_document`, `downloadThesisDocument()` **[Gemacht]** |
@@ -46,8 +46,10 @@
 | **Alle**       | automatisch wieder anmelden                          | Splash/App-Start                           | ❌         | `LoginActivity.checkAutoLogin()` **[Gemacht]**            |
 | **Student**    | meine Abschlussarbeiten sehen                         | `DashboardActivity` (Student-Ansicht)     | ❌         | `dashboard_student.xml`, `DashboardActivity` **[Gemacht]** |
 | **Betreuer**   | meine Thesenangebote verwalten                       | `DashboardActivity` (Betreuer-Ansicht)     | ❌         | `dashboard_lecturer.xml`, `DashboardActivity` **[Gemacht]** |
-| **Student**    | Tutoren suchen                                       | `DashboardActivity` (Student)              | ❌         | `btn_find_tutor` in `dashboard_student.xml` **[Gemacht]** |
+| **Student**    | Tutoren suchen                                       | `DashboardActivity` (Student)              | ✅         | `btn_find_tutor` in `dashboard_student.xml` **[Gemacht]** |
 | **Betreuer**   | offene Anfragen verwalten                           | `DashboardActivity` (Betreuer)             | ❌         | `btn_pending_requests`, `lecturer_requests_card` **[Gemacht]** |
-| **Student**    | meine Anfragen einsehen                              | `ThesisRequestActivity`                    | ❌         | `recyclerViewRequests` in `activity_thesis_request.xml` **[Gemacht]** |
+| **Student**    | meine Anfragen einsehen                              | `ThesisRequestActivity`                    | ✅         | `recyclerViewRequests` in `activity_thesis_request.xml` **[Gemacht]** |
 
 ---
+
+
