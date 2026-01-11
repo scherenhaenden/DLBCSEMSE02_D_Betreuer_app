@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Layout für Studenten zur Erstellung einer neuen Abschlussarbeit, nur für Studenten zugänglich. Wird in StudentCreateThesisActivity verwendet und bietet erweiterte Felder wie Titel, Fachbereichssuche, Dokument-Upload und Abgabedatum. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -110,7 +111,7 @@
             android:id="@+id/btn_select_file"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android.text="Datei auswählen"
+            android:text="Datei auswählen"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         <TextView
