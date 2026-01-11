@@ -106,5 +106,27 @@ namespace ApiProject.ApiLogic.Controllers
             }).ToList();
             return Ok(response);
         }
+
+        [HttpPatch("{id}/billing-status")]
+        [Authorize(Roles = "ADMIN,TUTOR")]
+        public async Task<ActionResult<ThesisResponse>> UpdateBillingStatus(Guid id, [FromBody] UpdateBillingStatusRequest request)
+        {
+            try
+            {
+                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+                var updated = await _thesisBusinessLogicService.UpdateBillingStatusAsync(id, request.BillingStatusId, userId, userRoles);
+                return Ok(_thesisApiMapper.MapToResponse(updated));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid();
+            }
+        }
     }
 }
