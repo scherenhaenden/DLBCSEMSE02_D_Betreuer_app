@@ -186,9 +186,9 @@ namespace ApiProject.BusinessLogic.Services
                 throw new InvalidOperationException("Thesis cannot be modified after submission or defense.");
             }
 
-            if (currentStatus.Name == ThesisStatuses.Registered && request.SubjectAreaId.HasValue)
+            if (currentStatus.Name != ThesisStatuses.Registered && request.SubjectAreaId.HasValue)
             {
-                throw new InvalidOperationException("Cannot change subject area after registration.");
+                throw new InvalidOperationException("Can change subject only if not ins registration.");
             }
 
             if (request.Title != null) thesis.Title = request.Title.Trim();
