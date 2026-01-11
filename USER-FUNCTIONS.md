@@ -2,10 +2,10 @@
 
 | **User-Rolle** | **Use Case / Als User kann ich…**                     | **Screen/Entry Point**                     | **Status** | **Beleg aus Code/Views**                                   |
 |----------------|------------------------------------------------------|--------------------------------------------|-----------|------------------------------------------------------------|
-| **Alle**       | mich mit E-Mail/Passwort anmelden                    | `LoginActivity`                            | ❌         | `LoginActivity`, `LoginRepository` **[Gemacht]**          |
-| **Alle**       | das Dark/Light-Thema ändern und in SP speichern      | `LoginActivity` (Theme-Switch)             | ❌         | `ThemeConstants`, `BetreuerApp` **(App-Initialisierung)** **[Gemacht]** |
-| **Alle**       | automatisch wieder anmelden                          | Splash/App-Start                           | ❌         | `LoginActivity.checkAutoLogin()` **[Gemacht]**            |
-| **Alle**       | mich abmelden                                       | Dashboard-Menü                             | ❌         | `DashboardActivity.logout()` **[Gemacht]**                |
+| **Alle**       | mich mit E-Mail/Passwort anmelden                    | `LoginActivity`                            | ✅         | `LoginActivity`, `LoginRepository` **[Gemacht]**          |
+| **Alle**       | das Dark/Light-Thema ändern und in SP speichern      | `LoginActivity` (Theme-Switch)             | ✅         | `ThemeConstants`, `BetreuerApp` **(App-Initialisierung)** **[Gemacht]** |
+| **Alle**       | automatisch wieder anmelden                          | Splash/App-Start                           | ✅         | `LoginActivity.checkAutoLogin()` **[Gemacht]**            |
+| **Alle**       | mich abmelden                                       | Dashboard-Menü                             | ✅         | `DashboardActivity.logout()` **[Gemacht]**                |
 | **Student**    | meine Abschlussarbeiten sehen                         | `DashboardActivity` (Student-Ansicht)     | ❌         | `dashboard_student.xml`, `DashboardActivity` **[Gemacht]** |
 | **Betreuer**   | meine Thesenangebote verwalten                        | `DashboardActivity` (Betreuer-Ansicht)    | ❌         | `dashboard_lecturer.xml`, `DashboardActivity` **[Gemacht]** |
 | **Student**    | Tutoren suchen                                       | `DashboardActivity` (Student)              | ❌         | `btn_find_tutor` in `dashboard_student.xml` **[Gemacht]** |
