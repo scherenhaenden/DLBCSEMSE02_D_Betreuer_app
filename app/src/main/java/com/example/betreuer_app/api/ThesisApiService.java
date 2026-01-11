@@ -32,6 +32,8 @@ public interface ThesisApiService {
         @Part("Title") RequestBody title,
         @Part("Description") RequestBody description,
         @Part("SubjectAreaId") RequestBody subjectAreaId,
+        @Part("SupervisorId") RequestBody supervisorId,
+        @Part("CoSupervisorId") RequestBody coSupervisorId,
         @Part MultipartBody.Part document
     );
 

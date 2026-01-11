@@ -43,7 +43,6 @@ dependencies {
     testImplementation(libs.junit)
     // Mockito for unit tests
     testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.inline)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }

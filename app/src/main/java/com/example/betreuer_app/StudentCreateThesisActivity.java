@@ -316,7 +316,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
      * @param subjectAreaId The optional subject area ID.
      */
     private void createThesis(String title, String description, String subjectAreaId) {
-        thesisRepository.createThesis(title, description, subjectAreaId, new Callback<ThesisApiModel>() {
+        thesisRepository.createThesis(title, description, subjectAreaId, null, null, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 handleResponse(response);

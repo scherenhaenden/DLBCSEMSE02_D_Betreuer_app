@@ -7,9 +7,10 @@ import com.example.betreuer_app.model.LoggedInUser;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
@@ -20,6 +21,7 @@ import retrofit2.Response;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class LoginRepositoryTest {
 
     private UserApiService apiService;
@@ -28,7 +30,6 @@ public class LoginRepositoryTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         apiService = mock(UserApiService.class);
         callMock = mock(Call.class);
         repository = new LoginRepository(apiService);

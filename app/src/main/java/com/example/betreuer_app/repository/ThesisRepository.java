@@ -34,19 +34,25 @@ public class ThesisRepository {
         call.enqueue(callback);
     }
 
-    public void createThesis(String title, String description, String topicId, Callback<ThesisApiModel> callback) {
-        executeCreateThesis(title, description, topicId, null, callback);
+    public void createThesis(String title, String description, String topicId, String supervisorId, String coSupervisorId, Callback<ThesisApiModel> callback) {
+        executeCreateThesis(title, description, topicId, supervisorId, coSupervisorId, null, callback);
     }
 
     public void createThesisWithFile(String title, String description, String topicId, Uri fileUri, Callback<ThesisApiModel> callback) {
-        executeCreateThesis(title, description, topicId, fileUri, callback);
+        executeCreateThesis(title, description, topicId, null, null, fileUri, callback);
     }
 
-    private void executeCreateThesis(String title, String description, String topicId, Uri fileUri, Callback<ThesisApiModel> callback) {
+    private void executeCreateThesis(String title, String description, String topicId, String supervisorId, String coSupervisorId, Uri fileUri, Callback<ThesisApiModel> callback) {
         RequestBody titlePart = RequestBody.create(MediaType.parse("text/plain"), title);
         RequestBody descriptionPart = RequestBody.create(MediaType.parse("text/plain"), description != null ? description : "");
         RequestBody subjectAreaIdPart = topicId != null
                 ? RequestBody.create(MediaType.parse("text/plain"), topicId)
+                : null;
+        RequestBody supervisorIdPart = supervisorId != null
+                ? RequestBody.create(MediaType.parse("text/plain"), supervisorId)
+                : null;
+        RequestBody coSupervisorIdPart = coSupervisorId != null
+                ? RequestBody.create(MediaType.parse("text/plain"), coSupervisorId)
                 : null;
 
         MultipartBody.Part documentPart = null;
@@ -67,7 +73,7 @@ public class ThesisRepository {
             documentPart = MultipartBody.Part.createFormData("Document", file.getName(), requestFile);
         }
 
-        Call<ThesisApiModel> call = apiService.createThesis(titlePart, descriptionPart, subjectAreaIdPart, null, null, documentPart);
+        Call<ThesisApiModel> call = apiService.createThesis(titlePart, descriptionPart, subjectAreaIdPart, supervisorIdPart, coSupervisorIdPart, documentPart);
 
         final File finalFileToDelete = fileToDelete;
         call.enqueue(new Callback<>() {
