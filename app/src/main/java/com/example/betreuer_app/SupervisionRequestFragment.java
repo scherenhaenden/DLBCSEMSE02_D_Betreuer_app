@@ -1,6 +1,7 @@
 package com.example.betreuer_app;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.ThesisApiService;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -65,9 +68,10 @@ public class SupervisionRequestFragment extends Fragment {
 
         // --- Process Intent ---
         String tutorName = "";
-        if (getActivity() != null && getActivity().getIntent() != null) {
-            tutorName = getActivity().getIntent().getStringExtra("TUTOR_NAME");
-            tutorId = getActivity().getIntent().getStringExtra("TUTOR_ID");
+        FragmentActivity activity = getActivity();
+        if (activity != null && activity.getIntent() != null) {
+            tutorName = activity.getIntent().getStringExtra("TUTOR_NAME");
+            tutorId = activity.getIntent().getStringExtra("TUTOR_ID");
         }
 
         // --- Toolbar Setup ---
@@ -115,9 +119,12 @@ public class SupervisionRequestFragment extends Fragment {
     }
 
     private void showDatePickerDialog(TextInputEditText editText) {
+        Context context = getContext();
+        if (context == null) return;
+
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(
-                getContext(),
+                context,
                 (v, year, month, dayOfMonth) -> {
                     Calendar newDate = Calendar.getInstance();
                     newDate.set(year, month, dayOfMonth);
@@ -135,27 +142,35 @@ public class SupervisionRequestFragment extends Fragment {
         thesisApiService.getTheses(1, 100).enqueue(new Callback<ThesesResponse>() {
             @Override
             public void onResponse(Call<ThesesResponse> call, Response<ThesesResponse> response) {
+                Context context = getContext();
+                if (context == null) return; // Prevent crash if fragment is detached
+
                 if (response.isSuccessful() && response.body() != null) {
                     thesesList = response.body().getItems();
                     List<String> thesisTitles = new ArrayList<>();
                     for (ThesisApiModel thesis : thesesList) {
                         thesisTitles.add(thesis.getTitle());
                     }
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, thesisTitles);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, thesisTitles);
                     thesisTitleInput.setAdapter(adapter);
                 } else {
-                    Toast.makeText(getContext(), "Fehler beim Laden der Daten", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Fehler beim Laden der Daten", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ThesesResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Context context = getContext();
+                if (context == null) return;
+                Toast.makeText(context, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void sendSupervisionRequest() {
+        Context context = getContext();
+        if (context == null) return;
+
         String selectedTitle = thesisTitleInput.getText().toString().trim();
         ThesisApiModel selectedThesis = null;
         for (ThesisApiModel thesis : thesesList) {
@@ -166,12 +181,20 @@ public class SupervisionRequestFragment extends Fragment {
         }
 
         if (selectedThesis == null) {
-            Toast.makeText(getContext(), "Bitte wählen Sie einen gültigen Titel aus.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Bitte wählen Sie einen gültigen Titel aus.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (tutorId == null) {
-            Toast.makeText(getContext(), "Tutor-ID fehlt.", Toast.LENGTH_SHORT).show();
+        if (tutorId == null || tutorId.trim().isEmpty()) {
+            Toast.makeText(context, "Tutor-ID fehlt.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        UUID tutorUuid;
+        try {
+            tutorUuid = UUID.fromString(tutorId);
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(context, "Ungültige Tutor-ID.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -181,7 +204,7 @@ public class SupervisionRequestFragment extends Fragment {
 
         CreateThesisRequestRequest request = new CreateThesisRequestRequest(
                 selectedThesis.getId(),
-                java.util.UUID.fromString(tutorId),
+                tutorUuid,
                 "SUPERVISION",
                 message,
                 startDate,
@@ -191,19 +214,22 @@ public class SupervisionRequestFragment extends Fragment {
         thesisRequestApiService.createRequest(request).enqueue(new Callback<ThesisRequestResponse>() {
             @Override
             public void onResponse(Call<ThesisRequestResponse> call, Response<ThesisRequestResponse> response) {
+                FragmentActivity activity = getActivity();
+                if (activity == null) return;
+
                 if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(getContext(), "Anfrage erfolgreich gesendet.", Toast.LENGTH_SHORT).show();
-                    if (getActivity() != null) {
-                        getActivity().finish();
-                    }
+                    Toast.makeText(activity, "Anfrage erfolgreich gesendet.", Toast.LENGTH_SHORT).show();
+                    activity.finish();
                 } else {
-                    Toast.makeText(getContext(), "Fehler beim Senden der Anfrage", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Fehler beim Senden der Anfrage", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ThesisRequestResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                FragmentActivity activity = getActivity();
+                if (activity == null) return;
+                Toast.makeText(activity, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
