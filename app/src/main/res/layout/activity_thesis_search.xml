@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout für Thesensuche, zugänglich für Studenten und Betreuer. Ermöglicht die Suche nach Abschlussarbeiten. -->
+<!-- Layout für Thesensuche, zugänglich für Studenten und Betreuer.
+Ermöglicht die Suche nach Abschlussarbeiten. -->
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
