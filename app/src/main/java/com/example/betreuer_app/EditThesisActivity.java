@@ -84,9 +84,9 @@ public class EditThesisActivity extends AppCompatActivity {
                 toolbar.setNavigationOnClickListener(v -> finish());
             }
 
-            thesisApiService = ApiClient.getThesisApiService(this);
-            subjectAreaRepository = new SubjectAreaRepository(getApplicationContext());
-            subjectAreaApiService = ApiClient.getSubjectAreaApiService(this);
+            thesisApiService = createThesisApiService();
+            subjectAreaRepository = createSubjectAreaRepository();
+            subjectAreaApiService = createSubjectAreaApiService();
 
             if (getIntent().hasExtra("THESIS_ID")) {
                 thesisId = getIntent().getStringExtra("THESIS_ID");
@@ -121,6 +121,18 @@ public class EditThesisActivity extends AppCompatActivity {
             Toast.makeText(this, "Fehler beim Laden der Activity: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
+    }
+
+    protected ThesisApiService createThesisApiService() {
+        return ApiClient.getThesisApiService(this);
+    }
+
+    protected SubjectAreaRepository createSubjectAreaRepository() {
+        return new SubjectAreaRepository(getApplicationContext());
+    }
+
+    protected SubjectAreaApiService createSubjectAreaApiService() {
+        return ApiClient.getSubjectAreaApiService(this);
     }
 
     private void loadThesisDetails(String id) {
