@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowToast;
 
 import static org.junit.Assert.*;
@@ -175,12 +176,16 @@ public class LoginActivityTest {
         editor.apply();
 
         // Trigger showLogin by having invalid credentials in auto-login
+        // Recreate activity to run onCreate and checkAutoLogin
         activity.finish();
         activity = Robolectric.buildActivity(LoginActivity.class).create().get();
 
-        // Check that authentication data exists (auto-login will be attempted but may fail in test environment)
-        // This test verifies the SharedPreferences can be accessed properly
-        assertNotNull(authPreferences);
+        // Run main thread tasks to allow Retrofit callback (onFailure) to execute
+        ShadowLooper.idleMainLooper();
+
+        // Check that authentication data is cleared
+        String token = authPreferences.getString(AuthConstants.KEY_JWT_TOKEN, null);
+        assertNull("Token should be cleared after auto-login failure", token);
     }
 
     @Test
