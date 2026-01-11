@@ -12,8 +12,14 @@ import retrofit2.Callback;
 public class LoginRepository {
     private UserApiService apiService;
 
+    // Existing constructor used in the app
     public LoginRepository(Context context) {
         apiService = ApiClient.getUserApiService(context);
+    }
+
+    // New constructor for tests / dependency injection
+    public LoginRepository(UserApiService apiService) {
+        this.apiService = apiService;
     }
 
     public void login(String email, String password, Callback<LoginResponse> callback) {
