@@ -6,7 +6,10 @@
 | **Alle**       | das Dark/Light-Thema ändern und in SP speichern      | `LoginActivity` (Theme-Switch)             | ✅         | `ThemeConstants`, `BetreuerApp` **(App-Initialisierung)** **[Gemacht]** |
 | **Alle**       | automatisch wieder anmelden                          | Splash/App-Start                           | ✅         | `LoginActivity.checkAutoLogin()` **[Gemacht]**            |
 | **Alle**       | mich abmelden                                       | Dashboard-Menü                             | ✅         | `DashboardActivity.logout()` **[Gemacht]**                |
-| **Student**    | meine Abschlussarbeiten sehen                         | `DashboardActivity` (Student-Ansicht)     | ✅         | `dashboard_student.xml`, `DashboardActivity` **[Gemacht]** |
+| **Student**    | Button mit Anzahl der Abschlussarbeiten sehen (Klick öffnet Liste) | `DashboardActivity` (Student-Ansicht)     | ✅         | `student_thesis_card`, `studentThesisCountTextView` in `view_dashboard_student.xml` **[Gemacht]** |
+| **Student**    | Liste der Abschlussarbeiten sehen (Klick öffnet Details) | `ThesisListActivity`                       | ✅         | `ThesisListFragment`, `ThesisListAdapter` (onItemClick -> Detail) **[Gemacht]** |
+| **Student**    | Details der Abschlussarbeit sehen (Status, Rechnung, PDF laden, Bearbeiten) | `ThesisDetailActivity`                     | ✅         | `ThesisDetailActivity`, `btn_download_document`, `btn_edit_thesis` **[Gemacht]** |
+| **Student**    | Abschlussarbeit bearbeiten (Dokument laden, Betreuer finden, Speichern) | `EditThesisActivity`                       | ✅         | `EditThesisActivity`, `btn_upload_document`, `btn_find_tutors`, `btn_save_thesis` **[Gemacht]** |
 | **Betreuer**   | meine Thesenangebote verwalten                        | `DashboardActivity` (Betreuer-Ansicht)    | ❌         | `dashboard_lecturer.xml`, `DashboardActivity` **[Gemacht]** |
 | **Student**    | Tutoren suchen                                       | `DashboardActivity` (Student)              | ✅         | `btn_find_tutor` in `dashboard_student.xml` **[Gemacht]** |
 | **Betreuer**   | offene Anfragen verwalten                           | `DashboardActivity` (Betreuer)             | ❌         | `btn_pending_requests`, `lecturer_requests_card` **[Gemacht]** |
