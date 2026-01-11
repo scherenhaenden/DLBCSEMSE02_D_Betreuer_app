@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Fragment-Layout für Thesenstatus, zugänglich für Studenten und Betreuer. Zeigt den Status einer Abschlussarbeit. -->
+<!--
+  Fragment-Layout für Thesenstatus, zugänglich für Studenten und Betreuer. Zeigt den Status einer Abschlussarbeit.
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

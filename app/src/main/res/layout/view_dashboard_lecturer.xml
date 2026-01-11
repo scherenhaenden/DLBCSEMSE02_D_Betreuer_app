@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Dozenten-Dashboard-Ansicht, nur für Betreuer zugänglich. Wird über ViewStub in activity_dashboard.xml inflatiert und zeigt betreuerspezifische Optionen wie Thesenangebote verwalten und Anfragen anzeigen. -->
+<!--
+  Dozenten-Dashboard-Ansicht, nur für Betreuer zugänglich. Wird über ViewStub in activity_dashboard.xml inflatiert und zeigt
+  betreuerspezifische Optionen wie Thesenangebote verwalten und Anfragen anzeigen.
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

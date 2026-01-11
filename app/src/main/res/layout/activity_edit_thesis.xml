@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout für die Bearbeitung einer Abschlussarbeit, zugänglich für Studenten und Betreuer. Wird in EditThesisActivity verwendet und ermöglicht das Ändern von Titel, Beschreibung, Fachbereich und Dokumenten. -->
+<!--
+  Layout für die Bearbeitung einer Abschlussarbeit, zugänglich für Studenten und Betreuer. Wird in EditThesisActivity verwendet und
+  ermöglicht das Ändern von Titel, Beschreibung, Fachbereich und Dokumenten.
+-->
+
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

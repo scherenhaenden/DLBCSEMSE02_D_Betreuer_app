@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout für das Schwarze Brett, zugänglich für Studenten und Betreuer. Zeigt Ankündigungen und Themen in einer Liste an. -->
+<!--
+  Layout für das Schwarze Brett, zugänglich für Studenten und Betreuer. Zeigt Ankündigungen und Themen in einer Liste an.
+-->
+
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

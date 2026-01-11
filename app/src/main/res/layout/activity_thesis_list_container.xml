@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Container-Layout für Thesenliste, zugänglich für Studenten und Betreuer. FrameLayout für Fragmente. -->
+<!--
+  Container-Layout für Thesenliste, zugänglich für Studenten und Betreuer. FrameLayout für Fragmente.
+-->
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_container"
     android:layout_width="match_parent"

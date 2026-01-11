@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Item-Layout für Betreuer-Karte, zugänglich für Studenten und Betreuer. Zeigt Betreuerinformationen in Kartenform. -->
+<!--
+  Item-Layout für Betreuer-Karte, zugänglich für Studenten und Betreuer. Zeigt Betreuerinformationen in Kartenform.
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
