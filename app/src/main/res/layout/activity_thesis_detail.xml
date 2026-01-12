@@ -194,7 +194,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="@string/download_expose"
-                        android:visibility="gone"
                         app:icon="@drawable/ic_download"
                         tools:visibility="visible"/>
 

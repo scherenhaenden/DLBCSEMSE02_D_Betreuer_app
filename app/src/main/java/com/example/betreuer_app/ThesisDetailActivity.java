@@ -262,15 +262,19 @@ public class ThesisDetailActivity extends AppCompatActivity {
         isSpinnerInitializing = false; // Re-enable spinner listener
 
         if (thesis.getDocumentFileName() != null && !thesis.getDocumentFileName().isEmpty()) {
-            btnDownloadDocument.setVisibility(View.VISIBLE);
             btnDownloadDocument.setText("Exposé herunterladen (" + thesis.getDocumentFileName() + ")");
-            btnDownloadDocument.setOnClickListener(v -> {
+        } else {
+            btnDownloadDocument.setText("Exposé herunterladen");
+        }
+        btnDownloadDocument.setVisibility(View.VISIBLE);
+        btnDownloadDocument.setOnClickListener(v -> {
+            if (thesis.getDocumentFileName() != null && !thesis.getDocumentFileName().isEmpty()) {
                 this.thesisToDownload = thesis;
                 requestDownloadPermission();
-            });
-        } else {
-            btnDownloadDocument.setVisibility(View.GONE);
-        }
+            } else {
+                Toast.makeText(ThesisDetailActivity.this, "Kein Dokument zum Herunterladen verfügbar", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void requestDownloadPermission() {
