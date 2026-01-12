@@ -1,7 +1,6 @@
 package com.example.betreuer_app;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -26,12 +25,9 @@ import com.example.betreuer_app.repository.ThesisRepository;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -64,12 +60,6 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
 
     /** AutoCompleteTextView for searching and selecting the subject area (topic). */
     private AutoCompleteTextView dropdownSubjectArea;
-
-    /** Input field for selecting the start date. */
-    private TextInputEditText etStartDate;
-
-    /** Input field for selecting the end date. */
-    private TextInputEditText etEndDate;
 
     /** Button to trigger the thesis creation process. */
     private MaterialButton btnCreate;
@@ -108,8 +98,6 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
         etTitle = findViewById(R.id.et_thesis_title);
         etDescription = findViewById(R.id.et_thesis_description);
         dropdownSubjectArea = findViewById(R.id.subject_area_dropdown);
-        etStartDate = findViewById(R.id.et_start_date);
-        etEndDate = findViewById(R.id.et_end_date);
         btnCreate = findViewById(R.id.btn_create_thesis);
         btnSelectFile = findViewById(R.id.btn_select_file);
         tvSelectedFile = findViewById(R.id.tv_selected_file);
@@ -122,9 +110,6 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
 
         // Setup text watcher and listeners for the search functionality
         setupSubjectAreaSearch();
-
-        etStartDate.setOnClickListener(v -> showDatePickerDialog(etStartDate));
-        etEndDate.setOnClickListener(v -> showDatePickerDialog(etEndDate));
 
         // File Selection Launcher using ActivityResultContracts
         ActivityResultLauncher<Intent> filePickerLauncher = registerForActivityResult(
@@ -151,8 +136,6 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
             String title = String.valueOf(etTitle.getText()).trim();
             String description = String.valueOf(etDescription.getText()).trim();
             String selectedSubjectAreaName = dropdownSubjectArea.getText().toString();
-            String startDate = String.valueOf(etStartDate.getText());
-            String endDate = String.valueOf(etEndDate.getText());
 
             if (title.isEmpty()) {
                 etTitle.setError("Titel ist erforderlich");
@@ -172,36 +155,14 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
 
             // Choose the appropriate API method based on whether a file was selected
             if (selectedFileUri != null) {
-                createThesisWithFile(title, description, subjectAreaId, startDate, endDate, selectedFileUri);
+                createThesisWithFile(title, description, subjectAreaId, selectedFileUri);
             } else {
-                createThesis(title, description, subjectAreaId, startDate, endDate);
+                createThesis(title, description, subjectAreaId);
             }
         });
 
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
-    }
-
-    /**
-     * Shows a DatePickerDialog and sets the selected date on the given TextInputEditText.
-     *
-     * @param editText The TextInputEditText to set the date on.
-     */
-    private void showDatePickerDialog(TextInputEditText editText) {
-        Calendar calendar = Calendar.getInstance();
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
-                (view, year, month, dayOfMonth) -> {
-                    Calendar newDate = Calendar.getInstance();
-                    newDate.set(year, month, dayOfMonth);
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    editText.setText(sdf.format(newDate.getTime()));
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-        );
-        datePickerDialog.show();
     }
 
     /**
@@ -353,11 +314,9 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
      * @param title The title of the thesis.
      * @param description The optional description of the thesis.
      * @param subjectAreaId The optional subject area ID.
-     * @param startDate The planned start date of the thesis.
-     * @param endDate The planned end date of the thesis.
      */
-    private void createThesis(String title, String description, String subjectAreaId, String startDate, String endDate) {
-        thesisRepository.createThesis(title, description, subjectAreaId, startDate, endDate, new Callback<ThesisApiModel>() {
+    private void createThesis(String title, String description, String subjectAreaId) {
+        thesisRepository.createThesis(title, description, subjectAreaId, null, null, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 handleResponse(response);
@@ -375,12 +334,10 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
      * @param title The title of the thesis.
      * @param description The optional description of the thesis.
      * @param subjectAreaId The optional subject area ID.
-     * @param startDate The planned start date of the thesis.
-     * @param endDate The planned end date of the thesis.
      * @param fileUri The URI of the selected file to upload.
      */
-    private void createThesisWithFile(String title, String description, String subjectAreaId, String startDate, String endDate, Uri fileUri) {
-        thesisRepository.createThesisWithFile(title, description, subjectAreaId, startDate, endDate, fileUri, new Callback<ThesisApiModel>() {
+    private void createThesisWithFile(String title, String description, String subjectAreaId, Uri fileUri) {
+        thesisRepository.createThesisWithFile(title, description, subjectAreaId, fileUri, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 handleResponse(response);
