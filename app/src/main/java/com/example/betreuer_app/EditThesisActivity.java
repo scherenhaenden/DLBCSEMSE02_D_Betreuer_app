@@ -119,8 +119,6 @@ public class EditThesisActivity extends AppCompatActivity {
             loadSubjectAreas();
             setupSubjectAreaSearch();
 
-            Toast.makeText(this, "Activity erfolgreich geladen", Toast.LENGTH_SHORT).show();
-
         } catch (Exception e) {
             Toast.makeText(this, "Fehler beim Laden der Activity: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();

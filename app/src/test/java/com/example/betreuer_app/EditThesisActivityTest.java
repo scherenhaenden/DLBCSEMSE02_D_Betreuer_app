@@ -621,17 +621,6 @@ public class EditThesisActivityTest {
     }
 
     @Test
-    public void testActivityToastShown_onCreation() {
-        activity = Robolectric.buildActivity(TestEditThesisActivity.class, intent)
-                .create()
-                .get();
-
-        assertEquals("Should show success toast on creation",
-                "Activity erfolgreich geladen",
-                ShadowToast.getTextOfLatestToast());
-    }
-
-    @Test
     public void testFindTutorsButton_enabled() {
         activity = Robolectric.buildActivity(TestEditThesisActivity.class, intent)
                 .create()

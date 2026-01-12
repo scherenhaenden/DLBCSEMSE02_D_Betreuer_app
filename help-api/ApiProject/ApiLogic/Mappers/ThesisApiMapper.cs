@@ -1,5 +1,6 @@
 using ApiProject.ApiLogic.Models;
 using ApiProject.BusinessLogic.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace ApiProject.ApiLogic.Mappers
 {
@@ -27,20 +28,33 @@ namespace ApiProject.ApiLogic.Mappers
             };
         }
 
+        private async Task<DocumentData> MapDocumentAsync(IFormFile? document)
+        {
+            if (document is null)
+            {
+                return new DocumentData(null, null, null);
+            }
+
+            using var memoryStream = new MemoryStream();
+            await document.CopyToAsync(memoryStream);
+
+            return new DocumentData(
+                document.FileName,
+                document.ContentType,
+                memoryStream.ToArray());
+        }
+
+        private sealed record DocumentData(
+            string? FileName,
+            string? ContentType,
+            byte[]? Content);
+
         public async Task<ThesisCreateRequestBusinessLogicModel> MapToCreateBusinessModel(CreateThesisApiRequest request, Guid ownerId)
         {
-            string? fileName = null;
-            string? contentType = null;
-            byte[]? content = null;
-
-            if (request.Document != null)
-            {
-                fileName = request.Document.FileName;
-                contentType = request.Document.ContentType;
-                using var memoryStream = new MemoryStream();
-                await request.Document.CopyToAsync(memoryStream);
-                content = memoryStream.ToArray();
-            }
+            var document = await MapDocumentAsync(request.Document);
+            string? fileName = document.FileName;
+            string? contentType = document.ContentType;
+            byte[]? content = document.Content;
 
             return new ThesisCreateRequestBusinessLogicModel
             {
@@ -56,18 +70,10 @@ namespace ApiProject.ApiLogic.Mappers
 
         public async Task<ThesisUpdateRequestBusinessLogicModel> MapToUpdateBusinessModel(UpdateThesisRequest request)
         {
-            string? fileName = null;
-            string? contentType = null;
-            byte[]? content = null;
-
-            if (request.Document != null)
-            {
-                fileName = request.Document.FileName;
-                contentType = request.Document.ContentType;
-                using var memoryStream = new MemoryStream();
-                await request.Document.CopyToAsync(memoryStream);
-                content = memoryStream.ToArray();
-            }
+            var document = await MapDocumentAsync(request.Document);
+            string? fileName = document.FileName;
+            string? contentType = document.ContentType;
+            byte[]? content = document.Content;
 
             return new ThesisUpdateRequestBusinessLogicModel
             {
