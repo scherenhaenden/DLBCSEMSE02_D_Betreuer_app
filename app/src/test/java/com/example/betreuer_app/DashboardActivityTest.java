@@ -4,24 +4,41 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.betreuer_app.model.ThesesResponse;
+import com.example.betreuer_app.repository.ThesisRepository;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.card.MaterialCardView;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.stubbing.Answer;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowLooper;
+
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import java.util.Collections;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
@@ -31,14 +48,39 @@ public class DashboardActivityTest {
     private DashboardActivity activity;
     private Intent intent;
 
+    @Mock
+    private ThesisRepository mockThesisRepository;
+
+    // Subclass to inject the mock repository
+    public static class TestDashboardActivity extends DashboardActivity {
+        public static ThesisRepository mockRepository;
+
+        @Override
+        protected ThesisRepository createThesisRepository() {
+            return mockRepository;
+        }
+    }
+
     @Before
     public void setUp() {
+        MockitoAnnotations.openMocks(this);
         intent = new Intent();
+        TestDashboardActivity.mockRepository = mockThesisRepository;
+
+        // Default mock behavior for getTheses to avoid NPEs in callbacks if called
+        doAnswer(invocation -> {
+            Callback<ThesesResponse> callback = invocation.getArgument(2);
+            // Default success response
+            ThesesResponse response = new ThesesResponse(Collections.emptyList(), 0, 1, 10);
+            callback.onResponse(null, Response.success(response));
+            return null;
+        }).when(mockThesisRepository).getTheses(anyInt(), anyInt(), any());
     }
 
     @Test
     public void testActivityCreation_withoutUserData() {
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        // Use TestDashboardActivity instead of DashboardActivity
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .get();
 
@@ -53,7 +95,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Max Mustermann");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -68,14 +110,15 @@ public class DashboardActivityTest {
     public void testWelcomeMessage_withoutUserName() {
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
 
         TextView welcomeTextView = activity.findViewById(R.id.welcomeTextView);
         assertNotNull("Welcome TextView should exist", welcomeTextView);
-        // Should have default text from layout
+        // Should have default text from layout or just be "Hallo null!" or similar if logic allows,
+        // but code checks if (userName != null).
     }
 
     @Test
@@ -83,7 +126,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Student User");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -107,7 +150,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Lecturer User");
         intent.putExtra("USER_ROLE", "tutor");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -131,7 +174,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Student User");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -153,7 +196,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Student User");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -175,7 +218,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Student User");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -197,7 +240,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Student User");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -219,7 +262,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Lecturer User");
         intent.putExtra("USER_ROLE", "tutor");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -241,7 +284,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Lecturer User");
         intent.putExtra("USER_ROLE", "tutor");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -263,7 +306,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Lecturer User");
         intent.putExtra("USER_ROLE", "tutor");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -284,7 +327,7 @@ public class DashboardActivityTest {
     public void testOptionsMenu_isCreated() {
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -300,7 +343,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Test User");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -337,7 +380,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Test User");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -362,7 +405,7 @@ public class DashboardActivityTest {
     public void testUnknownMenuItem_returnsSuper() {
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -380,7 +423,7 @@ public class DashboardActivityTest {
     public void testRoleEquality_caseInsensitive_student() {
         intent.putExtra("USER_ROLE", "STUDENT");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -393,7 +436,7 @@ public class DashboardActivityTest {
     public void testRoleEquality_caseInsensitive_tutor() {
         intent.putExtra("USER_ROLE", "TUTOR");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -407,7 +450,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Test User");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .start()
                 .resume()
@@ -415,7 +458,8 @@ public class DashboardActivityTest {
 
         // After resume, loadDashboardData should have been called
         // We can verify this by checking if the repository method was called
-        // Note: This test verifies the flow, actual API call testing would require mocking
+        verify(mockThesisRepository).getTheses(anyInt(), anyInt(), any());
+
         assertNotNull("Activity should be in resumed state", activity);
     }
 
@@ -424,7 +468,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Test User");
         // No USER_ROLE extra
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -438,7 +482,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Test User");
         intent.putExtra("USER_ROLE", "");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -452,7 +496,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Test User");
         intent.putExtra("USER_ROLE", "invalid_role");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .resume()
                 .get();
@@ -465,7 +509,7 @@ public class DashboardActivityTest {
     public void testToolbar_isSetAsActionBar() {
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .get();
 
@@ -477,7 +521,7 @@ public class DashboardActivityTest {
         intent.putExtra("USER_NAME", "Test User");
         intent.putExtra("USER_ROLE", "student");
 
-        activity = Robolectric.buildActivity(DashboardActivity.class, intent)
+        activity = Robolectric.buildActivity(TestDashboardActivity.class, intent)
                 .create()
                 .start()
                 .resume()
@@ -488,4 +532,3 @@ public class DashboardActivityTest {
         assertNotNull("Activity should survive lifecycle changes", activity);
     }
 }
-
