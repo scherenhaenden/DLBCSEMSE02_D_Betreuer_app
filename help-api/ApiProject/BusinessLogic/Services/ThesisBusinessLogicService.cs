@@ -188,7 +188,7 @@ namespace ApiProject.BusinessLogic.Services
 
             if (currentStatus.Name != ThesisStatuses.Registered && request.SubjectAreaId.HasValue)
             {
-                throw new InvalidOperationException("Can change subject only if not ins registration.");
+                throw new InvalidOperationException("Can change subject only if registration.");
             }
 
             if (request.Title != null) thesis.Title = request.Title.Trim();
