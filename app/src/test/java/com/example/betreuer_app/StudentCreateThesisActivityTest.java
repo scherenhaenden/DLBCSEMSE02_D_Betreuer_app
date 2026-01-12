@@ -3,6 +3,7 @@ package com.example.betreuer_app;
 import android.widget.EditText;
 import android.widget.Button;
 import com.example.betreuer_app.repository.ThesisRepository;
+import retrofit2.Callback;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,7 @@ public class StudentCreateThesisActivityTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         activity = Robolectric.buildActivity(StudentCreateThesisActivity.class).create().get();
+        activity.setThesisRepository(thesisRepository);
     }
 
     @Test
@@ -47,19 +49,19 @@ public class StudentCreateThesisActivityTest {
     }
 
     @Test
-    public void createButtonClick_withValidInputs_doesNotSetError() {
+    public void createButtonClick_withValidInputs_callsCreateThesis() {
         // Set up the UI
         EditText etTitle = activity.findViewById(R.id.et_thesis_title);
         EditText etDescription = activity.findViewById(R.id.et_thesis_description);
         Button btnCreate = activity.findViewById(R.id.btn_create_thesis);
 
-        etTitle.setText("Valid Title");
+        etTitle.setText("Valid Thesis Title");
         etDescription.setText("Valid Description");
 
         // Click the button
         btnCreate.performClick();
 
-        // Check that no error on title
-        assertNull(etTitle.getError());
+        // Verify that the repository method was called
+        verify(thesisRepository).createThesis(eq("Valid Thesis Title"), eq("Valid Description"), any(), any(), any(), any(Callback.class));
     }
 }

@@ -25,8 +25,13 @@ public class ThesisRepository {
     private final Context context;
 
     public ThesisRepository(Context context) {
+        this(context, ApiClient.getThesisApiService(context));
+    }
+
+    // Constructor for testing/DI
+    ThesisRepository(Context context, ThesisApiService apiService) {
         this.context = context;
-        apiService = ApiClient.getThesisApiService(context);
+        this.apiService = apiService;
     }
 
     public void getTheses(int page, int pageSize, Callback<ThesesResponse> callback) {

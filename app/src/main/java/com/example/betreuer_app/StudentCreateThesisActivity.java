@@ -13,6 +13,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -76,6 +77,11 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
     /** Repository for handling subject area-related API operations. */
     private SubjectAreaRepository subjectAreaRepository;
 
+    @VisibleForTesting
+    void setThesisRepository(ThesisRepository thesisRepository) {
+        this.thesisRepository = thesisRepository;
+    }
+
     /** Map to store the mapping between Subject Area names (displayed) and their IDs (values). */
     private Map<String, String> subjectAreaMap = new HashMap<>();
 
@@ -102,7 +108,9 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
         btnSelectFile = findViewById(R.id.btn_select_file);
         tvSelectedFile = findViewById(R.id.tv_selected_file);
 
-        thesisRepository = new ThesisRepository(getApplicationContext());
+        if (thesisRepository == null) {
+            thesisRepository = new ThesisRepository(getApplicationContext());
+        }
         subjectAreaRepository = new SubjectAreaRepository(getApplicationContext());
 
         // Load the initial list of subject areas (e.g., top 100) to populate the dropdown before searching.
