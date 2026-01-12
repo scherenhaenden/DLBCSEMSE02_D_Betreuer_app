@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'api-build'
+      - 'master'
 
 permissions:
   contents: write
