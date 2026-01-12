@@ -48,7 +48,7 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        thesisRepository = new ThesisRepository(this);
+        thesisRepository = createThesisRepository();
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -154,6 +154,10 @@ public class DashboardActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    protected ThesisRepository createThesisRepository() {
+        return new ThesisRepository(this);
     }
 
     private void logout() {

@@ -83,7 +83,7 @@ public interface ThesisApiService {
      * @param request Das Request-Objekt mit der neuen Status-ID.
      */
     @PATCH("theses/{id}/billing-status")
-    Call<Void> updateBillingStatus(@Path("id") String id, @Body BillingStatusUpdateRequest request);
+    Call<ThesisApiModel> updateBillingStatus(@Path("id") String id, @Body BillingStatusUpdateRequest request);
 
     /**
      * Datenmodell für das Status-Update-Request.

@@ -54,31 +54,8 @@ namespace ApiProject.ApiLogic.Controllers
         {
             var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            string? fileName = null;
-            string? contentType = null;
-            byte[]? content = null;
-
-            if (request.Document != null)
-            {
-                fileName = request.Document.FileName;
-                contentType = request.Document.ContentType;
-                using var memoryStream = new MemoryStream();
-                await request.Document.CopyToAsync(memoryStream);
-                content = memoryStream.ToArray();
-            }
-
-            var created = await _thesisBusinessLogicService.CreateThesisAsync(new ThesisCreateRequestBusinessLogicModel
-            {
-                Title = request.Title,
-
-                Description = request.Description,
-
-                OwnerId = ownerId,
-                SubjectAreaId = request.SubjectAreaId,
-                DocumentFileName = fileName,
-                DocumentContentType = contentType,
-                DocumentContent = content
-            });
+            var businessModel = await _thesisApiMapper.MapToCreateBusinessModel(request, ownerId);
+            var created = await _thesisBusinessLogicService.CreateThesisAsync(businessModel);
 
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, _thesisApiMapper.MapToResponse(created));
         }
@@ -86,32 +63,10 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<ThesisResponse>> Update(Guid id, [FromForm] UpdateThesisRequest request)
         {
-            string? fileName = null;
-            string? contentType = null;
-            byte[]? content = null;
-
-            if (request.Document != null)
-            {
-                fileName = request.Document.FileName;
-                contentType = request.Document.ContentType;
-                using var memoryStream = new MemoryStream();
-                await request.Document.CopyToAsync(memoryStream);
-                content = memoryStream.ToArray();
-            }
-
             try
             {
-                var updated = await _thesisBusinessLogicService.UpdateThesisAsync(id, new ThesisUpdateRequestBusinessLogicModel
-                {
-                    Title = request.Title,
-
-                    Description = request.Description,
-
-                    SubjectAreaId = request.SubjectAreaId,
-                    DocumentFileName = fileName,
-                    DocumentContentType = contentType,
-                    DocumentContent = content
-                });
+                var businessModel = await _thesisApiMapper.MapToUpdateBusinessModel(request);
+                var updated = await _thesisBusinessLogicService.UpdateThesisAsync(id, businessModel);
                 return Ok(_thesisApiMapper.MapToResponse(updated));
             }
             catch (KeyNotFoundException)
@@ -150,6 +105,28 @@ namespace ApiProject.ApiLogic.Controllers
                 Name = bs.Name
             }).ToList();
             return Ok(response);
+        }
+
+        [HttpPatch("{id}/billing-status")]
+        [Authorize(Roles = "ADMIN,TUTOR")]
+        public async Task<ActionResult<ThesisResponse>> UpdateBillingStatus(Guid id, [FromBody] UpdateBillingStatusRequest request)
+        {
+            try
+            {
+                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+                var updated = await _thesisBusinessLogicService.UpdateBillingStatusAsync(id, request.BillingStatusId, userId, userRoles);
+                return Ok(_thesisApiMapper.MapToResponse(updated));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid();
+            }
         }
     }
 }

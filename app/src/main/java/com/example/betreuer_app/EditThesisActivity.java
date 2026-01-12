@@ -45,6 +45,8 @@ public class EditThesisActivity extends AppCompatActivity {
     private TextInputEditText etDescription;
     private AutoCompleteTextView dropdownSubjectArea;
     private TextView tvCurrentDocument;
+    private TextView tvThesisStatus;
+    private TextView tvBillingStatus;
     private MaterialButton btnDownloadDocument;
     private MaterialButton btnUploadDocument;
     private MaterialButton btnFindTutors;
@@ -74,6 +76,8 @@ public class EditThesisActivity extends AppCompatActivity {
             etDescription = findViewById(R.id.et_thesis_description);
             dropdownSubjectArea = findViewById(R.id.dropdown_subject_area);
             tvCurrentDocument = findViewById(R.id.tv_current_document);
+            tvThesisStatus = findViewById(R.id.tv_thesis_status);
+            tvBillingStatus = findViewById(R.id.tv_billing_status);
             btnDownloadDocument = findViewById(R.id.btn_download_document);
             btnUploadDocument = findViewById(R.id.btn_upload_document);
             btnSave = findViewById(R.id.btn_save_thesis);
@@ -84,9 +88,9 @@ public class EditThesisActivity extends AppCompatActivity {
                 toolbar.setNavigationOnClickListener(v -> finish());
             }
 
-            thesisApiService = ApiClient.getThesisApiService(this);
-            subjectAreaRepository = new SubjectAreaRepository(getApplicationContext());
-            subjectAreaApiService = ApiClient.getSubjectAreaApiService(this);
+            thesisApiService = createThesisApiService();
+            subjectAreaRepository = createSubjectAreaRepository();
+            subjectAreaApiService = createSubjectAreaApiService();
 
             if (getIntent().hasExtra("THESIS_ID")) {
                 thesisId = getIntent().getStringExtra("THESIS_ID");
@@ -123,6 +127,18 @@ public class EditThesisActivity extends AppCompatActivity {
         }
     }
 
+    protected ThesisApiService createThesisApiService() {
+        return ApiClient.getThesisApiService(this);
+    }
+
+    protected SubjectAreaRepository createSubjectAreaRepository() {
+        return new SubjectAreaRepository(getApplicationContext());
+    }
+
+    protected SubjectAreaApiService createSubjectAreaApiService() {
+        return ApiClient.getSubjectAreaApiService(this);
+    }
+
     private void loadThesisDetails(String id) {
         try {
             thesisApiService.getThesis(id).enqueue(new Callback<ThesisApiModel>() {
@@ -134,6 +150,19 @@ public class EditThesisActivity extends AppCompatActivity {
                             etTitle.setText(currentThesis.getTitle());
                             etDescription.setText(currentThesis.getDescription());
                             tvCurrentDocument.setText(currentThesis.getDocumentFileName() != null ? currentThesis.getDocumentFileName() : "Kein Dokument hochgeladen");
+
+                            // Set status fields (read-only)
+                            if (currentThesis.getStatus() != null) {
+                                tvThesisStatus.setText(currentThesis.getStatus());
+                            } else {
+                                tvThesisStatus.setText("Unbekannt");
+                            }
+
+                            if (currentThesis.getBillingStatus() != null) {
+                                tvBillingStatus.setText(currentThesis.getBillingStatus());
+                            } else {
+                                tvBillingStatus.setText("Keine");
+                            }
 
                             // Set the selected subject area
                             if (currentThesis.getSubjectAreaId() != null) {

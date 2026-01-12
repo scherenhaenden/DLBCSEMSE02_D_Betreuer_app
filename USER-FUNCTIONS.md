@@ -47,7 +47,7 @@
 | **Alle**       | mich mit E-Mail/Passwort anmelden                    | `LoginActivity`                            | ❌         | `LoginActivity`, `LoginRepository` **[Gemacht]**          |
 | **Alle**       | das Dark/Light-Thema ändern und in SP speichern      | `LoginActivity` (Theme-Switch)             | ❌         | `ThemeConstants`, `BetreuerApp` **(App-Initialisierung)** **[Gemacht]** |
 | **Alle**       | automatisch wieder anmelden                          | Splash/App-Start                           | ❌         | `LoginActivity.checkAutoLogin()` **[Gemacht]**            |
-| **Student**    | meine Abschlussarbeiten sehen                         | `DashboardActivity` (Student-Ansicht)     | ❌         | `dashboard_student.xml`, `DashboardActivity` **[Gemacht]** |
+| **Student**    | meine Abschlussarbeiten sehen                         | `DashboardActivity` (Student-Ansicht)     | ✅         | `dashboard_student.xml`, `DashboardActivity` **[Gemacht]** |
 | **Betreuer**   | meine Thesenangebote verwalten                       | `DashboardActivity` (Betreuer-Ansicht)     | ❌         | `dashboard_lecturer.xml`, `DashboardActivity` **[Gemacht]** |
 | **Student**    | Tutoren suchen                                       | `DashboardActivity` (Student)              | ✅         | `btn_find_tutor` in `dashboard_student.xml` **[Gemacht]** |
 | **Betreuer**   | offene Anfragen verwalten                           | `DashboardActivity` (Betreuer)             | ❌         | `btn_pending_requests`, `lecturer_requests_card` **[Gemacht]** |
