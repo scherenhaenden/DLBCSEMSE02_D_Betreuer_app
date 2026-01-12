@@ -67,5 +67,18 @@ namespace ApiProject.BusinessLogic.Services
         /// </summary>
         /// <returns>A task representing the asynchronous operation, containing a list of <see cref="BillingStatusBusinessLogicModel"/>.</returns>
         Task<List<BillingStatusBusinessLogicModel>> GetAllBillingStatusesAsync();
+
+        /// <summary>
+        /// Updates the billing status of a thesis asynchronously.
+        /// Only ADMIN users or the tutor/second supervisor of the thesis can update the billing status.
+        /// </summary>
+        /// <param name="id">The unique identifier of the thesis to update.</param>
+        /// <param name="billingStatusId">The unique identifier of the new billing status.</param>
+        /// <param name="userId">The unique identifier of the user making the request.</param>
+        /// <param name="userRoles">The list of roles assigned to the user.</param>
+        /// <returns>A task representing the asynchronous operation, containing the updated <see cref="ThesisBusinessLogicModel"/>.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the thesis or billing status is not found.</exception>
+        /// <exception cref="UnauthorizedAccessException">Thrown if the user is not authorized to update the billing status.</exception>
+        Task<ThesisBusinessLogicModel> UpdateBillingStatusAsync(Guid id, Guid billingStatusId, Guid userId, List<string> userRoles);
     }
 }

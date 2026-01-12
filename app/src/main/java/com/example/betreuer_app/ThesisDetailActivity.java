@@ -61,6 +61,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
     private ThesisApiModel currentThesis;
     private ThesisApiModel thesisToDownload;
     private ActivityResultLauncher<String> requestPermissionLauncher;
+    private boolean isSpinnerInitializing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,8 +152,8 @@ public class ThesisDetailActivity extends AppCompatActivity {
         spinnerBillingStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (currentThesis == null) {
-                    return; // Don't proceed if thesis details are not loaded yet
+                if (currentThesis == null || isSpinnerInitializing) {
+                    return; // Don't proceed if thesis details are not loaded yet or spinner is being initialized
                 }
                 BillingStatusResponse selectedStatus = (BillingStatusResponse) parent.getItemAtPosition(position);
                 if (!selectedStatus.getName().equals(currentThesis.getBillingStatus())) {
@@ -171,21 +172,38 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
         ThesisApiService.BillingStatusUpdateRequest request = new ThesisApiService.BillingStatusUpdateRequest(newStatus.getId());
 
-        thesisApiService.updateBillingStatus(currentThesis.getId().toString(), request).enqueue(new Callback<Void>() {
+        thesisApiService.updateBillingStatus(currentThesis.getId().toString(), request).enqueue(new Callback<ThesisApiModel>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(ThesisDetailActivity.this, "Billing status updated successfully", Toast.LENGTH_SHORT).show();
-                    currentThesis.setBillingStatus(newStatus.getName());
+            public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(ThesisDetailActivity.this, "Rechnungsstatus erfolgreich aktualisiert", Toast.LENGTH_SHORT).show();
+                    currentThesis = response.body();
+                    // Refresh the display to show updated thesis data
+                    displayThesisDetails(currentThesis);
                 } else {
-                    Toast.makeText(ThesisDetailActivity.this, "Failed to update billing status", Toast.LENGTH_SHORT).show();
+                    String errorMessage;
+                    if (response.code() == 403) {
+                        errorMessage = "Sie sind nicht berechtigt, den Rechnungsstatus zu ändern. Nur Betreuer oder Zweitkorrektoren dieser Arbeit können dies tun.";
+                    } else {
+                        errorMessage = "Fehler beim Aktualisieren des Rechnungsstatus";
+                        try {
+                            if (response.errorBody() != null) {
+                                errorMessage += ": " + response.errorBody().string();
+                            }
+                        } catch (Exception e) {
+                            errorMessage += " (Code: " + response.code() + ")";
+                        }
+                    }
+                    Toast.makeText(ThesisDetailActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                    // Revert spinner to previous selection
                     spinnerBillingStatus.setSelection(((ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter()).getPosition(getBillingStatusByName(currentThesis.getBillingStatus())));
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(ThesisDetailActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<ThesisApiModel> call, Throwable t) {
+                Toast.makeText(ThesisDetailActivity.this, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                // Revert spinner to previous selection
                 spinnerBillingStatus.setSelection(((ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter()).getPosition(getBillingStatusByName(currentThesis.getBillingStatus())));
             }
         });
@@ -230,6 +248,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
         textViewDescription.setText(thesis.getDescription());
         textViewStatus.setText(thesis.getStatus());
 
+        isSpinnerInitializing = true; // Prevent spinner listener from triggering during setup
         ArrayAdapter<BillingStatusResponse> adapter = (ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter();
         if (adapter != null) {
             for (int i = 0; i < adapter.getCount(); i++) {
@@ -240,6 +259,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
                 }
             }
         }
+        isSpinnerInitializing = false; // Re-enable spinner listener
 
         if (thesis.getDocumentFileName() != null && !thesis.getDocumentFileName().isEmpty()) {
             btnDownloadDocument.setVisibility(View.VISIBLE);
