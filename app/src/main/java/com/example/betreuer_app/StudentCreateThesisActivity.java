@@ -82,6 +82,16 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
     /** URI of the file selected by the user for upload. Null if no file selected. */
     private Uri selectedFileUri = null;
 
+    @androidx.annotation.VisibleForTesting
+    void setThesisRepository(ThesisRepository thesisRepository) {
+        this.thesisRepository = thesisRepository;
+    }
+
+    @androidx.annotation.VisibleForTesting
+    void setSubjectAreaRepository(SubjectAreaRepository subjectAreaRepository) {
+        this.subjectAreaRepository = subjectAreaRepository;
+    }
+
     /**
      * Called when the activity is starting. This method initializes the UI components,
      * sets up the repositories, configures the subject area search behavior,
@@ -102,8 +112,12 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
         btnSelectFile = findViewById(R.id.btn_select_file);
         tvSelectedFile = findViewById(R.id.tv_selected_file);
 
-        thesisRepository = new ThesisRepository(getApplicationContext());
-        subjectAreaRepository = new SubjectAreaRepository(getApplicationContext());
+        if (thesisRepository == null) {
+            thesisRepository = new ThesisRepository(getApplicationContext());
+        }
+        if (subjectAreaRepository == null) {
+            subjectAreaRepository = new SubjectAreaRepository(getApplicationContext());
+        }
 
         // Load the initial list of subject areas (e.g., top 100) to populate the dropdown before searching.
         loadInitialSubjectAreas();

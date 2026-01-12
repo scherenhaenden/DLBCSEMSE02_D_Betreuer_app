@@ -3,6 +3,7 @@ package com.example.betreuer_app;
 import android.widget.EditText;
 import android.widget.Button;
 import com.example.betreuer_app.repository.ThesisRepository;
+import com.example.betreuer_app.repository.SubjectAreaRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +12,8 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import retrofit2.Callback;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -22,12 +25,20 @@ public class StudentCreateThesisActivityTest {
     @Mock
     private ThesisRepository thesisRepository;
 
+    @Mock
+    private SubjectAreaRepository subjectAreaRepository;
+
     private StudentCreateThesisActivity activity;
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        activity = Robolectric.buildActivity(StudentCreateThesisActivity.class).create().get();
+        // Inject mocks before onCreate is called
+        var controller = Robolectric.buildActivity(StudentCreateThesisActivity.class);
+        activity = controller.get();
+        activity.setThesisRepository(thesisRepository);
+        activity.setSubjectAreaRepository(subjectAreaRepository);
+        controller.create();
     }
 
     @Test
@@ -47,19 +58,19 @@ public class StudentCreateThesisActivityTest {
     }
 
     @Test
-    public void createButtonClick_withValidInputs_doesNotSetError() {
+    public void createButtonClick_withValidInputs_callsCreateThesis() {
         // Set up the UI
         EditText etTitle = activity.findViewById(R.id.et_thesis_title);
         EditText etDescription = activity.findViewById(R.id.et_thesis_description);
         Button btnCreate = activity.findViewById(R.id.btn_create_thesis);
 
-        etTitle.setText("Valid Title");
+        etTitle.setText("Valid Thesis Title");
         etDescription.setText("Valid Description");
 
         // Click the button
         btnCreate.performClick();
 
-        // Check that no error on title
-        assertNull(etTitle.getError());
+        // Verify that the repository method was called
+        verify(thesisRepository).createThesis(eq("Valid Thesis Title"), eq("Valid Description"), any(), any(), any(), any(Callback.class));
     }
 }
