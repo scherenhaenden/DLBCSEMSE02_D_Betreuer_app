@@ -32,6 +32,8 @@ public interface ThesisApiService {
         @Part("Title") RequestBody title,
         @Part("Description") RequestBody description,
         @Part("SubjectAreaId") RequestBody subjectAreaId,
+        @Part("SupervisorId") RequestBody supervisorId,
+        @Part("CoSupervisorId") RequestBody coSupervisorId,
         @Part MultipartBody.Part document
     );
 
@@ -67,7 +69,7 @@ public interface ThesisApiService {
 
     /**
      * Aktualisiert den Status einer spezifischen Abschlussarbeit.
-     * 
+     *
      * @param id Die ID der Arbeit.
      * @param request Das Request-Objekt mit dem neuen Status.
      */
@@ -81,7 +83,7 @@ public interface ThesisApiService {
      * @param request Das Request-Objekt mit der neuen Status-ID.
      */
     @PATCH("theses/{id}/billing-status")
-    Call<Void> updateBillingStatus(@Path("id") String id, @Body BillingStatusUpdateRequest request);
+    Call<ThesisApiModel> updateBillingStatus(@Path("id") String id, @Body BillingStatusUpdateRequest request);
 
     /**
      * Datenmodell für das Status-Update-Request.

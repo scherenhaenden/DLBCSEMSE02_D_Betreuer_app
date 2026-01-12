@@ -33,11 +33,13 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="receiverId">The unique identifier of the user receiving the request (must be a tutor).</param>
         /// <param name="requestType">The type of request, either "SUPERVISION" or "CO_SUPERVISION".</param>
         /// <param name="message">An optional message accompanying the request.</param>
+        /// <param name="plannedStartOfSupervision">The planned start date and time for the supervision.</param>
+        /// <param name="plannedEndOfSupervision">The planned end date and time for the supervision.</param>
         /// <returns>The created thesis request response with full details.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the thesis is not found.</exception>
         /// <exception cref="ArgumentException">Thrown if the request type is invalid.</exception>
         /// <exception cref="InvalidOperationException">Thrown if validation constraints are not met.</exception>
-        public async Task<ThesisRequestBusinessLogicModel> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message)
+        public async Task<ThesisRequestBusinessLogicModel> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message, DateTime plannedStartOfSupervision, DateTime plannedEndOfSupervision)
         {
             var thesis = await _context.Theses.FindAsync(thesisId);
             if (thesis == null) throw new KeyNotFoundException("Thesis not found.");
@@ -63,11 +65,27 @@ namespace ApiProject.BusinessLogic.Services
 
             if (requestTypeEntity.Name == RequestTypes.Supervision)
             {
+                var existingSupervision = await _context.ThesisRequests
+                    .Include(r => r.RequestType)
+                    .Include(r => r.Status)
+                    .Where(r => r.ThesisId == thesisId && r.RequestType.Name == RequestTypes.Supervision && (r.Status.Name == RequestStatuses.Pending || r.Status.Name == RequestStatuses.Accepted))
+                    .AnyAsync();
+                if (existingSupervision)
+                    throw new InvalidOperationException("A supervision request already exists for this thesis.");
+
                 if (!requester.UserRoles.Any(r => r.Role.Name == Roles.Student) || thesis.OwnerId != requesterId)
                     throw new InvalidOperationException("Only the thesis owner (STUDENT) can request supervision.");
             }
             else if (requestTypeEntity.Name == RequestTypes.CoSupervision)
             {
+                var existingCoSupervision = await _context.ThesisRequests
+                    .Include(r => r.RequestType)
+                    .Include(r => r.Status)
+                    .Where(r => r.ThesisId == thesisId && r.RequestType.Name == RequestTypes.CoSupervision && (r.Status.Name == RequestStatuses.Pending || r.Status.Name == RequestStatuses.Accepted))
+                    .AnyAsync();
+                if (existingCoSupervision)
+                    throw new InvalidOperationException("A co-supervision request already exists for this thesis.");
+
                 if (!requester.UserRoles.Any(r => r.Role.Name == Roles.Tutor) || thesis.TutorId != requesterId)
                     throw new InvalidOperationException("Only the main supervisor (TUTOR) can request co-supervision.");
                 
@@ -88,7 +106,9 @@ namespace ApiProject.BusinessLogic.Services
                 ThesisId = thesisId,
                 RequestTypeId = requestTypeEntity.Id,
                 StatusId = pendingStatus.Id,
-                Message = message
+                Message = message,
+                PlannedStartOfSupervision = plannedStartOfSupervision,
+                PlannedEndOfSupervision = plannedEndOfSupervision
             };
 
             _context.ThesisRequests.Add(newRequest);
@@ -234,7 +254,7 @@ namespace ApiProject.BusinessLogic.Services
         /// <returns>The created thesis request response with full details.</returns>
         public async Task<ThesisRequestBusinessLogicModel> CreatedStudentRequestForTutor(Guid studentId, Guid tutorId, Guid thesisId, string? message)
         {
-            return await CreateRequestAsync(studentId, thesisId, tutorId, RequestTypes.Supervision, message);
+            return await CreateRequestAsync(studentId, thesisId, tutorId, RequestTypes.Supervision, message, DateTime.Now, DateTime.Now.AddMonths(6));
         }
 
         /// <summary>
@@ -255,7 +275,19 @@ namespace ApiProject.BusinessLogic.Services
         /// <returns>The created thesis request response with full details.</returns>
         public async Task<ThesisRequestBusinessLogicModel> CreatedTutorRequestForSecondSupervisor(Guid tutorId, Guid secondSupervisorId, Guid thesisId, string? message)
         {
-            return await CreateRequestAsync(tutorId, thesisId, secondSupervisorId, RequestTypes.CoSupervision, message);
+            // Find the original accepted supervision request for this thesis
+            var originalRequest = await _context.ThesisRequests
+                .Include(r => r.RequestType)
+                .Include(r => r.Status)
+                .Where(r => r.ThesisId == thesisId && r.RequestType.Name == RequestTypes.Supervision && r.Status.Name == RequestStatuses.Accepted)
+                .FirstOrDefaultAsync();
+
+            if (originalRequest == null)
+            {
+                throw new InvalidOperationException("No accepted supervision request found for this thesis. Cannot create co-supervision request without original dates.");
+            }
+
+            return await CreateRequestAsync(tutorId, thesisId, secondSupervisorId, RequestTypes.CoSupervision, message, originalRequest.PlannedStartOfSupervision, originalRequest.PlannedEndOfSupervision);
         }
 
         /// <summary>
@@ -397,7 +429,9 @@ namespace ApiProject.BusinessLogic.Services
                 RequestType = r.RequestType.Name,
                 Status = r.Status.Name,
                 Message = r.Message,
-                CreatedAt = r.CreatedAt
+                CreatedAt = r.CreatedAt,
+                PlannedStartOfSupervision = r.PlannedStartOfSupervision,
+                PlannedEndOfSupervision = r.PlannedEndOfSupervision
             };
         }
     }

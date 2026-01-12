@@ -5,7 +5,7 @@ namespace ApiProject.BusinessLogic.Mappers;
 
 public static class ThesisBusinessLogicMapper
 {
-    public static ThesisBusinessLogicModel ToBusinessModel(ThesisDataAccessModel dataAccessModel)
+    public static ThesisBusinessLogicModel MapToBusinessModel(ThesisDataAccessModel dataAccessModel)
     {
         if (dataAccessModel == null)
         {

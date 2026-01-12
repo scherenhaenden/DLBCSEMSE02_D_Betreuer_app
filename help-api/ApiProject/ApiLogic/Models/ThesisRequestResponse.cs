@@ -11,5 +11,7 @@ namespace ApiProject.ApiLogic.Models
         public string Status { get; set; }
         public string? Message { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime PlannedStartOfSupervision { get; set; }
+        public DateTime PlannedEndOfSupervision { get; set; }
     }
 }

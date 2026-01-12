@@ -2,7 +2,6 @@ package com.example.betreuer_app;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.betreuer_app.constants.AuthConstants;
 import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.SubjectAreaResponsePaginatedResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
@@ -109,7 +107,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
 
         // Load the initial list of subject areas (e.g., top 100) to populate the dropdown before searching.
         loadInitialSubjectAreas();
-        
+
         // Setup text watcher and listeners for the search functionality
         setupSubjectAreaSearch();
 
@@ -154,7 +152,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
             }
 
             btnCreate.setEnabled(false);
-            
+
             // Choose the appropriate API method based on whether a file was selected
             if (selectedFileUri != null) {
                 createThesisWithFile(title, description, subjectAreaId, selectedFileUri);
@@ -162,7 +160,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
                 createThesis(title, description, subjectAreaId);
             }
         });
-        
+
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
     }
@@ -242,14 +240,14 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
-        
+
         // Ensure dropdown shows when focused even if empty (showing initial list)
         dropdownSubjectArea.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus && dropdownSubjectArea.getText().length() == 0) {
                  dropdownSubjectArea.showDropDown();
             }
         });
-        
+
         dropdownSubjectArea.setOnClickListener(v -> dropdownSubjectArea.showDropDown());
     }
 
@@ -274,7 +272,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
             }
         });
     }
-    
+
     /**
      * Updates the dropdown adapter with a list of subject areas.
      * Also updates the internal map for name-to-ID resolution.
@@ -285,11 +283,11 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
         if (areas != null) {
             List<String> areaNames = new ArrayList<>();
             subjectAreaMap.clear();
-            
+
             for (SubjectAreaResponse area : areas) {
                 String name = area.getTitle();
                 UUID id = area.getId();
-                
+
                 if (name != null && id != null) {
                     areaNames.add(name);
                     subjectAreaMap.put(name, id.toString());
@@ -302,7 +300,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
                     areaNames
             );
             dropdownSubjectArea.setAdapter(adapter);
-            
+
             // If user is typing, filtering might hide results, force show to display new API results
             if (dropdownSubjectArea.hasFocus()) {
                 dropdownSubjectArea.showDropDown();
@@ -318,7 +316,7 @@ public class StudentCreateThesisActivity extends AppCompatActivity {
      * @param subjectAreaId The optional subject area ID.
      */
     private void createThesis(String title, String description, String subjectAreaId) {
-        thesisRepository.createThesis(title, description, subjectAreaId, new Callback<ThesisApiModel>() {
+        thesisRepository.createThesis(title, description, subjectAreaId, null, null, new Callback<ThesisApiModel>() {
             @Override
             public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
                 handleResponse(response);

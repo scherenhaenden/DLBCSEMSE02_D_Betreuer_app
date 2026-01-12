@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Dashboard-Layout, zugänglich für Studenten und Betreuer.
+Zeigt rollenbasierte Ansichten mit ViewStubs für Studenten- und Dozenten-Dashboards.
+Wird in DashboardActivity verwendet. -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

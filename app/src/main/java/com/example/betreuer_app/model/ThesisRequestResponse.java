@@ -12,6 +12,8 @@ public class ThesisRequestResponse {
     private String status;
     private String message;
     private String createdAt; // Changed from OffsetDateTime to String to avoid Gson deserialization issues
+    private String plannedStartOfSupervision;
+    private String plannedEndOfSupervision;
 
     public UUID getId() {
         return id;
@@ -47,5 +49,13 @@ public class ThesisRequestResponse {
 
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    public String getPlannedStartOfSupervision() {
+        return plannedStartOfSupervision;
+    }
+
+    public String getPlannedEndOfSupervision() {
+        return plannedEndOfSupervision;
     }
 }
