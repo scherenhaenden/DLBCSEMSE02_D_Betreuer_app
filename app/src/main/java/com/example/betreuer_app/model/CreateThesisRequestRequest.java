@@ -7,43 +7,17 @@ public class CreateThesisRequestRequest {
     private UUID receiverId;
     private String requestType;
     private String message;
+    private String plannedStartOfSupervision;
+    private String plannedEndOfSupervision;
 
-    public CreateThesisRequestRequest(UUID thesisId, UUID receiverId, String requestType, String message) {
+    public CreateThesisRequestRequest(UUID thesisId, UUID receiverId, String requestType, String message, String plannedStartOfSupervision, String plannedEndOfSupervision) {
         this.thesisId = thesisId;
         this.receiverId = receiverId;
         this.requestType = requestType;
         this.message = message;
+        this.plannedStartOfSupervision = plannedStartOfSupervision;
+        this.plannedEndOfSupervision = plannedEndOfSupervision;
     }
 
-    public UUID getThesisId() {
-        return thesisId;
-    }
-
-    public void setThesisId(UUID thesisId) {
-        this.thesisId = thesisId;
-    }
-
-    public UUID getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(UUID receiverId) {
-        this.receiverId = receiverId;
-    }
-
-    public String getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(String requestType) {
-        this.requestType = requestType;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
+    // Getters and setters can be added if needed for serialization or other purposes
 }

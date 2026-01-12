@@ -21,5 +21,8 @@ namespace ApiProject.DatabaseAccess.Entities
         public RequestStatusDataAccessModel Status { get; set; }
 
         public string? Message { get; set; }
+
+        public DateTime PlannedStartOfSupervision { get; set; }
+        public DateTime PlannedEndOfSupervision { get; set; }
     }
 }

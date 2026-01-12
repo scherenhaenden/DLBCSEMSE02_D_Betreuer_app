@@ -35,6 +35,8 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
     private TextView status;
     private TextView date;
     private TextView requestType;
+    private TextView startDate;
+    private TextView endDate;
     private LinearLayout actionsLayout;
     private Button btnAccept;
     private Button btnReject;
@@ -54,6 +56,8 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
         status = findViewById(R.id.textViewStatus);
         date = findViewById(R.id.textViewDate);
         requestType = findViewById(R.id.textViewRequestType);
+        startDate = findViewById(R.id.textViewStartDate);
+        endDate = findViewById(R.id.textViewEndDate);
         actionsLayout = findViewById(R.id.layoutActions);
         btnAccept = findViewById(R.id.buttonAccept);
         btnReject = findViewById(R.id.buttonReject);
@@ -102,60 +106,64 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
     }
 
     private void displayDetails(ThesisRequestResponse request) {
-        thesisTitle.setText(request.getThesisTitle() != null ? request.getThesisTitle() : "No Title");
-        
-        requestType.setText(request.getRequestType() != null ? request.getRequestType() : "Unknown Type");
-        
-        String requester = "Unknown";
-        if (request.getRequester() != null) {
-            requester = request.getRequester().getFirstName() + " " + request.getRequester().getLastName();
-        }
-        requesterName.setText(requester);
+        runOnUiThread(() -> {
+            thesisTitle.setText(request.getThesisTitle() != null ? request.getThesisTitle() : "No Title");
 
-        String receiver = "Unknown";
-        if (request.getReceiver() != null) {
-            receiver = request.getReceiver().getFirstName() + " " + request.getReceiver().getLastName();
-        }
-        receiverName.setText(receiver);
+            requestType.setText(request.getRequestType() != null ? request.getRequestType() : "Unknown Type");
 
-        message.setText(request.getMessage() != null ? request.getMessage() : "No message provided.");
-        
-        String statusText = request.getStatus() != null ? request.getStatus() : "PENDING";
-        status.setText(statusText);
-        
-        date.setText(request.getCreatedAt() != null ? request.getCreatedAt() : "Unknown date");
-
-        // Get current user ID
-        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
-        String currentUserId = authPreferences.getString("user_id", null);
-
-        // Check if user is the requester or receiver
-        boolean isRequester = currentUserId != null && request.getRequester() != null &&
-                            currentUserId.equals(request.getRequester().getId().toString());
-        boolean isReceiver = currentUserId != null && request.getReceiver() != null &&
-                           currentUserId.equals(request.getReceiver().getId().toString());
-
-        if (RequestStatuses.ACCEPTED.equalsIgnoreCase(statusText) || RequestStatuses.REJECTED.equalsIgnoreCase(statusText)) {
-            actionsLayout.setVisibility(View.GONE);
-        } else {
-            actionsLayout.setVisibility(View.VISIBLE);
-
-            if (isReceiver) {
-                // User is receiver (tutor) - show Accept/Reject
-                btnAccept.setVisibility(View.VISIBLE);
-                btnReject.setVisibility(View.VISIBLE);
-                btnAccept.setText("Annehmen");
-                btnReject.setText("Ablehnen");
-            } else if (isRequester) {
-                // User is requester (student) - show only Delete
-                btnAccept.setVisibility(View.GONE);
-                btnReject.setVisibility(View.VISIBLE);
-                btnReject.setText("Löschen");
-            } else {
-                // Fallback - hide actions
-                actionsLayout.setVisibility(View.GONE);
+            String requester = "Unknown";
+            if (request.getRequester() != null) {
+                requester = request.getRequester().getFirstName() + " " + request.getRequester().getLastName();
             }
-        }
+            requesterName.setText(requester);
+
+            String receiver = "Unknown";
+            if (request.getReceiver() != null) {
+                receiver = request.getReceiver().getFirstName() + " " + request.getReceiver().getLastName();
+            }
+            receiverName.setText(receiver);
+
+            message.setText(request.getMessage() != null ? request.getMessage() : "No message provided.");
+
+            String statusText = request.getStatus() != null ? request.getStatus() : "PENDING";
+            status.setText(statusText);
+
+            date.setText(request.getCreatedAt() != null ? request.getCreatedAt() : "Unknown date");
+            startDate.setText(request.getPlannedStartOfSupervision() != null ? request.getPlannedStartOfSupervision() : "Not specified");
+            endDate.setText(request.getPlannedEndOfSupervision() != null ? request.getPlannedEndOfSupervision() : "Not specified");
+
+            // Get current user ID
+            SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+            String currentUserId = authPreferences.getString("user_id", null);
+
+            // Check if user is the requester or receiver
+            boolean isRequester = currentUserId != null && request.getRequester() != null &&
+                    currentUserId.equals(request.getRequester().getId().toString());
+            boolean isReceiver = currentUserId != null && request.getReceiver() != null &&
+                    currentUserId.equals(request.getReceiver().getId().toString());
+
+            if (RequestStatuses.ACCEPTED.equalsIgnoreCase(statusText) || RequestStatuses.REJECTED.equalsIgnoreCase(statusText)) {
+                actionsLayout.setVisibility(View.GONE);
+            } else {
+                actionsLayout.setVisibility(View.VISIBLE);
+
+                if (isReceiver) {
+                    // User is receiver (tutor) - show Accept/Reject
+                    btnAccept.setVisibility(View.VISIBLE);
+                    btnReject.setVisibility(View.VISIBLE);
+                    btnAccept.setText("Annehmen");
+                    btnReject.setText("Ablehnen");
+                } else if (isRequester) {
+                    // User is requester (student) - show only Delete
+                    btnAccept.setVisibility(View.GONE);
+                    btnReject.setVisibility(View.VISIBLE);
+                    btnReject.setText("Löschen");
+                } else {
+                    // Fallback - hide actions
+                    actionsLayout.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     private void respondToRequest(boolean accept) {

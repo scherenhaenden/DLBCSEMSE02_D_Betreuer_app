@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Layout für die Bearbeitung einer Abschlussarbeit, zugänglich für Studenten und Betreuer.
+Wird in EditThesisActivity verwendet und ermöglicht das Ändern von Titel, Beschreibung, Fachbereich und Dokumenten. -->
+
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -68,6 +71,48 @@
                     android:layout_height="wrap_content"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Status Section (Read-only) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tv_thesis_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Registriert"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:background="?attr/selectableItemBackground"
+                android:padding="12dp"
+                app:drawableStartCompat="@drawable/ic_status_current"
+                android:drawablePadding="8dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Billing Status Section (Read-only for Students) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rechnungsstatus"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tv_billing_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Keine"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:background="?attr/selectableItemBackground"
+                android:padding="12dp"
+                app:drawableStartCompat="@drawable/ic_document"
+                android:drawablePadding="8dp"
+                android:layout_marginBottom="24dp" />
 
             <!-- Document Section -->
             <TextView

@@ -18,11 +18,13 @@ namespace ApiProject.BusinessLogic.Services
         /// <param name="receiverId">The unique identifier of the user receiving the request (must be a tutor).</param>
         /// <param name="requestType">The type of the request, either "SUPERVISION" or "CO_SUPERVISION".</param>
         /// <param name="message">An optional message providing additional details for the request.</param>
+        /// <param name="plannedStartOfSupervision">The planned start date and time of the supervision.</param>
+        /// <param name="plannedEndOfSupervision">The planned end date and time of the supervision.</param>
         /// <returns>A task representing the asynchronous operation, containing the <see cref="ThesisRequestBusinessLogicModel"/> for the created request.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the thesis is not found.</exception>
         /// <exception cref="ArgumentException">Thrown if the request type is invalid.</exception>
         /// <exception cref="InvalidOperationException">Thrown if validation constraints are not met, such as role requirements or subject area expertise.</exception>
-        Task<ThesisRequestBusinessLogicModel> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message);
+        Task<ThesisRequestBusinessLogicModel> CreateRequestAsync(Guid requesterId, Guid thesisId, Guid receiverId, string requestType, string? message, DateTime plannedStartOfSupervision, DateTime plannedEndOfSupervision);
 
         /// <summary>
         /// Creates a supervision request from a student to a tutor for a specific thesis.

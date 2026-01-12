@@ -63,7 +63,7 @@ namespace ApiProject.BusinessLogic.Services
 
             return new PaginatedResultBusinessLogicModel<ThesisBusinessLogicModel>
             {
-                Items = items.Select(ThesisBusinessLogicMapper.ToBusinessModel).ToList(),
+                Items = items.Select(ThesisBusinessLogicMapper.MapToBusinessModel).ToList(),
                 TotalCount = totalCount,
                 Page = page,
                 PageSize = pageSize
@@ -90,7 +90,7 @@ namespace ApiProject.BusinessLogic.Services
                 .Include(t => t.Document)
                 .SingleOrDefaultAsync(t => t.Id == id);
 
-            return ThesisBusinessLogicMapper.ToBusinessModel(thesis);
+            return ThesisBusinessLogicMapper.MapToBusinessModel(thesis);
         }
 
         /// <summary>
@@ -186,9 +186,9 @@ namespace ApiProject.BusinessLogic.Services
                 throw new InvalidOperationException("Thesis cannot be modified after submission or defense.");
             }
 
-            if (currentStatus.Name == ThesisStatuses.Registered && request.SubjectAreaId.HasValue)
+            if (currentStatus.Name != ThesisStatuses.Registered && request.SubjectAreaId.HasValue)
             {
-                throw new InvalidOperationException("Cannot change subject area after registration.");
+                throw new InvalidOperationException("Can change subject only if registration.");
             }
 
             if (request.Title != null) thesis.Title = request.Title.Trim();
@@ -281,6 +281,63 @@ namespace ApiProject.BusinessLogic.Services
                     Name = bs.Name
                 })
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Updates the billing status of a thesis.
+        ///
+        /// What: Changes the billing status of an existing thesis to a new status.
+        /// How: Retrieves the thesis by ID, validates the new billing status exists,
+        ///      checks if the user is authorized (Admin, or Tutor/SecondSupervisor of the thesis),
+        ///      updates the relationship, saves changes.
+        /// Why: Allows tutors and admins to track payment states of theses (None, Issued, Paid).
+        ///      Essential for administrative and financial management of theses.
+        ///      Security: Only the assigned supervisors or admins can update billing status.
+        /// </summary>
+        /// <param name="id">The unique identifier of the thesis to update.</param>
+        /// <param name="billingStatusId">The unique identifier of the new billing status.</param>
+        /// <param name="userId">The unique identifier of the user making the request.</param>
+        /// <param name="userRoles">The list of roles assigned to the user.</param>
+        /// <returns>The updated thesis business logic model.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the thesis or billing status is not found.</exception>
+        /// <exception cref="UnauthorizedAccessException">Thrown if the user is not authorized to update the billing status.</exception>
+        public async Task<ThesisBusinessLogicModel> UpdateBillingStatusAsync(Guid id, Guid billingStatusId, Guid userId, List<string> userRoles)
+        {
+            var thesis = await _context.Theses
+                .Include(t => t.Status)
+                .Include(t => t.BillingStatus)
+                .Include(t => t.Document)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (thesis == null)
+            {
+                throw new KeyNotFoundException($"Thesis with ID {id} not found.");
+            }
+
+            // Authorization check: Only Admin or the tutor/second supervisor can update billing status
+            if (!userRoles.Contains(Roles.Admin))
+            {
+                bool isTutor = thesis.TutorId == userId;
+                bool isSecondSupervisor = thesis.SecondSupervisorId == userId;
+
+                if (!isTutor && !isSecondSupervisor)
+                {
+                    throw new UnauthorizedAccessException($"User {userId} is not authorized to update the billing status of thesis {id}. " +
+                                                         "Only the tutor, second supervisor, or an admin can update the billing status.");
+                }
+            }
+
+            var billingStatus = await _context.BillingStatuses.FindAsync(billingStatusId);
+            if (billingStatus == null)
+            {
+                throw new KeyNotFoundException($"Billing status with ID {billingStatusId} not found.");
+            }
+
+            thesis.BillingStatusId = billingStatusId;
+            thesis.BillingStatus = billingStatus;
+            await _context.SaveChangesAsync();
+
+            return ThesisBusinessLogicMapper.MapToBusinessModel(thesis);
         }
     }
 }
