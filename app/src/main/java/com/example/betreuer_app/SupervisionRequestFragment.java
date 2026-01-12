@@ -202,6 +202,15 @@ public class SupervisionRequestFragment extends Fragment {
         String endDate = etEndDate.getText().toString();
         String message = etMessage.getText().toString();
 
+        if (startDate.isEmpty()) {
+            etStartDate.setError("Startdatum ist erforderlich");
+            return;
+        }
+        if (endDate.isEmpty()) {
+            etEndDate.setError("Enddatum ist erforderlich");
+            return;
+        }
+
         CreateThesisRequestRequest request = new CreateThesisRequestRequest(
                 selectedThesis.getId(),
                 tutorUuid,
