@@ -66,6 +66,16 @@ Wird über ViewStub in activity_dashboard.xml inflatiert und zeigt betreuerspezi
         app:iconGravity="textStart"
         style="@style/Widget.Material3.Button.TonalButton"/>
 
+    <Button
+        android:id="@+id/btn_my_sent_requests"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Meine gesendeten Anfragen"
+        app:icon="@drawable/ic_create"
+        app:iconGravity="textStart"
+        style="@style/Widget.Material3.Button.TonalButton"/>
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/lecturer_thesis_card"
         android:layout_width="match_parent"

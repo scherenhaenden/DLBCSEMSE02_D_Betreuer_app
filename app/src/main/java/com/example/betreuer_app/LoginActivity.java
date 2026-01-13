@@ -12,7 +12,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.constants.AuthConstants;
 import com.example.betreuer_app.constants.ThemeConstants;
 import com.example.betreuer_app.model.LoggedInUser;
@@ -20,6 +19,7 @@ import com.example.betreuer_app.model.LoginResponse;
 import com.example.betreuer_app.model.ThesesResponse;
 import com.example.betreuer_app.repository.LoginRepository;
 import com.example.betreuer_app.repository.ThesisRepository;
+import com.example.betreuer_app.util.SessionManager;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import retrofit2.Call;
@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginButton;
     private ProgressBar progressBar;
     private LoginRepository loginRepository;
+    private SessionManager sessionManager;
     private SwitchMaterial themeSwitch;
 
     /**
@@ -53,6 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         initializeViews();
 
         loginRepository = new LoginRepository(this);
+        sessionManager = new SessionManager(this);
 
         setupThemeSwitch();
 
@@ -173,20 +175,18 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Saves the user data to SharedPreferences.
+     * Saves the user data to SharedPreferences using SessionManager.
      * @param user The logged-in user.
      * @param role The user's role.
      * @param token The JWT token.
      */
     private void saveUserData(LoggedInUser user, String role, String token) {
+        sessionManager.saveUserSession(token, user.getId(), user.getEmail(), role);
+
+        // Also save user name for backward compatibility with DashboardActivity
         SharedPreferences authPreferences = getSharedPreferences(AuthConstants.PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = authPreferences.edit();
-        editor.putString(AuthConstants.KEY_JWT_TOKEN, token);
         editor.putString(AuthConstants.KEY_USER_NAME, user.getFirstName());
-        editor.putString(AuthConstants.KEY_USER_ROLE, role);
-        if (user.getId() != null) {
-             editor.putString(AuthConstants.KEY_USER_ID, user.getId());
-        }
         editor.apply();
     }
 
@@ -210,10 +210,17 @@ public class LoginActivity extends AppCompatActivity {
      * If valid, proceeds to DashboardActivity; otherwise, shows the login form.
      */
     private void checkAutoLogin() {
+        if (!sessionManager.isLoggedIn()) {
+            showLogin();
+            return;
+        }
+
+        String token = sessionManager.getToken();
+        String savedRole = sessionManager.getUserRole();
+
+        // Get user name from SharedPreferences for backward compatibility
         SharedPreferences authPreferences = getSharedPreferences(AuthConstants.PREFS_NAME, MODE_PRIVATE);
-        String token = authPreferences.getString(AuthConstants.KEY_JWT_TOKEN, null);
         String savedName = authPreferences.getString(AuthConstants.KEY_USER_NAME, null);
-        String savedRole = authPreferences.getString(AuthConstants.KEY_USER_ROLE, null);
 
         if (token != null && savedName != null && savedRole != null) {
             progressBar.setVisibility(View.VISIBLE);
@@ -254,11 +261,8 @@ public class LoginActivity extends AppCompatActivity {
      * Displays the login form and clears any invalid authentication data.
      */
     private void showLogin() {
-        // Clear token as it might be invalid
-        SharedPreferences authPreferences = getSharedPreferences(AuthConstants.PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = authPreferences.edit();
-        editor.clear();
-        editor.apply();
+        // Clear session as it might be invalid
+        sessionManager.clearSession();
 
         progressBar.setVisibility(View.GONE);
         loginButton.setVisibility(View.VISIBLE);

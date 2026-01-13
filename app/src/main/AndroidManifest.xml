@@ -102,6 +102,13 @@
             android:label="Anfrage Details"
             android:parentActivityName=".ThesisRequestActivity" />
 
+        <!-- Sent Requests Activity - Shows only outgoing/sent requests -->
+        <activity
+            android:name=".SentRequestsActivity"
+            android:exported="false"
+            android:label="Gesendete Anfragen"
+            android:parentActivityName=".DashboardActivity" />
+
         <activity
             android:name=".ThesisDetailActivity"
             android:exported="false"

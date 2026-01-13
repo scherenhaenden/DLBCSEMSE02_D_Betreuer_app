@@ -288,10 +288,15 @@ public class SupervisionRequestFragment extends Fragment {
             return;
         }
 
+        // Bestimme den Request-Type:
+        // - SUPERVISION: Wenn ein Student einen Betreuer sucht
+        // - CO_SUPERVISION: Wenn ein Tutor einen zweiten Supervisor sucht
+        String requestType = isSelectingSecondSupervisor ? "CO_SUPERVISION" : "SUPERVISION";
+
         CreateThesisRequestRequest request = new CreateThesisRequestRequest(
                 selectedThesis.getId(),
                 tutorUuid,
-                "SUPERVISION",
+                requestType,
                 message,
                 startDate,
                 endDate
