@@ -60,6 +60,13 @@ public class TutorProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(TutorProfileActivity.this, SupervisionRequestActivity.class);
             intent.putExtra("TUTOR_ID", tutorId);
             intent.putExtra("TUTOR_NAME", tutorName);
+
+            // Leite Intent-Extras für zweiten Supervisor weiter
+            if (getIntent().getBooleanExtra("SELECTING_SECOND_SUPERVISOR", false)) {
+                intent.putExtra("SELECTING_SECOND_SUPERVISOR", true);
+                intent.putExtra("THESIS_ID", getIntent().getStringExtra("THESIS_ID"));
+            }
+
             startActivity(intent);
         });
     }

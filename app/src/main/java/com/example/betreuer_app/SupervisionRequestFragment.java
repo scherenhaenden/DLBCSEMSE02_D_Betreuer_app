@@ -46,6 +46,9 @@ public class SupervisionRequestFragment extends Fragment {
     private ThesisRequestApiService thesisRequestApiService;
     private List<ThesisApiModel> thesesList = new ArrayList<>();
     private String tutorId;
+    private boolean isSelectingSecondSupervisor = false;
+    private String thesisIdForSecondSupervisor = null;
+    private ThesisRequestResponse firstSupervisionRequest = null;
 
     @Nullable
     @Override
@@ -72,6 +75,8 @@ public class SupervisionRequestFragment extends Fragment {
         if (activity != null && activity.getIntent() != null) {
             tutorName = activity.getIntent().getStringExtra("TUTOR_NAME");
             tutorId = activity.getIntent().getStringExtra("TUTOR_ID");
+            isSelectingSecondSupervisor = activity.getIntent().getBooleanExtra("SELECTING_SECOND_SUPERVISOR", false);
+            thesisIdForSecondSupervisor = activity.getIntent().getStringExtra("THESIS_ID");
         }
 
         // --- Toolbar Setup ---
@@ -112,6 +117,12 @@ public class SupervisionRequestFragment extends Fragment {
         // --- UI Setup for Supervision Request ---
         etStartDate.setOnClickListener(v -> showDatePickerDialog(etStartDate));
         etEndDate.setOnClickListener(v -> showDatePickerDialog(etEndDate));
+
+        // Wenn wir einen zweiten Supervisor auswählen, lade die erste Anfrage
+        if (isSelectingSecondSupervisor && thesisIdForSecondSupervisor != null) {
+            loadFirstSupervisionRequest(thesisIdForSecondSupervisor);
+        }
+
         fetchTheses();
 
         // --- Send Button Listener ---
@@ -138,6 +149,61 @@ public class SupervisionRequestFragment extends Fragment {
         datePickerDialog.show();
     }
 
+    private void loadFirstSupervisionRequest(String thesisId) {
+        Context context = getContext();
+        if (context == null) return;
+
+        // Lade alle Anfragen und filtere nach der ThesisId
+        thesisRequestApiService.getMyRequests(1, 100).enqueue(new Callback<com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse>() {
+            @Override
+            public void onResponse(Call<com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse> call, Response<com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getItems() != null) {
+                    // Finde die erste (älteste) Betreuungsanfrage für diese Thesis
+                    ThesisRequestResponse oldestRequest = null;
+                    for (ThesisRequestResponse request : response.body().getItems()) {
+                        if (request.getThesisId() != null
+                            && request.getThesisId().toString().equals(thesisId)
+                            && "SUPERVISION".equals(request.getRequestType())
+                            && "ACCEPTED".equals(request.getStatus())) {
+
+                            if (oldestRequest == null ||
+                                (request.getCreatedAt() != null &&
+                                 (oldestRequest.getCreatedAt() == null ||
+                                  request.getCreatedAt().compareTo(oldestRequest.getCreatedAt()) < 0))) {
+                                oldestRequest = request;
+                            }
+                        }
+                    }
+
+                    if (oldestRequest != null) {
+                        firstSupervisionRequest = oldestRequest;
+                        // Setze die Datumsfelder mit den Daten aus der ersten Anfrage
+                        if (oldestRequest.getPlannedStartOfSupervision() != null) {
+                            etStartDate.setText(oldestRequest.getPlannedStartOfSupervision());
+                        }
+                        if (oldestRequest.getPlannedEndOfSupervision() != null) {
+                            etEndDate.setText(oldestRequest.getPlannedEndOfSupervision());
+                        }
+
+                        // Mache die Felder read-only
+                        etStartDate.setEnabled(false);
+                        etStartDate.setFocusable(false);
+                        etEndDate.setEnabled(false);
+                        etEndDate.setFocusable(false);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse> call, Throwable t) {
+                Context ctx = getContext();
+                if (ctx != null) {
+                    Toast.makeText(ctx, "Fehler beim Laden der ersten Anfrage: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
     private void fetchTheses() {
         thesisApiService.getTheses(1, 100).enqueue(new Callback<ThesesResponse>() {
             @Override
@@ -153,6 +219,17 @@ public class SupervisionRequestFragment extends Fragment {
                     }
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, thesisTitles);
                     thesisTitleInput.setAdapter(adapter);
+
+                    // Wenn wir einen zweiten Supervisor auswählen, wähle die richtige Thesis aus
+                    if (isSelectingSecondSupervisor && thesisIdForSecondSupervisor != null) {
+                        for (ThesisApiModel thesis : thesesList) {
+                            if (thesis.getId() != null && thesis.getId().toString().equals(thesisIdForSecondSupervisor)) {
+                                thesisTitleInput.setText(thesis.getTitle(), false);
+                                thesisTitleInput.setEnabled(false); // Mache das Feld read-only
+                                break;
+                            }
+                        }
+                    }
                 } else {
                     Toast.makeText(context, "Fehler beim Laden der Daten", Toast.LENGTH_SHORT).show();
                 }

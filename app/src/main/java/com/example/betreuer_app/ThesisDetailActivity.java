@@ -25,6 +25,7 @@ import com.example.betreuer_app.model.BillingStatusResponse;
 import com.example.betreuer_app.model.SubjectAreaResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.UserResponse;
+import com.example.betreuer_app.util.SessionManager;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
@@ -44,6 +45,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
     private TextView textViewSubjectArea;
     private MaterialButton btnDownloadDocument;
     private MaterialButton btnEditThesis;
+    private MaterialButton btnAddSecondSupervisor;
     private Spinner spinnerBillingStatus;
 
     // Views for the person details
@@ -91,6 +93,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
         textViewSubjectArea = findViewById(R.id.textViewSubjectArea);
         btnDownloadDocument = findViewById(R.id.btn_download_document);
         btnEditThesis = findViewById(R.id.btn_edit_thesis);
+        btnAddSecondSupervisor = findViewById(R.id.btn_add_second_supervisor);
         spinnerBillingStatus = findViewById(R.id.spinner_billingstatus);
 
         // Initialize views from the included person layouts
@@ -120,6 +123,13 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
         btnEditThesis.setOnClickListener(v -> {
             Intent intent = new Intent(ThesisDetailActivity.this, EditThesisActivity.class);
+            intent.putExtra("THESIS_ID", thesisId);
+            startActivity(intent);
+        });
+
+        btnAddSecondSupervisor.setOnClickListener(v -> {
+            Intent intent = new Intent(ThesisDetailActivity.this, TutorListActivity.class);
+            intent.putExtra("SELECTING_SECOND_SUPERVISOR", true);
             intent.putExtra("THESIS_ID", thesisId);
             startActivity(intent);
         });
@@ -271,6 +281,31 @@ public class ThesisDetailActivity extends AppCompatActivity {
         } else {
             btnDownloadDocument.setVisibility(View.GONE);
         }
+
+        updateAddSecondSupervisorButtonVisibility();
+    }
+
+    private void updateAddSecondSupervisorButtonVisibility() {
+        if (currentThesis == null) {
+            btnAddSecondSupervisor.setVisibility(View.GONE);
+            return;
+        }
+
+        SessionManager sessionManager = new SessionManager(this);
+        String currentUserId = sessionManager.getUserId();
+        boolean isTutor = sessionManager.isTutor();
+
+        // Zeige Button nur wenn:
+        // 1. User ist Tutor
+        // 2. User ist der erste Supervisor (TutorId)
+        // 3. Es gibt noch keinen zweiten Supervisor
+        boolean shouldShowButton = isTutor
+            && currentUserId != null
+            && currentThesis.getTutorId() != null
+            && currentUserId.equals(currentThesis.getTutorId().toString())
+            && currentThesis.getSecondSupervisorId() == null;
+
+        btnAddSecondSupervisor.setVisibility(shouldShowButton ? View.VISIBLE : View.GONE);
     }
 
     private void requestDownloadPermission() {

@@ -8,4 +8,5 @@
     <string name="download_expose">Exposé herunterladen</string>
     <string name="edit">Bearbeiten</string>
     <string name="subject_area_icon_description">Fachbereich Icon</string>
+    <string name="add_second_supervisor">Zweitkorrektor hinzufügen</string>
 </resources>
