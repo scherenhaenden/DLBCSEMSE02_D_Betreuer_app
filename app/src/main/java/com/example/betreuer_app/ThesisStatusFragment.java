@@ -14,9 +14,15 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.betreuer_app.api.ApiClient;
+import com.example.betreuer_app.api.ThesisApiService;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.ThesisStatus;
 import com.example.betreuer_app.viewmodel.ThesisStatusViewModel;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Fragment zur Anzeige und Steuerung des Arbeitsstatus.
@@ -25,7 +31,8 @@ import com.example.betreuer_app.viewmodel.ThesisStatusViewModel;
 public class ThesisStatusFragment extends Fragment {
 
     private ThesisStatusViewModel viewModel;
-    
+    private ThesisApiService thesisApiService;
+
     private ImageView iconRegistered, iconInProgress, iconSubmitted, iconGraded;
     private TextView titleRegistered, titleInProgress, titleSubmitted, titleGraded;
     private Button actionButton;
@@ -51,6 +58,7 @@ public class ThesisStatusFragment extends Fragment {
         actionButton = view.findViewById(R.id.action_button);
 
         viewModel = new ViewModelProvider(this).get(ThesisStatusViewModel.class);
+        thesisApiService = ApiClient.getThesisApiService(requireContext());
 
         viewModel.thesisData.observe(getViewLifecycleOwner(), this::updateUi);
         
@@ -59,10 +67,42 @@ public class ThesisStatusFragment extends Fragment {
             if (next != null) {
                 ThesisApiModel current = viewModel.thesisData.getValue();
                 if (current != null) {
-                    current.setStatus(next.getName());
-                    viewModel.thesisData.setValue(current);
-                    Toast.makeText(getContext(), "Status aktualisiert auf: " + next.getName(), Toast.LENGTH_SHORT).show();
+                    updateThesisStatus(current.getId().toString(), next.getName());
                 }
+            }
+        });
+    }
+
+    /**
+     * Sendet den neuen Status an die API.
+     */
+    private void updateThesisStatus(String thesisId, String newStatus) {
+        actionButton.setEnabled(false); // Deaktiviere Button während API-Call
+
+        ThesisApiService.StatusUpdateRequest request = new ThesisApiService.StatusUpdateRequest(newStatus);
+
+        thesisApiService.updateStatus(thesisId, request).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<ThesisApiModel> call, @NonNull Response<ThesisApiModel> response) {
+                actionButton.setEnabled(true);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    // Aktualisiere das ViewModel mit der Antwort vom Server
+                    viewModel.thesisData.setValue(response.body());
+                    Toast.makeText(getContext(), "Status erfolgreich aktualisiert", Toast.LENGTH_SHORT).show();
+                } else {
+                    String errorMessage = "Fehler beim Aktualisieren des Status";
+                    if (response.code() == 403) {
+                        errorMessage = "Sie sind nicht berechtigt, den Status zu ändern";
+                    }
+                    Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ThesisApiModel> call, @NonNull Throwable t) {
+                actionButton.setEnabled(true);
+                Toast.makeText(getContext(), "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

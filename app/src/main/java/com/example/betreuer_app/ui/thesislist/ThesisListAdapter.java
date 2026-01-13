@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.betreuer_app.R;
 import com.example.betreuer_app.model.ThesisApiModel;
+import com.example.betreuer_app.util.SessionManager;
+import com.example.betreuer_app.util.ThesisStatusHelper;
 import java.util.List;
 
 public class ThesisListAdapter extends RecyclerView.Adapter<ThesisListAdapter.ThesisViewHolder> {
@@ -60,9 +62,20 @@ public class ThesisListAdapter extends RecyclerView.Adapter<ThesisListAdapter.Th
         }
 
         public void bind(final ThesisApiModel thesis, final OnItemClickListener listener) {
+            // Prüfe ob Benutzer Student ist
+            SessionManager sessionManager = new SessionManager(itemView.getContext());
+            boolean isStudent = !sessionManager.isTutor();
+
+            // Zeige übersetzten Status
+            String displayStatus = ThesisStatusHelper.getDisplayStatus(
+                itemView.getContext(),
+                thesis,
+                isStudent
+            );
+
             textViewTitel.setText(thesis.getTitle());
             textViewFachgebiet.setText(""); 
-            textViewStatus.setText("Status: " + thesis.getStatus());
+            textViewStatus.setText("Status: " + displayStatus);
             textViewRechnungsstatus.setText("Rechnung: " + thesis.getBillingStatus());
 
             itemView.setOnClickListener(new View.OnClickListener() {

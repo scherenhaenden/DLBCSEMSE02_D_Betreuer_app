@@ -18,6 +18,7 @@ public class ThesisStatusViewModel extends ViewModel {
 
     /**
      * Liefert den passenden Text für den Action-Button basierend auf dem aktuellen Status und der Benutzerrolle.
+     * Verwendet deutsche Begriffe für bessere Benutzerfreundlichkeit.
      */
     public String getActionButonText() {
         ThesisApiModel thesis = thesisData.getValue();
@@ -26,19 +27,30 @@ public class ThesisStatusViewModel extends ViewModel {
         if (thesis == null || role == null) return "Lädt...";
 
         String status = thesis.getStatus();
+        boolean hasTutor = thesis.getTutorId() != null;
 
         if ("STUDENT".equals(role.getName())) {
             switch (status) {
-                case "IN_DISCUSSION": return "In Bearbeitung setzen";
-                case "REGISTERED":    return "Arbeit jetzt abgeben";
-                default:            return "Warten auf Betreuer";
+                case "IN_DISCUSSION":
+                    // Student kann nur anmelden wenn Tutor zugewiesen ist und Anfrage akzeptiert wurde
+                    return hasTutor ? "Arbeit anmelden" : "Warte auf Betreuerzusage";
+                case "REGISTERED":
+                    return "Arbeit jetzt abgeben";
+                case "SUBMITTED":
+                    return "Warten auf Kolloquium";
+                default:
+                    return "Warten auf Betreuer";
             }
         } else {
             switch (status) {
-                case "IN_DISCUSSION": return "Anmeldung bestätigen";
-                case "REGISTERED":    return "Warten auf Abgabe";
-                case "SUBMITTED":     return "Kolloquium bestätigen";
-                default:            return "Abgeschlossen";
+                case "IN_DISCUSSION":
+                    return "Warten auf Studentenanmeldung";
+                case "REGISTERED":
+                    return "Warten auf Abgabe";
+                case "SUBMITTED":
+                    return "Kolloquium bestätigen";
+                default:
+                    return "Abgeschlossen";
             }
         }
     }
@@ -52,11 +64,19 @@ public class ThesisStatusViewModel extends ViewModel {
         if (thesis == null || role == null) return false;
 
         String status = thesis.getStatus();
+        boolean hasTutor = thesis.getTutorId() != null;
 
         if ("STUDENT".equals(role.getName())) {
-            return "IN_DISCUSSION".equals(status) || "REGISTERED".equals(status);
+            // Student kann nur ändern wenn:
+            // 1. Status ist REGISTERED (kann zu SUBMITTED wechseln)
+            // 2. Status ist IN_DISCUSSION UND Tutor ist zugewiesen (kann zu REGISTERED wechseln)
+            if ("IN_DISCUSSION".equals(status)) {
+                return hasTutor; // Nur wenn Tutor zugewiesen ist
+            }
+            return "REGISTERED".equals(status);
         } else {
-            return "IN_DISCUSSION".equals(status) || "SUBMITTED".equals(status);
+            // Tutor kann nur bei SUBMITTED ändern (zu DEFENDED)
+            return "SUBMITTED".equals(status);
         }
     }
 

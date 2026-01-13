@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.betreuer_app.model.ThesisApiModel;
+import com.example.betreuer_app.util.SessionManager;
+import com.example.betreuer_app.util.ThesisStatusHelper;
 
 import java.util.List;
 
@@ -39,9 +41,21 @@ public class ThesisAdapter extends RecyclerView.Adapter<ThesisAdapter.ThesisView
     public void onBindViewHolder(@NonNull ThesisViewHolder holder, int position) {
         try {
             ThesisApiModel thesis = thesisList.get(position);
+
+            // Prüfe ob Benutzer Student ist
+            SessionManager sessionManager = new SessionManager(holder.itemView.getContext());
+            boolean isStudent = !sessionManager.isTutor();
+
+            // Zeige übersetzten Status
+            String displayStatus = ThesisStatusHelper.getDisplayStatus(
+                holder.itemView.getContext(),
+                thesis,
+                isStudent
+            );
+
             holder.textViewTitel.setText(thesis.getTitle());
             holder.textViewFachgebiet.setText("Fachgebiet: " + thesis.getSubjectAreaId());
-            holder.textViewStatus.setText("Status: " + thesis.getStatus());
+            holder.textViewStatus.setText("Status: " + displayStatus);
             holder.textViewRechnungsstatus.setText("Rechnung: " + thesis.getBillingStatus());
         } catch (Exception e) {
             Log.e(TAG, "Error binding view for position " + position, e);

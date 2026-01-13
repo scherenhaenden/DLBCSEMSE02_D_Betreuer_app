@@ -157,13 +157,17 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:background="@drawable/bg_status_chip"
-                            android:paddingStart="8dp"
-                            android:paddingTop="4dp"
-                            android:paddingEnd="8dp"
-                            android:paddingBottom="4dp"
-                            android:textColor="@color/white"
-                            tools:text="IN_PROGRESS" />
+                            android:textAppearance="?attr/textAppearanceBody1"
+                            android:visibility="gone"
+                            tools:text="In Abstimmung" />
+
+                        <Spinner
+                            android:id="@+id/spinner_status"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:spinnerMode="dropdown"
+                            android:visibility="gone"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -179,12 +183,22 @@
                             android:text="@string/billing_status"
                             android:textAppearance="?attr/textAppearanceBody2"/>
 
+                        <TextView
+                            android:id="@+id/textView_billingstatus"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="?attr/textAppearanceBody1"
+                            android:visibility="gone"
+                            tools:text="PENDING" />
+
                         <Spinner
                             android:id="@+id/spinner_billingstatus"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:spinnerMode="dropdown"/>
+                            android:spinnerMode="dropdown"
+                            android:visibility="gone"/>
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton

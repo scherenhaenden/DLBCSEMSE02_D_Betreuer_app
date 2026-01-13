@@ -43,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/icon_registered"
                     android:layout_marginStart="16dp"
-                    android:text="Angemeldet"
+                    android:text="@string/status_registered"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
                  <TextView
                     android:id="@+id/date_registered"
@@ -76,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/icon_in_progress"
                     android:layout_marginStart="16dp"
-                    android:text="In Bearbeitung"
+                    android:text="@string/status_in_discussion"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
                 <View
                     android:layout_width="2dp"
@@ -102,7 +102,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/icon_submitted"
                     android:layout_marginStart="16dp"
-                    android:text="Eingereicht"
+                    android:text="@string/status_submitted"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                     android:textColor="?android:attr/textColorSecondary"/>
                 <View
@@ -129,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/icon_graded"
                     android:layout_marginStart="16dp"
-                    android:text="Benotet"
+                    android:text="@string/status_defended"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                     android:textColor="?android:attr/textColorSecondary"/>
             </RelativeLayout>

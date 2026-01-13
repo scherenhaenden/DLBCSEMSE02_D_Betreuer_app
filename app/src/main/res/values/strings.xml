@@ -9,4 +9,11 @@
     <string name="edit">Bearbeiten</string>
     <string name="subject_area_icon_description">Fachbereich Icon</string>
     <string name="add_second_supervisor">Zweitkorrektor hinzufügen</string>
+
+    <!-- Thesis Status Translations -->
+    <string name="status_in_discussion">In Abstimmung</string>
+    <string name="status_registered">Angemeldet</string>
+    <string name="status_submitted">Abgegeben</string>
+    <string name="status_defended">Kolloquium abgehalten / Benotet</string>
+    <string name="status_waiting_for_tutor">Warte auf Betreuerzusage</string>
 </resources>
