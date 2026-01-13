@@ -206,6 +206,15 @@
                         android:text="@string/edit"
                         app:icon="@drawable/ic_edit" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_add_second_supervisor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/add_second_supervisor"
+                        android:visibility="gone"
+                        app:icon="@drawable/ic_add" />
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

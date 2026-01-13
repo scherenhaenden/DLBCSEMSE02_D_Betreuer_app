@@ -192,6 +192,13 @@ public class TutorListActivity extends AppCompatActivity {
                             Intent intent = new Intent(TutorListActivity.this, TutorProfileActivity.class);
                             intent.putExtra("TUTOR_ID", tutor.getId().toString());
                             intent.putExtra("TUTOR_NAME", (tutor.getFirstName() != null ? tutor.getFirstName() : "") + " " + (tutor.getLastName() != null ? tutor.getLastName() : ""));
+
+                            // Leite Intent-Extras für zweiten Supervisor weiter
+                            if (getIntent().getBooleanExtra("SELECTING_SECOND_SUPERVISOR", false)) {
+                                intent.putExtra("SELECTING_SECOND_SUPERVISOR", true);
+                                intent.putExtra("THESIS_ID", getIntent().getStringExtra("THESIS_ID"));
+                            }
+
                             startActivity(intent);
                         });
                         recyclerView.setAdapter(adapter);
