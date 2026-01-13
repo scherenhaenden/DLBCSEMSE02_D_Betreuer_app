@@ -1,7 +1,6 @@
 package com.example.betreuer_app;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -17,6 +16,7 @@ import com.example.betreuer_app.model.RespondToThesisRequestRequest;
 import com.example.betreuer_app.model.ThesisRequestResponse;
 import com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse;
 import com.example.betreuer_app.ui.requests.ThesisRequestAdapter;
+import com.example.betreuer_app.util.SessionManager;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ public class ThesisRequestActivity extends AppCompatActivity {
     private TextView emptyView;
     private ThesisRequestAdapter adapter;
     private ThesisRequestApiService apiService;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class ThesisRequestActivity extends AppCompatActivity {
         emptyView = findViewById(R.id.textViewEmpty);
 
         apiService = ApiClient.getThesisRequestApiService(this);
+        sessionManager = new SessionManager(this);
 
         setupRecyclerView();
     }
@@ -58,9 +60,8 @@ public class ThesisRequestActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         adapter = new ThesisRequestAdapter();
 
-        // Get current user ID from SharedPreferences
-        SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
-        String currentUserId = authPreferences.getString("user_id", null);
+        // Get current user ID from SessionManager
+        String currentUserId = sessionManager.getUserId();
         adapter.setCurrentUserId(currentUserId);
 
         adapter.setOnRequestActionClickListener(new ThesisRequestAdapter.OnRequestActionClickListener() {
@@ -99,23 +100,26 @@ public class ThesisRequestActivity extends AppCompatActivity {
     }
 
     private void loadRequests() {
-        // Fetching page 0, size 50. Adjust as needed.
-        apiService.getMyRequests(0, 50).enqueue(new Callback<ThesisRequestResponsePaginatedResponse>() {
+        // Für Tutoren: Lade NUR eingehende Anfragen (als Receiver)
+        // Für Studenten: Lade ihre eigenen gesendeten Anfragen
+
+        if (sessionManager.isTutor()) {
+            loadIncomingRequests();
+        } else {
+            loadMyRequests();
+        }
+    }
+
+    private void loadMyRequests() {
+        // Für Studenten: Lade ihre eigenen Anfragen
+        apiService.getMyRequests(1, 50).enqueue(new Callback<ThesisRequestResponsePaginatedResponse>() {
             @Override
             public void onResponse(Call<ThesisRequestResponsePaginatedResponse> call, Response<ThesisRequestResponsePaginatedResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<ThesisRequestResponse> requests = response.body().getItems();
                     if (requests == null) requests = new ArrayList<>();
                     
-                    adapter.setRequests(requests);
-                    
-                    if (requests.isEmpty()) {
-                        emptyView.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                    } else {
-                        emptyView.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                    }
+                    updateRequestList(requests);
                 } else {
                     Toast.makeText(ThesisRequestActivity.this, "Failed to load requests", Toast.LENGTH_SHORT).show();
                 }
@@ -126,6 +130,40 @@ public class ThesisRequestActivity extends AppCompatActivity {
                 Toast.makeText(ThesisRequestActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void loadIncomingRequests() {
+        // Für Tutoren: Lade NUR eingehende Anfragen (als Receiver)
+        apiService.getIncomingRequests(null, 1, 50).enqueue(new Callback<ThesisRequestResponsePaginatedResponse>() {
+            @Override
+            public void onResponse(Call<ThesisRequestResponsePaginatedResponse> call, Response<ThesisRequestResponsePaginatedResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<ThesisRequestResponse> requests = response.body().getItems();
+                    if (requests == null) requests = new ArrayList<>();
+
+                    updateRequestList(requests);
+                } else {
+                    Toast.makeText(ThesisRequestActivity.this, "Fehler beim Laden der Anfragen", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ThesisRequestResponsePaginatedResponse> call, Throwable t) {
+                Toast.makeText(ThesisRequestActivity.this, "Fehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateRequestList(List<ThesisRequestResponse> requests) {
+        adapter.setRequests(requests);
+
+        if (requests.isEmpty()) {
+            emptyView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void respondToRequest(ThesisRequestResponse request, boolean accept) {

@@ -50,4 +50,11 @@ public interface ThesisRequestApiService {
             @Query("page") int page,
             @Query("pageSize") int pageSize
     );
+
+    @GET("thesis-requests/tutor/requester")
+    Call<ThesisRequestResponsePaginatedResponse> getOutgoingRequests(
+            @Query("status") String status,
+            @Query("page") int page,
+            @Query("pageSize") int pageSize
+    );
 }

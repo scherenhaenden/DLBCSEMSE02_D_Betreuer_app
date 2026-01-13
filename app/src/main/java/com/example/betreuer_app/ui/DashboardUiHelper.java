@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.betreuer_app.R;
+import com.example.betreuer_app.SentRequestsActivity;
 import com.example.betreuer_app.StudentCreateThesisActivity;
 import com.example.betreuer_app.ThesisListActivity;
 import com.example.betreuer_app.ThesisOfferDashboardActivity;
@@ -37,6 +38,7 @@ public class DashboardUiHelper {
     private MaterialCardView lecturerThesisCard;
     private MaterialCardView lecturerRequestsCard;
     private Button btnManageThesisOffers;
+    private Button btnMySentRequests;
 
     // Dynamic views
     private View studentView;
@@ -104,6 +106,7 @@ public class DashboardUiHelper {
         lecturerThesisCard = lecturerView.findViewById(R.id.lecturer_thesis_card);
         lecturerRequestsCard = lecturerView.findViewById(R.id.lecturer_requests_card);
         btnManageThesisOffers = lecturerView.findViewById(R.id.btn_manage_thesis_offers);
+        btnMySentRequests = lecturerView.findViewById(R.id.btn_my_sent_requests);
     }
 
     /**
@@ -139,6 +142,13 @@ public class DashboardUiHelper {
             activity.startActivity(intent);
         });
 
+        // Button für gesendete Anfragen
+        btnMySentRequests.setOnClickListener(v -> {
+            Intent intent = new Intent(activity, SentRequestsActivity.class);
+            activity.startActivity(intent);
+        });
+
+        // Card für eingehende Anfragen
         lecturerRequestsCard.setOnClickListener(v -> {
             Intent intent = new Intent(activity, ThesisRequestActivity.class);
             activity.startActivity(intent);
