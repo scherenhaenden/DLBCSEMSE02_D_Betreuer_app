@@ -14,6 +14,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.betreuer_app.api.ApiClient;
+import com.example.betreuer_app.api.ThesisRequestApiService;
+import com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse;
 import com.example.betreuer_app.model.ThesesResponse;
 import com.example.betreuer_app.repository.ThesisRepository;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -26,7 +29,8 @@ import retrofit2.Response;
 public class DashboardActivity extends AppCompatActivity {
 
     private ThesisRepository thesisRepository;
-    
+    private ThesisRequestApiService thesisRequestApiService;
+
     // Member variables for dynamic views loaded from ViewStubs
     private View studentView;
     private View lecturerView;
@@ -49,6 +53,7 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
 
         thesisRepository = createThesisRepository();
+        thesisRequestApiService = ApiClient.getThesisRequestApiService(this);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -208,6 +213,32 @@ public class DashboardActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ThesesResponse> call, Throwable t) {
                 Toast.makeText(DashboardActivity.this, "Request failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Load pending requests count for tutors
+        if (userRole != null && userRole.equalsIgnoreCase("tutor")) {
+            loadPendingRequestsCount();
+        }
+    }
+
+    private void loadPendingRequestsCount() {
+        thesisRequestApiService.getIncomingRequests("Pending", 1, 1).enqueue(new Callback<ThesisRequestResponsePaginatedResponse>() {
+            @Override
+            public void onResponse(Call<ThesisRequestResponsePaginatedResponse> call, Response<ThesisRequestResponsePaginatedResponse> response) {
+                if (response.isSuccessful() && response.body() != null && lecturerRequestsCountTextView != null) {
+                    int requestCount = response.body().getTotalCount();
+                    String requestText = (requestCount == 1) ? "neue Betreuungsanfrage" : "neue Betreuungsanfragen";
+                    lecturerRequestsCountTextView.setText("Du hast " + requestCount + " " + requestText + ".");
+                } else if (response.code() == 401) {
+                    Toast.makeText(DashboardActivity.this, "Sitzung abgelaufen. Bitte erneut einloggen.", Toast.LENGTH_LONG).show();
+                    logout();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ThesisRequestResponsePaginatedResponse> call, Throwable t) {
+                // Silently fail for requests count - not critical
             }
         });
     }

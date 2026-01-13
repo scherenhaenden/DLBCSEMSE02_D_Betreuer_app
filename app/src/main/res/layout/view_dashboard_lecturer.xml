@@ -50,7 +50,7 @@ Wird über ViewStub in activity_dashboard.xml inflatiert und zeigt betreuerspezi
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorError"
-                android:text="Du hast 2 neue Betreuungsanfragen." />
+                tools:text="Du hast 2 neue Betreuungsanfragen." />
 
         </LinearLayout>
 

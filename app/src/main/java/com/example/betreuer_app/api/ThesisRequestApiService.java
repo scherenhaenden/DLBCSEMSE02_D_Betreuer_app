@@ -43,4 +43,11 @@ public interface ThesisRequestApiService {
     Call<Void> deleteRequest(
             @Path("id") UUID id
     );
+
+    @GET("thesis-requests/tutor/receiver")
+    Call<ThesisRequestResponsePaginatedResponse> getIncomingRequests(
+            @Query("status") String status,
+            @Query("page") int page,
+            @Query("pageSize") int pageSize
+    );
 }
