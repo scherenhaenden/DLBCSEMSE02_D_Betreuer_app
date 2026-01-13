@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.betreuer_app.api.ApiClient;
 import com.example.betreuer_app.api.SubjectAreaApiService;
@@ -23,6 +24,8 @@ import com.example.betreuer_app.model.SubjectAreaResponsePaginatedResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.ThesisDocumentResponse;
 import com.example.betreuer_app.repository.SubjectAreaRepository;
+import com.example.betreuer_app.viewmodel.EditThesisViewModel;
+import com.example.betreuer_app.viewmodel.ViewModelFactory;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -52,6 +55,7 @@ public class EditThesisActivity extends AppCompatActivity {
     private MaterialButton btnFindTutors;
     private MaterialButton btnSave;
 
+    private EditThesisViewModel viewModel;
     private ThesisApiService thesisApiService;
     private SubjectAreaRepository subjectAreaRepository;
     private SubjectAreaApiService subjectAreaApiService;
@@ -92,9 +96,14 @@ public class EditThesisActivity extends AppCompatActivity {
             subjectAreaRepository = createSubjectAreaRepository();
             subjectAreaApiService = createSubjectAreaApiService();
 
+            // Initialize ViewModel
+            viewModel = createViewModel();
+
             if (getIntent().hasExtra("THESIS_ID")) {
                 thesisId = getIntent().getStringExtra("THESIS_ID");
-                loadThesisDetails(thesisId);
+                setupObservers();
+                viewModel.loadThesisDetails(thesisId);
+                viewModel.loadSubjectAreas();
             } else {
                 Toast.makeText(this, "Thesis ID not provided", Toast.LENGTH_SHORT).show();
                 finish();
@@ -116,7 +125,6 @@ public class EditThesisActivity extends AppCompatActivity {
                     });
 
             // Load subject areas for the dropdown
-            loadSubjectAreas();
             setupSubjectAreaSearch();
 
             Toast.makeText(this, "Activity erfolgreich geladen", Toast.LENGTH_SHORT).show();
@@ -125,6 +133,11 @@ public class EditThesisActivity extends AppCompatActivity {
             Toast.makeText(this, "Fehler beim Laden der Activity: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
+    }
+
+    protected EditThesisViewModel createViewModel() {
+        ViewModelFactory factory = new ViewModelFactory(thesisApiService, subjectAreaRepository);
+        return new ViewModelProvider(this, factory).get(EditThesisViewModel.class);
     }
 
     protected ThesisApiService createThesisApiService() {
@@ -139,65 +152,95 @@ public class EditThesisActivity extends AppCompatActivity {
         return ApiClient.getSubjectAreaApiService(this);
     }
 
-    private void loadThesisDetails(String id) {
-        try {
-            thesisApiService.getThesis(id).enqueue(new Callback<ThesisApiModel>() {
-                @Override
-                public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
-                    try {
-                        if (response.isSuccessful() && response.body() != null) {
-                            currentThesis = response.body();
-                            etTitle.setText(currentThesis.getTitle());
-                            etDescription.setText(currentThesis.getDescription());
-                            tvCurrentDocument.setText(currentThesis.getDocumentFileName() != null ? currentThesis.getDocumentFileName() : "Kein Dokument hochgeladen");
+    /**
+     * Setup observers for ViewModel LiveData
+     */
+    private void setupObservers() {
+        // Observe thesis details
+        viewModel.getThesisDetails().observe(this, resource -> {
+            if (resource.isSuccess() && resource.getData() != null) {
+                currentThesis = resource.getData();
+                displayThesisDetails(currentThesis);
+            } else if (resource.isError()) {
+                Toast.makeText(this, resource.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
-                            // Set status fields (read-only)
-                            if (currentThesis.getStatus() != null) {
-                                tvThesisStatus.setText(currentThesis.getStatus());
-                            } else {
-                                tvThesisStatus.setText("Unbekannt");
-                            }
+        // Observe subject areas
+        viewModel.getSubjectAreas().observe(this, resource -> {
+            if (resource.isSuccess() && resource.getData() != null) {
+                updateDropdown(resource.getData());
+            }
+        });
 
-                            if (currentThesis.getBillingStatus() != null) {
-                                tvBillingStatus.setText(currentThesis.getBillingStatus());
-                            } else {
-                                tvBillingStatus.setText("Keine");
-                            }
+        // Observe save result
+        viewModel.getSaveResult().observe(this, resource -> {
+            if (resource.isSuccess()) {
+                Toast.makeText(this, "Änderungen erfolgreich gespeichert", Toast.LENGTH_SHORT).show();
+                finish();
+            } else if (resource.isError()) {
+                Toast.makeText(this, resource.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
-                            // Set the selected subject area
-                            if (currentThesis.getSubjectAreaId() != null) {
-                                String subjectAreaId = currentThesis.getSubjectAreaId().toString();
-                                String subjectAreaName = getSubjectAreaNameById(subjectAreaId);
-                                if (subjectAreaName != null) {
-                                    dropdownSubjectArea.setText(subjectAreaName, false);
-                                } else {
-                                    // Load the specific subject area if not in the map
-                                    loadSpecificSubjectArea(subjectAreaId);
-                                }
-                            }
+        // Observe upload result
+        viewModel.getUploadResult().observe(this, resource -> {
+            if (resource.isSuccess()) {
+                Toast.makeText(this, "Dokument erfolgreich hochgeladen", Toast.LENGTH_SHORT).show();
+                finish();
+            } else if (resource.isError()) {
+                Toast.makeText(this, resource.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
 
-                            // Update document display
-                            updateDocumentDisplay();
-                        } else {
-                            Toast.makeText(EditThesisActivity.this, "Failed to load thesis details", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        Toast.makeText(EditThesisActivity.this, "Fehler beim Verarbeiten: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ThesisApiModel> call, Throwable t) {
-                    Toast.makeText(EditThesisActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                    t.printStackTrace();
-                }
-            });
-        } catch (Exception e) {
-            Toast.makeText(this, "Fehler beim Laden der Details: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
+        // Observe download result
+        viewModel.getDownloadResult().observe(this, resource -> {
+            if (resource.isSuccess() && resource.getData() != null) {
+                saveDownloadedFile(resource.getData(), viewModel.getDocumentFileName());
+            } else if (resource.isError()) {
+                Toast.makeText(this, resource.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+    /**
+     * Display thesis details in UI
+     */
+    private void displayThesisDetails(ThesisApiModel thesis) {
+        etTitle.setText(thesis.getTitle());
+        etDescription.setText(thesis.getDescription());
+        tvCurrentDocument.setText(thesis.getDocumentFileName() != null ?
+                thesis.getDocumentFileName() : "Kein Dokument hochgeladen");
+
+        // Set status fields (read-only)
+        if (thesis.getStatus() != null) {
+            tvThesisStatus.setText(thesis.getStatus());
+        } else {
+            tvThesisStatus.setText("Unbekannt");
+        }
+
+        if (thesis.getBillingStatus() != null) {
+            tvBillingStatus.setText(thesis.getBillingStatus());
+        } else {
+            tvBillingStatus.setText("Keine");
+        }
+
+        // Set the selected subject area
+        if (thesis.getSubjectAreaId() != null) {
+            String subjectAreaId = thesis.getSubjectAreaId().toString();
+            String subjectAreaName = viewModel.getSubjectAreaNameById(subjectAreaId);
+            if (subjectAreaName != null) {
+                dropdownSubjectArea.setText(subjectAreaName, false);
+            } else {
+                // Load the specific subject area if not in the map
+                loadSpecificSubjectArea(subjectAreaId);
+            }
+        }
+
+        // Update document display
+        updateDocumentDisplay();
+    }
+
 
     private void saveThesisDetails() {
         try {
@@ -205,42 +248,20 @@ public class EditThesisActivity extends AppCompatActivity {
             String description = etDescription.getText().toString().trim();
             String selectedSubjectAreaName = dropdownSubjectArea.getText().toString();
 
-            if (title.isEmpty()) {
-                Toast.makeText(this, "Titel ist erforderlich", Toast.LENGTH_SHORT).show();
+            // Use ViewModel validation
+            EditThesisViewModel.ValidationResult validation = viewModel.validateThesisInput(title, selectedSubjectAreaName);
+            if (!validation.isValid) {
+                if (validation.errorMessage.contains("Fachgebiet")) {
+                    dropdownSubjectArea.setError(validation.errorMessage);
+                } else {
+                    Toast.makeText(this, validation.errorMessage, Toast.LENGTH_SHORT).show();
+                }
                 return;
             }
 
-            String subjectAreaId = null;
-            // Validate and resolve topic ID from the map
-            if (!selectedSubjectAreaName.isEmpty() && subjectAreaMap.containsKey(selectedSubjectAreaName)) {
-                subjectAreaId = subjectAreaMap.get(selectedSubjectAreaName);
-            } else if (!selectedSubjectAreaName.isEmpty()) {
-                dropdownSubjectArea.setError("Bitte wählen Sie ein gültiges Fachgebiet aus der Suche");
-                return;
-            }
+            // Use ViewModel to save
+            viewModel.saveThesisDetails(thesisId, title, description, selectedSubjectAreaName);
 
-            RequestBody titlePart = RequestBody.create(MediaType.parse("text/plain"), title);
-            RequestBody descriptionPart = RequestBody.create(MediaType.parse("text/plain"), description);
-            RequestBody subjectAreaIdPart = subjectAreaId != null
-                ? RequestBody.create(MediaType.parse("text/plain"), subjectAreaId)
-                : null;
-
-            thesisApiService.updateThesis(thesisId, titlePart, descriptionPart, subjectAreaIdPart, null).enqueue(new Callback<ThesisApiModel>() {
-                @Override
-                public void onResponse(Call<ThesisApiModel> call, Response<ThesisApiModel> response) {
-                    if (response.isSuccessful()) {
-                        Toast.makeText(EditThesisActivity.this, "Änderungen erfolgreich gespeichert", Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        Toast.makeText(EditThesisActivity.this, "Fehler beim Speichern der Änderungen", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ThesisApiModel> call, Throwable t) {
-                    Toast.makeText(EditThesisActivity.this, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
         } catch (Exception e) {
             Toast.makeText(this, "Fehler beim Speichern der Änderungen: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
@@ -443,10 +464,10 @@ public class EditThesisActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() >= 2) {
                     // Start searching after 2 characters
-                    performSearch(s.toString());
+                    viewModel.searchSubjectAreas(s.toString());
                 } else if (s.length() == 0) {
                      // If cleared, reload initial list so dropdown isn't empty
-                     loadSubjectAreas();
+                     viewModel.loadSubjectAreas();
                 }
             }
 
@@ -472,55 +493,20 @@ public class EditThesisActivity extends AppCompatActivity {
         });
     }
 
-    private void performSearch(String query) {
-        subjectAreaRepository.searchSubjectAreas(query, 1, 20, new Callback<SubjectAreaResponsePaginatedResponse>() {
-            @Override
-            public void onResponse(Call<SubjectAreaResponsePaginatedResponse> call, Response<SubjectAreaResponsePaginatedResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    updateDropdown(response.body().getItems());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SubjectAreaResponsePaginatedResponse> call, Throwable t) {
-                // Silently fail for search suggestions to avoid spamming user
-            }
-        });
-    }
 
     private void updateDropdown(java.util.List<SubjectAreaResponse> areas) {
-        if (areas != null) {
-            boolean hasNewItems = false;
-
-            for (SubjectAreaResponse area : areas) {
-                String name = area.getTitle();
-                java.util.UUID id = area.getId();
-
-                if (name != null && id != null && !subjectAreaMap.containsKey(name)) {
-                    allSubjectAreaNames.add(name);
-                    subjectAreaMap.put(name, id.toString());
-                    hasNewItems = true;
-                }
-            }
-
-            // Only update adapter if we have new items
-            if (hasNewItems) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                        EditThesisActivity.this,
-                        android.R.layout.simple_dropdown_item_1line,
-                        allSubjectAreaNames);
-                dropdownSubjectArea.setAdapter(adapter);
-            }
+        if (areas != null && !areas.isEmpty()) {
+            // Update the adapter with ViewModel's names
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    EditThesisActivity.this,
+                    android.R.layout.simple_dropdown_item_1line,
+                    viewModel.getSubjectAreaNames());
+            dropdownSubjectArea.setAdapter(adapter);
         }
     }
 
     private String getSubjectAreaNameById(String id) {
-        for (java.util.Map.Entry<String, String> entry : subjectAreaMap.entrySet()) {
-            if (entry.getValue().equals(id)) {
-                return entry.getKey();
-            }
-        }
-        return null;
+        return viewModel.getSubjectAreaNameById(id);
     }
 
     private void loadSpecificSubjectArea(String subjectAreaId) {
@@ -533,14 +519,14 @@ public class EditThesisActivity extends AppCompatActivity {
                     java.util.UUID id = area.getId();
 
                     if (name != null && id != null) {
-                        subjectAreaMap.put(name, id.toString());
-                        if (!allSubjectAreaNames.contains(name)) {
-                            allSubjectAreaNames.add(name);
+                        viewModel.getSubjectAreaMap().put(name, id.toString());
+                        if (!viewModel.getSubjectAreaNames().contains(name)) {
+                            viewModel.getSubjectAreaNames().add(name);
                             // Update adapter with new item
                             ArrayAdapter<String> adapter = new ArrayAdapter<>(
                                     EditThesisActivity.this,
                                     android.R.layout.simple_dropdown_item_1line,
-                                    allSubjectAreaNames);
+                                    viewModel.getSubjectAreaNames());
                             dropdownSubjectArea.setAdapter(adapter);
                         }
                         dropdownSubjectArea.setText(name, false);
@@ -559,9 +545,9 @@ public class EditThesisActivity extends AppCompatActivity {
     }
 
     private void updateDocumentDisplay() {
-        if (currentThesis != null && currentThesis.getDocumentFileName() != null && !currentThesis.getDocumentFileName().isEmpty()) {
+        if (viewModel.hasDocument()) {
             btnDownloadDocument.setVisibility(View.VISIBLE);
-            btnDownloadDocument.setText("Exposé herunterladen (" + currentThesis.getDocumentFileName() + ")");
+            btnDownloadDocument.setText("Exposé herunterladen (" + viewModel.getDocumentFileName() + ")");
             tvCurrentDocument.setVisibility(View.GONE); // Hide the text view since button shows the filename
         } else {
             btnDownloadDocument.setVisibility(View.GONE);
@@ -571,9 +557,9 @@ public class EditThesisActivity extends AppCompatActivity {
     }
 
     private void findTutors() {
-        if (currentThesis != null && currentThesis.getSubjectAreaId() != null) {
+        if (viewModel.hasSubjectArea()) {
             Intent intent = new Intent(EditThesisActivity.this, TutorListActivity.class);
-            intent.putExtra("SELECTED_SUBJECT_AREA_ID", currentThesis.getSubjectAreaId().toString());
+            intent.putExtra("SELECTED_SUBJECT_AREA_ID", viewModel.getThesisSubjectAreaId());
             startActivity(intent);
         } else {
             Toast.makeText(this, "Kein Fachgebiet für die Thesis ausgewählt", Toast.LENGTH_SHORT).show();

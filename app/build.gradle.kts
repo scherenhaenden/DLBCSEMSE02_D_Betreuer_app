@@ -40,6 +40,13 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+    // Lifecycle components for MVVM
+    implementation(libs.lifecycle.viewmodel)
+    implementation(libs.lifecycle.livedata)
+    implementation(libs.lifecycle.runtime)
+    implementation(libs.lifecycle.common)
+
     testImplementation(libs.junit)
     // Mockito for unit tests
     testImplementation(libs.mockito.core)
