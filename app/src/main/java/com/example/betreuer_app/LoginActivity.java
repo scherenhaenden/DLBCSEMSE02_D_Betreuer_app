@@ -196,11 +196,18 @@ public class LoginActivity extends AppCompatActivity {
      * @param role The user's role.
      */
     private void navigateToDashboard(String name, String role) {
+        // Check if activity is still alive
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+
         Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
         intent.putExtra("USER_NAME", name);
         if (role != null) {
             intent.putExtra("USER_ROLE", role);
         }
+        // Add flags to prevent back navigation to login
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
@@ -210,6 +217,7 @@ public class LoginActivity extends AppCompatActivity {
      * If valid, proceeds to DashboardActivity; otherwise, shows the login form.
      */
     private void checkAutoLogin() {
+        // Quick check first - if not logged in, show login immediately
         if (!sessionManager.isLoggedIn()) {
             showLogin();
             return;
@@ -222,47 +230,64 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences authPreferences = getSharedPreferences(AuthConstants.PREFS_NAME, MODE_PRIVATE);
         String savedName = authPreferences.getString(AuthConstants.KEY_USER_NAME, null);
 
-        if (token != null && savedName != null && savedRole != null) {
-            progressBar.setVisibility(View.VISIBLE);
-            loginButton.setVisibility(View.GONE);
-            emailEditText.setVisibility(View.GONE);
-            passwordEditText.setVisibility(View.GONE);
-            themeSwitch.setVisibility(View.GONE);
+        // Validate we have all required data
+        if (token == null || savedName == null || savedRole == null) {
+            // Missing data - clear session and show login
+            sessionManager.clearSession();
+            showLogin();
+            return;
+        }
 
-            ThesisRepository thesisRepository = new ThesisRepository(getApplicationContext());
-            thesisRepository.getTheses(1, 1, new Callback<ThesesResponse>() {
-                @Override
-                public void onResponse(Call<ThesesResponse> call, Response<ThesesResponse> response) {
-                    if (response.isSuccessful()) {
-                        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                        intent.putExtra("USER_NAME", savedName);
-                        intent.putExtra("USER_ROLE", savedRole);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        // Token invalid
-                        showLogin();
-                    }
+        // Show loading state
+        progressBar.setVisibility(View.VISIBLE);
+        loginButton.setVisibility(View.GONE);
+        emailEditText.setVisibility(View.GONE);
+        passwordEditText.setVisibility(View.GONE);
+        themeSwitch.setVisibility(View.GONE);
+
+        // Validate token with a simple API call
+        ThesisRepository thesisRepository = new ThesisRepository(this);
+        thesisRepository.getTheses(1, 1, new Callback<ThesesResponse>() {
+            @Override
+            public void onResponse(Call<ThesesResponse> call, Response<ThesesResponse> response) {
+                // Check if activity is still alive
+                if (isFinishing() || isDestroyed()) {
+                    return;
                 }
 
-                @Override
-                public void onFailure(Call<ThesesResponse> call, Throwable t) {
-                    // Network error or verification failed
+                if (response.isSuccessful()) {
+                    // Token is valid - navigate to dashboard
+                    navigateToDashboard(savedName, savedRole);
+                } else {
+                    // Token invalid - clear session and show login
+                    sessionManager.clearSession();
                     showLogin();
                 }
-            });
-        } else {
-            // No valid saved data, show login
-            showLogin();
-        }
+            }
+
+            @Override
+            public void onFailure(Call<ThesesResponse> call, Throwable t) {
+                // Check if activity is still alive
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+
+                // Network error or verification failed
+                // Don't clear session on network errors - show login form but keep credentials
+                showLogin();
+            }
+        });
     }
 
     /**
-     * Displays the login form and clears any invalid authentication data.
+     * Displays the login form.
+     * Note: Does NOT clear session here - caller should decide if session should be cleared.
      */
     private void showLogin() {
-        // Clear session as it might be invalid
-        sessionManager.clearSession();
+        // Check if activity is still alive
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
 
         progressBar.setVisibility(View.GONE);
         loginButton.setVisibility(View.VISIBLE);
