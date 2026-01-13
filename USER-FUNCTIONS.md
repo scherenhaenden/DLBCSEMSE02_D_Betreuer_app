@@ -10,11 +10,11 @@
 | **Student**    | Liste der Abschlussarbeiten sehen (Klick öffnet Details) | `ThesisListActivity`                       | ✅         | `ThesisListFragment`, `ThesisListAdapter` (onItemClick -> Detail) **[Gemacht]** |
 | **Student**    | Details der Abschlussarbeit sehen (Status, Rechnung, PDF laden, Bearbeiten) | `ThesisDetailActivity`                     | ✅         | `ThesisDetailActivity`, `btn_download_document`, `btn_edit_thesis` **[Gemacht]** |
 | **Student**    | Abschlussarbeit bearbeiten (Dokument laden, Betreuer finden, Speichern) | `EditThesisActivity`                       | ✅         | `EditThesisActivity`, `btn_upload_document`, `btn_find_tutors`, `btn_save_thesis` **[Gemacht]** |
-| **Betreuer**   | meine Thesenangebote verwalten                        | `DashboardActivity` (Betreuer-Ansicht)    | ❌         | `dashboard_lecturer.xml`, `DashboardActivity` **[Gemacht]** |
+| **Betreuer**   | meine Thesenangebote verwalten                        | `DashboardActivity` (Betreuer-Ansicht)    | ✅         | `dashboard_lecturer.xml`, `DashboardActivity` **[Gemacht]** |
 | **Student**    | Tutoren suchen                                       | `DashboardActivity` (Student)              | ✅         | `btn_find_tutor` in `dashboard_student.xml` **[Gemacht]** |
-| **Betreuer**   | offene Anfragen verwalten                           | `DashboardActivity` (Betreuer)             | ❌         | `btn_pending_requests`, `lecturer_requests_card` **[Gemacht]** |
+| **Betreuer**   | offene Anfragen verwalten                           | `DashboardActivity` (Betreuer)             | ✅         | `btn_pending_requests`, `lecturer_requests_card` **[Gemacht]** |
 | **Student**    | meine Anfragen einsehen                              | `ThesisRequestActivity`                    | ✅         | `recyclerViewRequests` in `activity_thesis_request.xml` **[Gemacht]** |
-| **Betreuer**   | neue Thesenausschreibungen erstellen                 | `ThesisOfferDashboardActivity`             | ❌         | `fab_add_thesis_offer` in `activity_thesis_offer_dashboard.xml` **[Gemacht]** |
+| **Betreuer**   | neue Thesenausschreibungen erstellen                 | `ThesisOfferDashboardActivity`             | ✅         | `fab_add_thesis_offer` in `activity_thesis_offer_dashboard.xml` **[Gemacht]** |
 | **Betreuer**   | Thesenangebote in einer Liste sehen                  | `ThesisOfferDashboardActivity`             | ❌         | `rv_thesis_offers`, `ThesisOfferAdapter` **[Gemacht (UI)]** |
 | **Betreuer**   | neue Ausschreibung erstellen                         | `CreateThesisOfferActivity`                | ❌         | `et_thesis_title`, `subject_area_dropdown` **[Gemacht (UI)]** |
 | **Betreuer**   | Ausschreibung bearbeiten                             | `CreateThesisOfferActivity` (Edit)         | ❌         | `status_dropdown_layout` (EditMode) **[Gemacht (UI)]**     |
