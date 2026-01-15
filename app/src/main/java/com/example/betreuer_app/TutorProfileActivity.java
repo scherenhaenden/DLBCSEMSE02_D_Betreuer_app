@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
 /**
@@ -23,6 +24,12 @@ public class TutorProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutor_profile);
+
+        // Toolbar Setup
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        // Aktiviert den Klick auf den Pfeil
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         if (getIntent() != null) {
             tutorId = getIntent().getStringExtra("TUTOR_ID");
