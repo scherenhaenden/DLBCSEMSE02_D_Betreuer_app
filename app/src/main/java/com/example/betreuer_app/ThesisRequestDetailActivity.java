@@ -50,6 +50,9 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
 
 
     @Override
+    /**
+     * Initializes the activity and sets up the user interface components.
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thesis_request_detail);
@@ -117,6 +120,16 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays the details of a ThesisRequestResponse object in the UI.
+     *
+     * This method updates various UI components with information from the provided
+     * ThesisRequestResponse, including the thesis title, request type, requester and
+     * receiver names, message, status, and dates. It also manages the visibility of
+     * action buttons based on the current user's role and the request's status.
+     *
+     * @param request the ThesisRequestResponse object containing the details to display
+     */
     private void displayDetails(ThesisRequestResponse request) {
         currentRequest = request;
         runOnUiThread(() -> {
@@ -223,6 +236,14 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Initiates the download of a document associated with the current request.
+     *
+     * This method checks if the currentRequest and its required fields are not null.
+     * If valid, it starts the download process by calling the thesisApiService to fetch
+     * the document. The response is handled to either confirm a successful download
+     * or report any errors encountered during the process.
+     */
     private void downloadDocument() {
         if (currentRequest == null || currentRequest.getDocumentFileName() == null || currentRequest.getThesisId() == null) {
             Toast.makeText(this, "Kein Dokument verfügbar", Toast.LENGTH_SHORT).show();
