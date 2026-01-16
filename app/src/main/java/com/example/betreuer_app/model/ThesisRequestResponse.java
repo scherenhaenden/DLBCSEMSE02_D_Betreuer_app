@@ -65,6 +65,9 @@ public class ThesisRequestResponse {
         return documentFileName;
     }
 
+    /**
+     * Returns the document ID.
+     */
     public UUID getDocumentId() {
         return documentId;
     }
