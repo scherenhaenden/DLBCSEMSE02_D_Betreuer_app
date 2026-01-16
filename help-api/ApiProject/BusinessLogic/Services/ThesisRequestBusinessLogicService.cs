@@ -138,7 +138,7 @@ namespace ApiProject.BusinessLogic.Services
         public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForUserAsync(Guid userId, int page, int pageSize)
         {
             var query = _context.ThesisRequests
-                .Include(r => r.Thesis)
+                .Include(r => r.Thesis).ThenInclude(t => t.Document)
                 .Include(r => r.Requester).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.Receiver).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.RequestType)
@@ -178,7 +178,7 @@ namespace ApiProject.BusinessLogic.Services
         public async Task<ThesisRequestBusinessLogicModel?> GetRequestByIdAsync(Guid requestId)
         {
             var request = await _context.ThesisRequests
-                .Include(r => r.Thesis)
+                .Include(r => r.Thesis).ThenInclude(t => t.Document)
                 .Include(r => r.Requester).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.Receiver).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.RequestType)
@@ -312,7 +312,7 @@ namespace ApiProject.BusinessLogic.Services
         public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsReceiver(Guid tutorId, int page, int pageSize, string? status = null)
         {
             var query = _context.ThesisRequests
-                .Include(r => r.Thesis)
+                .Include(r => r.Thesis).ThenInclude(t => t.Document)
                 .Include(r => r.Requester).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.Receiver).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.RequestType)
@@ -364,7 +364,7 @@ namespace ApiProject.BusinessLogic.Services
         public async Task<PaginatedResultBusinessLogicModel<ThesisRequestBusinessLogicModel>> GetRequestsForTutorAsRequester(Guid tutorId, int page, int pageSize, string? status = null)
         {
             var query = _context.ThesisRequests
-                .Include(r => r.Thesis)
+                .Include(r => r.Thesis).ThenInclude(t => t.Document)
                 .Include(r => r.Requester).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.Receiver).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .Include(r => r.RequestType)
@@ -431,7 +431,9 @@ namespace ApiProject.BusinessLogic.Services
                 Message = r.Message,
                 CreatedAt = r.CreatedAt,
                 PlannedStartOfSupervision = r.PlannedStartOfSupervision,
-                PlannedEndOfSupervision = r.PlannedEndOfSupervision
+                PlannedEndOfSupervision = r.PlannedEndOfSupervision,
+                DocumentFileName = r.Thesis.Document?.FileName,
+                DocumentId = r.Thesis.Document?.Id
             };
         }
     }

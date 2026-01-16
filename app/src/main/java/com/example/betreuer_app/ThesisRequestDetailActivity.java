@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.betreuer_app.api.ApiClient;
+import com.example.betreuer_app.api.ThesisApiService;
 import com.example.betreuer_app.api.ThesisRequestApiService;
 import com.example.betreuer_app.constants.RequestStatuses;
 import com.example.betreuer_app.model.RespondToThesisRequestRequest;
@@ -19,6 +20,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.UUID;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -27,6 +29,8 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
 
     private UUID requestId;
     private ThesisRequestApiService apiService;
+    private ThesisApiService thesisApiService;
+    private FileDownloader fileDownloader;
 
     private TextView thesisTitle;
     private TextView requesterName;
@@ -37,9 +41,13 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
     private TextView requestType;
     private TextView startDate;
     private TextView endDate;
+    private Button btnDownloadDocument;
     private LinearLayout actionsLayout;
     private Button btnAccept;
     private Button btnReject;
+
+    private ThesisRequestResponse currentRequest;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +66,7 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
         requestType = findViewById(R.id.textViewRequestType);
         startDate = findViewById(R.id.textViewStartDate);
         endDate = findViewById(R.id.textViewEndDate);
+        btnDownloadDocument = findViewById(R.id.buttonDownloadDocument);
         actionsLayout = findViewById(R.id.layoutActions);
         btnAccept = findViewById(R.id.buttonAccept);
         btnReject = findViewById(R.id.buttonReject);
@@ -78,9 +87,12 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
         }
 
         apiService = ApiClient.getThesisRequestApiService(this);
+        thesisApiService = ApiClient.getThesisApiService(this);
+        fileDownloader = new FileDownloader();
 
         btnAccept.setOnClickListener(v -> respondToRequest(true));
         btnReject.setOnClickListener(v -> respondToRequest(false));
+        btnDownloadDocument.setOnClickListener(v -> downloadDocument());
 
         loadRequestDetails();
     }
@@ -106,6 +118,7 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
     }
 
     private void displayDetails(ThesisRequestResponse request) {
+        currentRequest = request;
         runOnUiThread(() -> {
             thesisTitle.setText(request.getThesisTitle() != null ? request.getThesisTitle() : "No Title");
 
@@ -131,6 +144,14 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
             date.setText(request.getCreatedAt() != null ? request.getCreatedAt() : "Unknown date");
             startDate.setText(request.getPlannedStartOfSupervision() != null ? request.getPlannedStartOfSupervision() : "Not specified");
             endDate.setText(request.getPlannedEndOfSupervision() != null ? request.getPlannedEndOfSupervision() : "Not specified");
+
+            // Show/hide download button based on document availability
+            if (request.getDocumentFileName() != null && request.getDocumentId() != null) {
+                btnDownloadDocument.setVisibility(View.VISIBLE);
+                btnDownloadDocument.setText("Dokument herunterladen: " + request.getDocumentFileName());
+            } else {
+                btnDownloadDocument.setVisibility(View.GONE);
+            }
 
             // Get current user ID
             SharedPreferences authPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
@@ -200,6 +221,36 @@ public class ThesisRequestDetailActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void downloadDocument() {
+        if (currentRequest == null || currentRequest.getDocumentFileName() == null || currentRequest.getThesisId() == null) {
+            Toast.makeText(this, "Kein Dokument verfügbar", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Toast.makeText(this, "Download gestartet...", Toast.LENGTH_SHORT).show();
+
+        thesisApiService.downloadThesisDocument(currentRequest.getThesisId().toString()).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean written = fileDownloader.writeResponseBodyToDisk(ThesisRequestDetailActivity.this, response.body(), currentRequest.getDocumentFileName());
+                    if (written) {
+                        Toast.makeText(ThesisRequestDetailActivity.this, "Download erfolgreich: " + currentRequest.getDocumentFileName(), Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(ThesisRequestDetailActivity.this, "Fehler beim Speichern der Datei", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(ThesisRequestDetailActivity.this, "Download fehlgeschlagen", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(ThesisRequestDetailActivity.this, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void deleteRequest() {

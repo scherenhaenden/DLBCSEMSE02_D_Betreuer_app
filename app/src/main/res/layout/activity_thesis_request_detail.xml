@@ -156,6 +156,16 @@
                 android:textAppearance="?attr/textAppearanceBody1"
                 tools:text="2024-06-30" />
 
+            <Button
+                android:id="@+id/buttonDownloadDocument"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="Dokument herunterladen"
+                android:textColor="?attr/colorPrimary"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:id="@+id/layoutActions"
                 android:layout_width="match_parent"

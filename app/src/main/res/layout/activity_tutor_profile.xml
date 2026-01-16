@@ -1,50 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Layout für Betreuerprofil, zugänglich für Studenten und Betreuer. Zeigt detaillierte Informationen zu einem Betreuer in
-  TutorProfileActivity.
--->
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center"
     android:fitsSystemWindows="true"
     tools:context=".TutorProfileActivity">
 
-    <ImageView
-        android:id="@+id/iv_tutor_avatar"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginBottom="16dp"
-        android:src="@drawable/ic_tutor_placeholder"
-        app:tint="?attr/colorPrimary" />
-
-    <TextView
-        android:id="@+id/tv_tutor_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:textAppearance="?attr/textAppearanceHeadline5"
-        tools:text="Dr. Max Mustermann" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_view_offers"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Ausschreibungen ansehen"
-        app:icon="@drawable/ic_document" />
+        android:background="?attr/colorSurface"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="?attr/colorOnSurface"
+        app:title="Profil"
+        app:titleTextColor="?attr/colorOnSurface" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_create_request"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Betreuungsanfrage erstellen"
-        app:icon="@drawable/ic_create"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp">
 
+        <ImageView
+            android:id="@+id/iv_tutor_avatar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_tutor_placeholder"
+            app:tint="?attr/colorPrimary" />
+
+        <TextView
+            android:id="@+id/tv_tutor_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            tools:text="Dr. Max Mustermann" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_view_offers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Ausschreibungen ansehen"
+            app:icon="@drawable/ic_document" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_create_request"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Betreuungsanfrage erstellen"
+            app:icon="@drawable/ic_create"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    </LinearLayout>
 </LinearLayout>

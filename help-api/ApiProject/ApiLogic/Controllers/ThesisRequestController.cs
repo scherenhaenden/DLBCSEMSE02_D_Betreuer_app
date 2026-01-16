@@ -124,7 +124,9 @@ namespace ApiProject.ApiLogic.Controllers
                 Message = model.Message,
                 CreatedAt = model.CreatedAt,
                 PlannedStartOfSupervision = model.PlannedStartOfSupervision,
-                PlannedEndOfSupervision = model.PlannedEndOfSupervision
+                PlannedEndOfSupervision = model.PlannedEndOfSupervision,
+                DocumentFileName = model.DocumentFileName,
+                DocumentId = model.DocumentId
             };
         }
     }

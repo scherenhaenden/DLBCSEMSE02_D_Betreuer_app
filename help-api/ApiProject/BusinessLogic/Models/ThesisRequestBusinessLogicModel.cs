@@ -13,5 +13,7 @@ namespace ApiProject.BusinessLogic.Models
         public DateTime CreatedAt { get; set; }
         public DateTime PlannedStartOfSupervision { get; set; }
         public DateTime PlannedEndOfSupervision { get; set; }
+        public string? DocumentFileName { get; set; }
+        public Guid? DocumentId { get; set; }
     }
 }

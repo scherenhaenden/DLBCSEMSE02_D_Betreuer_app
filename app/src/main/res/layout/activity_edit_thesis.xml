@@ -7,6 +7,7 @@ Wird in EditThesisActivity verwendet und ermöglicht das Ändern von Titel, Besc
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".EditThesisActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -17,8 +18,10 @@ Wird in EditThesisActivity verwendet und ermöglicht das Ändern von Titel, Besc
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Abschlussarbeit bearbeiten"
-            app:navigationIcon="@drawable/ic_arrow_back" />
+            app:title="@string/thesis_details_title"
+            app:titleTextColor="?attr/colorOnSurface"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="?attr/colorOnSurface"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
