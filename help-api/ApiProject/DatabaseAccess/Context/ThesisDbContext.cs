@@ -119,10 +119,10 @@ public class ThesisDbContext : DbContext
         );
 
         modelBuilder.Entity<ThesisStatusDataAccessModel>().HasData(
-            new ThesisStatusDataAccessModel { Id = Guid.NewGuid(), Name = "PendingApproval", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new ThesisStatusDataAccessModel { Id = Guid.NewGuid(), Name = "Registered", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new ThesisStatusDataAccessModel { Id = Guid.NewGuid(), Name = "Submitted", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            new ThesisStatusDataAccessModel { Id = Guid.NewGuid(), Name = "Colloquium", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+            new ThesisStatusDataAccessModel { Id = Guid.NewGuid(), Name = "IN_DISCUSSION", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new ThesisStatusDataAccessModel { Id = Guid.NewGuid(), Name = "REGISTERED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new ThesisStatusDataAccessModel { Id = Guid.NewGuid(), Name = "SUBMITTED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+            new ThesisStatusDataAccessModel { Id = Guid.NewGuid(), Name = "DEFENDED", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
         );
 
         modelBuilder.Entity<BillingStatusDataAccessModel>().HasData(

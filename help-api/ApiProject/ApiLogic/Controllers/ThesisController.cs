@@ -128,5 +128,26 @@ namespace ApiProject.ApiLogic.Controllers
                 return Forbid();
             }
         }
+
+        [HttpPatch("{id}/status")]
+        public async Task<ActionResult<ThesisResponse>> UpdateThesisStatus(Guid id, [FromBody] UpdateThesisStatusRequest request)
+        {
+            try
+            {
+                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+                var updated = await _thesisBusinessLogicService.UpdateThesisStatusAsync(id, request.Status, userId, userRoles);
+                return Ok(_thesisApiMapper.MapToResponse(updated));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -14,22 +14,53 @@ public class ThesisStatusHelper {
 
     /**
      * Übersetzt den englischen Backend-Status in die deutsche Anzeige.
-     * Für Studenten: Zeigt "Warte auf Betreuerzusage" wenn kein Tutor zugewiesen ist.
+     * Für Studenten: Zeigt "Erstellt" wenn keine Betreuungsanfrage vorliegt,
+     * und "In Abstimmung" solange kein Tutor zugewiesen ist.
      */
     public static String getDisplayStatus(Context context, ThesisApiModel thesis, boolean isStudent) {
-        if (thesis == null || thesis.getStatus() == null) {
+        if (thesis == null) {
             return "";
         }
 
         String status = thesis.getStatus();
-        UUID tutorId = thesis.getTutorId();
 
-        // WICHTIG: Student sieht "Warte auf Betreuerzusage", solange kein Tutor zugewiesen ist
-        if (isStudent && tutorId == null) {
-            return context.getString(R.string.status_waiting_for_tutor);
+        if (isStudent) {
+            if (status == null || status.isEmpty()) {
+                return context.getString(R.string.status_created);
+            }
+            if ("IN_DISCUSSION".equals(status)) {
+                return context.getString(R.string.status_in_coordination);
+            }
+            if ("REGISTERED".equals(status) && !isStudentRegistrationConfirmed(context, thesis)) {
+                return context.getString(R.string.status_in_coordination);
+            }
         }
 
         return translateStatus(context, status);
+    }
+
+    /**
+     * Übersetzt den englischen Backend-Status in die deutsche Anzeige mit Betreuungsanfrage-Infos.
+     */
+    public static String getDisplayStatus(Context context, ThesisApiModel thesis, boolean isStudent,
+                                          boolean hasSupervisionRequest, boolean isRequestAccepted) {
+        if (thesis == null) {
+            return "";
+        }
+
+        if (isStudent) {
+            if (!hasSupervisionRequest) {
+                return context.getString(R.string.status_created);
+            }
+            if ("IN_DISCUSSION".equals(thesis.getStatus())) {
+                return context.getString(R.string.status_in_coordination);
+            }
+            if ("REGISTERED".equals(thesis.getStatus()) && !isStudentRegistrationConfirmed(context, thesis)) {
+                return context.getString(R.string.status_in_coordination);
+            }
+        }
+
+        return translateStatus(context, thesis.getStatus());
     }
 
     /**
@@ -83,5 +114,22 @@ public class ThesisStatusHelper {
         if (thesis == null) return false;
         return "SUBMITTED".equals(thesis.getStatus());
     }
-}
 
+    public static void markStudentRegistrationConfirmed(Context context, ThesisApiModel thesis) {
+        if (context == null || thesis == null || thesis.getId() == null) return;
+        context.getSharedPreferences("thesis_status_prefs", Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("student_registered_" + thesis.getId(), true)
+                .apply();
+    }
+
+    public static boolean isStudentRegistrationConfirmed(Context context, ThesisApiModel thesis) {
+        if (context == null || thesis == null || thesis.getId() == null) return false;
+        String status = thesis.getStatus();
+        if ("SUBMITTED".equals(status) || "DEFENDED".equals(status)) {
+            return true;
+        }
+        return context.getSharedPreferences("thesis_status_prefs", Context.MODE_PRIVATE)
+                .getBoolean("student_registered_" + thesis.getId(), false);
+    }
+}
