@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -28,6 +29,7 @@ import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.ThesisRequestResponse;
 import com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse;
 import com.example.betreuer_app.model.UserResponse;
+import com.example.betreuer_app.util.BillingStatusDisplayMapper;
 import com.example.betreuer_app.util.SessionManager;
 import com.example.betreuer_app.util.ThesisStatusDisplayLogic;
 import com.example.betreuer_app.util.ThesisStatusHelper;
@@ -267,7 +269,33 @@ public class ThesisDetailActivity extends AppCompatActivity {
     }
 
     private void setupBillingStatusSpinner(List<BillingStatusResponse> statuses) {
-        ArrayAdapter<BillingStatusResponse> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, statuses);
+        ArrayAdapter<BillingStatusResponse> adapter = new ArrayAdapter<BillingStatusResponse>(this, android.R.layout.simple_spinner_item, statuses) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                BillingStatusResponse status = getItem(position);
+                if (view instanceof TextView) {
+                    ((TextView) view).setText(BillingStatusDisplayMapper.mapBillingStatusToDisplay(
+                        getContext(),
+                        status != null ? status.getName() : null
+                    ));
+                }
+                return view;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                BillingStatusResponse status = getItem(position);
+                if (view instanceof TextView) {
+                    ((TextView) view).setText(BillingStatusDisplayMapper.mapBillingStatusToDisplay(
+                        getContext(),
+                        status != null ? status.getName() : null
+                    ));
+                }
+                return view;
+            }
+        };
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerBillingStatus.setAdapter(adapter);
 
@@ -392,7 +420,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
         // Setze Rechnungsstatus für TextView (Studenten) und Spinner (Tutoren)
         String billingStatus = thesis.getBillingStatus();
-        textViewBillingStatus.setText(billingStatus);
+        textViewBillingStatus.setText(BillingStatusDisplayMapper.mapBillingStatusToDisplay(this, billingStatus));
 
         isSpinnerInitializing = true; // Prevent spinner listener from triggering during setup
         ArrayAdapter<BillingStatusResponse> adapter = (ArrayAdapter<BillingStatusResponse>) spinnerBillingStatus.getAdapter();

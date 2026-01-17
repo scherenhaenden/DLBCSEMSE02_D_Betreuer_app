@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.betreuer_app.R;
 import com.example.betreuer_app.model.ThesisApiModel;
+import com.example.betreuer_app.util.BillingStatusDisplayMapper;
 import com.example.betreuer_app.util.SessionManager;
 import com.example.betreuer_app.util.ThesisStatusHelper;
 import java.util.List;
@@ -76,7 +77,10 @@ public class ThesisListAdapter extends RecyclerView.Adapter<ThesisListAdapter.Th
             textViewTitel.setText(thesis.getTitle());
             textViewFachgebiet.setText(""); 
             textViewStatus.setText("Status: " + displayStatus);
-            textViewRechnungsstatus.setText("Rechnung: " + thesis.getBillingStatus());
+            textViewRechnungsstatus.setText("Rechnung: " + BillingStatusDisplayMapper.mapBillingStatusToDisplay(
+                itemView.getContext(),
+                thesis.getBillingStatus()
+            ));
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
