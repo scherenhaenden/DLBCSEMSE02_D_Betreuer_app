@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:fitsSystemWindows="true"
-    tools:context=".TutorProfileActivity">
+    android:orientation="vertical"
+    tools:context=".ContactTutorActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -15,55 +15,49 @@
         android:background="?attr/colorSurface"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:navigationIconTint="?attr/colorOnSurface"
-        app:title="Profil"
+        app:title="@string/contact_tutor_title"
         app:titleTextColor="?attr/colorOnSurface" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:orientation="vertical"
         android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/iv_tutor_avatar"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_tutor_placeholder"
-            app:tint="?attr/colorPrimary" />
-
         <TextView
-            android:id="@+id/tv_tutor_name"
+            android:id="@+id/tv_contact_tutor_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:textAppearance="?attr/textAppearanceHeadline5"
+            android:layout_marginBottom="12dp"
+            android:textAppearance="?attr/textAppearanceHeadline6"
             tools:text="Dr. Max Mustermann" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_view_offers"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="Ausschreibungen ansehen"
-            app:icon="@drawable/ic_document" />
+            android:text="@string/contact_tutor_email_label"
+            android:textAppearance="?attr/textAppearanceCaption" />
+
+        <TextView
+            android:id="@+id/tv_contact_tutor_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:textAppearance="?attr/textAppearanceBody1"
+            tools:text="max.mustermann@iu.org" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_create_request"
+            android:id="@+id/btn_contact_email_write"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Betreuungsanfrage erstellen"
-            app:icon="@drawable/ic_create"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            android:layout_marginBottom="12dp"
+            android:text="@string/contact_tutor_email_write" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_contact_tutor"
+            android:id="@+id/btn_contact_email_copy"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/contact_tutor_button"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
-
+            android:text="@string/contact_tutor_email_copy" />
     </LinearLayout>
 </LinearLayout>
