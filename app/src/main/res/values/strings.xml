@@ -36,4 +36,10 @@
     <string name="contact_tutor_email_thesis_id">Abschlussarbeit-ID: %1$s</string>
     <string name="contact_tutor_email_body_outro">Viele Grüße</string>
     <string name="contact_tutor_fallback_name">Tutor</string>
+    <string name="thesis_page_previous">Zurück</string>
+    <string name="thesis_page_next">Weiter</string>
+    <string name="thesis_page_indicator">Seite %1$d / %2$d</string>
+    <string name="thesis_page_indicator_placeholder">Seite 1 / 1</string>
+    <string name="thesis_list_load_error_with_code">Fehler beim Laden der Abschlussarbeiten (Code: %1$d)</string>
+    <string name="thesis_list_load_error_network">Netzwerkfehler beim Laden der Abschlussarbeiten</string>
 </resources>
