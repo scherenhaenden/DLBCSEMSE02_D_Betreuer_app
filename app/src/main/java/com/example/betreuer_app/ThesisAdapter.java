@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.betreuer_app.model.ThesisApiModel;
+import com.example.betreuer_app.util.BillingStatusDisplayMapper;
 import com.example.betreuer_app.util.SessionManager;
 import com.example.betreuer_app.util.ThesisStatusHelper;
 
@@ -56,7 +57,10 @@ public class ThesisAdapter extends RecyclerView.Adapter<ThesisAdapter.ThesisView
             holder.textViewTitel.setText(thesis.getTitle());
             holder.textViewFachgebiet.setText("Fachgebiet: " + thesis.getSubjectAreaId());
             holder.textViewStatus.setText("Status: " + displayStatus);
-            holder.textViewRechnungsstatus.setText("Rechnung: " + thesis.getBillingStatus());
+            holder.textViewRechnungsstatus.setText("Rechnung: " + BillingStatusDisplayMapper.mapBillingStatusToDisplay(
+                holder.itemView.getContext(),
+                thesis.getBillingStatus()
+            ));
         } catch (Exception e) {
             Log.e(TAG, "Error binding view for position " + position, e);
             // Setzt die Views auf einen Fehlerzustand, um den Benutzer zu informieren

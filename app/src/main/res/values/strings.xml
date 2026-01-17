@@ -5,6 +5,10 @@
     <string name="status_management">Status &amp; Verwaltung</string>
     <string name="thesis_status">Thesis-Status</string>
     <string name="billing_status">Rechnungsstatus</string>
+    <string name="billing_status_none">Keine Rechnung</string>
+    <string name="billing_status_issued">Rechnung erstellt</string>
+    <string name="billing_status_paid">Bezahlt</string>
+    <string name="billing_status_unknown">Unbekannter Rechnungsstatus</string>
     <string name="download_expose">Exposé herunterladen</string>
     <string name="edit">Bearbeiten</string>
     <string name="subject_area_icon_description">Fachbereich Icon</string>

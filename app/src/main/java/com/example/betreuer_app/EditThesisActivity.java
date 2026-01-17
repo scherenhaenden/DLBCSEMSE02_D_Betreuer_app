@@ -24,6 +24,7 @@ import com.example.betreuer_app.model.SubjectAreaResponsePaginatedResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.ThesisDocumentResponse;
 import com.example.betreuer_app.repository.SubjectAreaRepository;
+import com.example.betreuer_app.util.BillingStatusDisplayMapper;
 import com.example.betreuer_app.util.SessionManager;
 import com.example.betreuer_app.util.ThesisStatusHelper;
 import com.example.betreuer_app.viewmodel.EditThesisViewModel;
@@ -220,11 +221,7 @@ public class EditThesisActivity extends AppCompatActivity {
         String displayStatus = ThesisStatusHelper.getDisplayStatus(this, thesis, isStudent);
         tvThesisStatus.setText(displayStatus.isEmpty() ? "Unbekannt" : displayStatus);
 
-        if (thesis.getBillingStatus() != null) {
-            tvBillingStatus.setText(thesis.getBillingStatus());
-        } else {
-            tvBillingStatus.setText("Keine");
-        }
+        tvBillingStatus.setText(BillingStatusDisplayMapper.mapBillingStatusToDisplay(this, thesis.getBillingStatus()));
 
         // Set the selected subject area
         if (thesis.getSubjectAreaId() != null) {
