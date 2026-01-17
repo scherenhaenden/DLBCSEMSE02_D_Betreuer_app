@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +25,7 @@ import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.viewmodel.ThesisListViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.button.MaterialButton;
 
 public class ThesisListFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -30,6 +33,10 @@ public class ThesisListFragment extends Fragment {
     private ThesisListAdapter adapter;
     private MaterialToolbar toolbar;
     private FloatingActionButton fabAddThesis;
+    private MaterialButton buttonPrevious;
+    private MaterialButton buttonNext;
+    private TextView textPageIndicator;
+    private ProgressBar progressBar;
 
     @Nullable
     @Override
@@ -38,6 +45,10 @@ public class ThesisListFragment extends Fragment {
         recyclerView = view.findViewById(R.id.thesesRecyclerView);
         toolbar = view.findViewById(R.id.toolbar);
         fabAddThesis = view.findViewById(R.id.fab_add_thesis);
+        buttonPrevious = view.findViewById(R.id.button_thesis_previous);
+        buttonNext = view.findViewById(R.id.button_thesis_next);
+        textPageIndicator = view.findViewById(R.id.text_thesis_page_indicator);
+        progressBar = view.findViewById(R.id.thesis_list_progress);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return view;
     }
@@ -86,6 +97,7 @@ public class ThesisListFragment extends Fragment {
                         }
                     });
                     recyclerView.setAdapter(adapter);
+                    updatePaginationUi();
                 }
             }
         });
@@ -98,5 +110,68 @@ public class ThesisListFragment extends Fragment {
                 }
             }
         });
+
+        viewModel.getLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isLoading) {
+                if (isLoading != null && progressBar != null) {
+                    progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+                }
+            }
+        });
+
+        viewModel.getCurrentPage().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer page) {
+                updatePaginationUi();
+            }
+        });
+
+        viewModel.getTotalPages().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer totalPages) {
+                updatePaginationUi();
+            }
+        });
+
+        if (buttonPrevious != null) {
+            buttonPrevious.setOnClickListener(v -> {
+                Integer currentPage = viewModel.getCurrentPage().getValue();
+                if (currentPage != null && currentPage > 1) {
+                    viewModel.loadTheses(currentPage - 1);
+                }
+            });
+        }
+
+        if (buttonNext != null) {
+            buttonNext.setOnClickListener(v -> {
+                Integer currentPage = viewModel.getCurrentPage().getValue();
+                Integer totalPages = viewModel.getTotalPages().getValue();
+                if (currentPage != null && totalPages != null && currentPage < totalPages) {
+                    viewModel.loadTheses(currentPage + 1);
+                }
+            });
+        }
+    }
+
+    private void updatePaginationUi() {
+        Integer currentPage = viewModel.getCurrentPage().getValue();
+        Integer totalPages = viewModel.getTotalPages().getValue();
+        int safeCurrentPage = currentPage != null ? currentPage : 1;
+        int safeTotalPages = totalPages != null ? totalPages : 1;
+
+        if (textPageIndicator != null) {
+            textPageIndicator.setText(getString(
+                R.string.thesis_page_indicator,
+                safeCurrentPage,
+                safeTotalPages
+            ));
+        }
+        if (buttonPrevious != null) {
+            buttonPrevious.setEnabled(safeCurrentPage > 1);
+        }
+        if (buttonNext != null) {
+            buttonNext.setEnabled(safeCurrentPage < safeTotalPages);
+        }
     }
 }
