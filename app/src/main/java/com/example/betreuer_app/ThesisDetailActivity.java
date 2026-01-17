@@ -29,11 +29,11 @@ import com.example.betreuer_app.model.ThesisRequestResponse;
 import com.example.betreuer_app.model.ThesisRequestResponsePaginatedResponse;
 import com.example.betreuer_app.model.UserResponse;
 import com.example.betreuer_app.util.SessionManager;
+import com.example.betreuer_app.util.ThesisStatusDisplayLogic;
 import com.example.betreuer_app.util.ThesisStatusHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -387,6 +387,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
         boolean isTutor = sessionManager.isTutor();
 
         // Setup ThesisStatus Spinner/TextView
+        isSpinnerInitializing = true; // Prevent spinner listener from triggering during setup
         setupThesisStatusDisplay(thesis, isStudent, isTutor);
 
         // Setze Rechnungsstatus für TextView (Studenten) und Spinner (Tutoren)
@@ -421,88 +422,50 @@ public class ThesisDetailActivity extends AppCompatActivity {
     }
 
     private void setupThesisStatusDisplay(ThesisApiModel thesis, boolean isStudent, boolean isTutor) {
-        String currentStatus = thesis.getStatus();
-        boolean isStudentRegistrationConfirmed = ThesisStatusHelper.isStudentRegistrationConfirmed(this, thesis);
-        if (isStudent && "REGISTERED".equals(currentStatus) && !isStudentRegistrationConfirmed) {
-            currentStatus = "IN_DISCUSSION";
-        }
-        boolean hasTutor = thesis.getTutorId() != null;
+        // Use the extracted business logic class
+        ThesisStatusDisplayLogic displayLogic = new ThesisStatusDisplayLogic();
+        ThesisStatusDisplayLogic.DisplayResult result = displayLogic.computeStatusDisplay(
+            this, thesis, isStudent, isTutor, hasSupervisionRequest, isSupervisionRequestAccepted);
 
-        // Erstelle verfügbare Status-Optionen basierend auf Benutzerrolle und aktuellem Status
-        List<com.example.betreuer_app.model.ThesisStatusResponse> availableStatuses = new ArrayList<>();
-
-        if (isStudent) {
-            // Student sieht nur bestimmte Status
-            if (!hasSupervisionRequest) {
-                textViewStatus.setText(getString(R.string.status_created));
-                textViewStatus.setVisibility(View.VISIBLE);
-                spinnerStatus.setVisibility(View.GONE);
-                return;
-            }
-
-            if (!isSupervisionRequestAccepted || !hasTutor) {
-                textViewStatus.setText(getString(R.string.status_in_coordination));
-                textViewStatus.setVisibility(View.VISIBLE);
-                spinnerStatus.setVisibility(View.GONE);
-                return;
-            }
-
-            // Mit Tutor: Student kann Status ändern
-            if ("IN_DISCUSSION".equals(currentStatus)) {
-                availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
-                    "IN_DISCUSSION", getString(R.string.status_in_coordination)));
-                availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
-                    "REGISTERED", getString(R.string.status_registered)));
-            } else if ("REGISTERED".equals(currentStatus)) {
-                availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
-                    "REGISTERED", getString(R.string.status_registered)));
-                availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
-                    "SUBMITTED", getString(R.string.status_submitted)));
-            } else {
-                // SUBMITTED oder DEFENDED: Student kann nicht mehr ändern
-                textViewStatus.setText(ThesisStatusHelper.translateStatus(this, currentStatus));
-                textViewStatus.setVisibility(View.VISIBLE);
-                spinnerStatus.setVisibility(View.GONE);
-                return;
-            }
-
-            // Zeige Spinner für Student
+        // Apply the display configuration
+        if (result.getDisplayMode() == ThesisStatusDisplayLogic.DisplayMode.TEXT_VIEW) {
+            // Show text view, hide spinner
+            textViewStatus.setText(result.getCurrentStatusText());
+            textViewStatus.setVisibility(View.VISIBLE);
+            spinnerStatus.setVisibility(View.GONE);
+            isSpinnerInitializing = false; // Reset flag
+        } else {
+            // Show spinner, hide text view
             textViewStatus.setVisibility(View.GONE);
             spinnerStatus.setVisibility(View.VISIBLE);
-        } else if (isTutor) {
-            // Tutor sieht alle Status, kann aber nur bei SUBMITTED ändern
-            availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
-                "IN_DISCUSSION", getString(R.string.status_in_discussion)));
-            availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
-                "REGISTERED", getString(R.string.status_registered)));
-            availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
-                "SUBMITTED", getString(R.string.status_submitted)));
-            availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
-                "DEFENDED", getString(R.string.status_defended)));
+            spinnerStatus.setEnabled(result.isSpinnerEnabled());
 
-            // Zeige Spinner für Tutor
-            textViewStatus.setVisibility(View.GONE);
-            spinnerStatus.setVisibility(View.VISIBLE);
+            // Temporarily remove listener to prevent it from triggering when we set the adapter
+            AdapterView.OnItemSelectedListener currentListener = spinnerStatus.getOnItemSelectedListener();
+            spinnerStatus.setOnItemSelectedListener(null);
 
-            // Deaktiviere Spinner wenn nicht SUBMITTED
-            spinnerStatus.setEnabled("SUBMITTED".equals(currentStatus));
-        }
+            // Setup Spinner Adapter
+            ArrayAdapter<com.example.betreuer_app.model.ThesisStatusResponse> statusAdapter =
+                new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, result.getAvailableStatuses());
+            statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerStatus.setAdapter(statusAdapter);
 
-        // Setup Spinner Adapter
-        ArrayAdapter<com.example.betreuer_app.model.ThesisStatusResponse> statusAdapter =
-            new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, availableStatuses);
-        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerStatus.setAdapter(statusAdapter);
-
-        // Setze aktuelle Selektion
-        isSpinnerInitializing = true;
-        for (int i = 0; i < availableStatuses.size(); i++) {
-            if (availableStatuses.get(i).getName().equals(currentStatus)) {
-                spinnerStatus.setSelection(i);
-                break;
+            // Set current selection
+            String currentStatus = thesis.getStatus();
+            boolean isStudentRegistrationConfirmed = ThesisStatusHelper.isStudentRegistrationConfirmed(this, thesis);
+            if (isStudent && "REGISTERED".equals(currentStatus) && !isStudentRegistrationConfirmed) {
+                currentStatus = "IN_DISCUSSION";
             }
+
+            int statusIndex = displayLogic.findStatusIndex(result.getAvailableStatuses(), currentStatus);
+            if (statusIndex >= 0) {
+                spinnerStatus.setSelection(statusIndex);
+            }
+
+            // Re-attach listener after setting selection
+            spinnerStatus.setOnItemSelectedListener(currentListener);
+            isSpinnerInitializing = false; // Reset flag after everything is set up
         }
-        isSpinnerInitializing = false;
     }
 
     private void loadSupervisionRequestStatus(String thesisId) {
@@ -532,13 +495,20 @@ public class ThesisDetailActivity extends AppCompatActivity {
                         }
                     }
 
+                    boolean statusChanged = (hasSupervisionRequest != requestExists || isSupervisionRequestAccepted != requestAccepted);
                     hasSupervisionRequest = requestExists;
                     isSupervisionRequestAccepted = requestAccepted;
-                    if (currentThesis != null) {
+
+                    // Only re-setup the display if the supervision request status actually changed
+                    // This prevents unnecessary re-initialization that could trigger the spinner listener
+                    if (currentThesis != null && statusChanged) {
+                        // Set flag BEFORE re-initializing to prevent listener from triggering
+                        isSpinnerInitializing = true;
                         SessionManager manager = new SessionManager(ThesisDetailActivity.this);
                         boolean isStudent = !manager.isTutor();
                         boolean isTutor = manager.isTutor();
                         setupThesisStatusDisplay(currentThesis, isStudent, isTutor);
+                        // Note: isSpinnerInitializing is set to false inside setupThesisStatusDisplay
                     }
                 }
             }

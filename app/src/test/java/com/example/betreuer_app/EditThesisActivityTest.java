@@ -104,8 +104,7 @@ public class EditThesisActivityTest {
         Call<SubjectAreaResponsePaginatedResponse> mockAreaCall = mock(Call.class);
         doAnswer(invocation -> {
             Callback<SubjectAreaResponsePaginatedResponse> callback = invocation.getArgument(2);
-            SubjectAreaResponsePaginatedResponse response = new SubjectAreaResponsePaginatedResponse();
-            response.setItems(Collections.emptyList());
+            SubjectAreaResponsePaginatedResponse response = new SubjectAreaResponsePaginatedResponse(Collections.emptyList(), 0, 1, 0);
             callback.onResponse(mockAreaCall, Response.success(response));
             return null;
         }).when(mockSubjectAreaRepository).getSubjectAreas(anyInt(), anyInt(), any());
@@ -365,11 +364,10 @@ public class EditThesisActivityTest {
         // But we didn't mock searchSubjectAreas specifically in setUp (only getSubjectAreas).
 
         // Add specific mock for search
-        Call<SubjectAreaResponsePaginatedResponse> mockSearchCall = mock(Call.class);
-        when(mockSubjectAreaRepository.searchSubjectAreas(anyString(), anyInt(), anyInt(), any())).thenAnswer(inv -> {
+        doAnswer(inv -> {
              // do nothing or callback
              return null;
-        });
+        }).when(mockSubjectAreaRepository).searchSubjectAreas(anyString(), anyInt(), anyInt(), any());
 
         // Let's just assert dropdown exists for now.
         assertNotNull("Dropdown should handle search", dropdownSubjectArea);

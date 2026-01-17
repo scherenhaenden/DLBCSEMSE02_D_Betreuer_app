@@ -80,5 +80,20 @@ namespace ApiProject.BusinessLogic.Services
         /// <exception cref="KeyNotFoundException">Thrown if the thesis or billing status is not found.</exception>
         /// <exception cref="UnauthorizedAccessException">Thrown if the user is not authorized to update the billing status.</exception>
         Task<ThesisBusinessLogicModel> UpdateBillingStatusAsync(Guid id, Guid billingStatusId, Guid userId, List<string> userRoles);
+
+        /// <summary>
+        /// Updates the status of a thesis asynchronously.
+        /// Students can update status from IN_DISCUSSION to REGISTERED, and from REGISTERED to SUBMITTED.
+        /// Tutors can update status from SUBMITTED to DEFENDED.
+        /// Status changes are validated based on user role and current thesis state.
+        /// </summary>
+        /// <param name="id">The unique identifier of the thesis to update.</param>
+        /// <param name="statusName">The name of the new status (e.g., "REGISTERED", "SUBMITTED", "DEFENDED").</param>
+        /// <param name="userId">The unique identifier of the user making the request.</param>
+        /// <param name="userRoles">The list of roles assigned to the user.</param>
+        /// <returns>A task representing the asynchronous operation, containing the updated <see cref="ThesisBusinessLogicModel"/>.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the thesis or status is not found.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the status change is not allowed.</exception>
+        Task<ThesisBusinessLogicModel> UpdateThesisStatusAsync(Guid id, string statusName, Guid userId, List<string> userRoles);
     }
 }

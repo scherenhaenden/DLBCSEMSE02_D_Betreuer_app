@@ -116,7 +116,7 @@ namespace ApiProject.BusinessLogic.Services
                 throw new InvalidOperationException("Owner must have the STUDENT role.");
             }
             
-            var initialStatus = await _context.ThesisStatuses.FirstAsync(s => s.Name == ThesisStatuses.Registered);
+            var initialStatus = await _context.ThesisStatuses.FirstAsync(s => s.Name == ThesisStatuses.InDiscussion);
             var initialBillingStatus = await _context.BillingStatuses.FirstAsync(b => b.Name == BillingStatuses.None);
 
             var thesis = new ThesisDataAccessModel
@@ -181,10 +181,10 @@ namespace ApiProject.BusinessLogic.Services
 
             // Only allow updates in early stages
             var currentStatus = await _context.ThesisStatuses.FindAsync(thesis.StatusId);
-            if (currentStatus.Name == ThesisStatuses.Submitted || currentStatus.Name == ThesisStatuses.Defended)
+            /*if (currentStatus.Name == ThesisStatuses.Submitted || currentStatus.Name == ThesisStatuses.Defended)
             {
                 throw new InvalidOperationException("Thesis cannot be modified after submission or defense.");
-            }
+            }*/
 
             if (currentStatus.Name != ThesisStatuses.Registered && request.SubjectAreaId.HasValue)
             {
@@ -335,6 +335,101 @@ namespace ApiProject.BusinessLogic.Services
 
             thesis.BillingStatusId = billingStatusId;
             thesis.BillingStatus = billingStatus;
+            await _context.SaveChangesAsync();
+
+            return ThesisBusinessLogicMapper.MapToBusinessModel(thesis);
+        }
+
+        public async Task<ThesisBusinessLogicModel> UpdateThesisStatusAsync(Guid id, string statusName, Guid userId, List<string> userRoles)
+        {
+            var thesis = await _context.Theses
+                .Include(t => t.Status)
+                .Include(t => t.BillingStatus)
+                .Include(t => t.Document)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (thesis == null)
+            {
+                throw new KeyNotFoundException($"Thesis with ID {id} not found.");
+            }
+
+            // Find the target status by name
+            var targetStatus = await _context.ThesisStatuses
+                .FirstOrDefaultAsync(s => s.Name == statusName);
+
+            if (targetStatus == null)
+            {
+                throw new KeyNotFoundException($"Thesis status '{statusName}' not found.");
+            }
+
+            var currentStatusName = thesis.Status?.Name ?? string.Empty;
+            bool isStudent = userRoles.Contains(Roles.Student);
+            bool isTutor = userRoles.Contains(Roles.Tutor);
+            bool isAdmin = userRoles.Contains(Roles.Admin);
+
+            // Validate status transitions based on role and business rules
+            if (isStudent)
+            {
+                // Students can only update their own thesis
+                if (thesis.OwnerId != userId)
+                {
+                    throw new InvalidOperationException($"Student {userId} is not the owner of thesis {id}.");
+                }
+
+                // Student must have a tutor assigned
+                if (thesis.TutorId == null)
+                {
+                    throw new InvalidOperationException("Cannot change status: Thesis must have a tutor assigned.");
+                }
+
+                // Students can: IN_DISCUSSION -> REGISTERED, REGISTERED -> SUBMITTED
+                if (currentStatusName == ThesisStatuses.InDiscussion && statusName == ThesisStatuses.Registered)
+                {
+                    // Valid transition
+                }
+                else if (currentStatusName == ThesisStatuses.Registered && statusName == ThesisStatuses.Submitted)
+                {
+                    // Must have a document to submit
+                    if (thesis.Document == null)
+                    {
+                        throw new InvalidOperationException("Cannot submit thesis: Document must be uploaded first.");
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Invalid status transition for student: {currentStatusName} -> {statusName}");
+                }
+            }
+            else if (isTutor || isAdmin)
+            {
+                // Tutors can: SUBMITTED -> DEFENDED
+                if (currentStatusName == ThesisStatuses.Submitted && statusName == ThesisStatuses.Defended)
+                {
+                    // Must have second supervisor
+                    if (thesis.SecondSupervisorId == null)
+                    {
+                        throw new InvalidOperationException("Cannot mark as defended: Second supervisor must be assigned first.");
+                    }
+
+                    // If tutor (not admin), must be the tutor of this thesis
+                    if (isTutor && !isAdmin && thesis.TutorId != userId)
+                    {
+                        throw new InvalidOperationException($"User {userId} is not the tutor of thesis {id}.");
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Invalid status transition for tutor: {currentStatusName} -> {statusName}");
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("User does not have permission to update thesis status.");
+            }
+
+            // Update the status
+            thesis.StatusId = targetStatus.Id;
+            thesis.Status = targetStatus;
             await _context.SaveChangesAsync();
 
             return ThesisBusinessLogicMapper.MapToBusinessModel(thesis);
