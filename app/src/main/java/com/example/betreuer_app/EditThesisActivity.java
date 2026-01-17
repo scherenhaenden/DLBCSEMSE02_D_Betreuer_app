@@ -24,6 +24,8 @@ import com.example.betreuer_app.model.SubjectAreaResponsePaginatedResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.ThesisDocumentResponse;
 import com.example.betreuer_app.repository.SubjectAreaRepository;
+import com.example.betreuer_app.util.SessionManager;
+import com.example.betreuer_app.util.ThesisStatusHelper;
 import com.example.betreuer_app.viewmodel.EditThesisViewModel;
 import com.example.betreuer_app.viewmodel.ViewModelFactory;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -213,11 +215,10 @@ public class EditThesisActivity extends AppCompatActivity {
                 thesis.getDocumentFileName() : "Kein Dokument hochgeladen");
 
         // Set status fields (read-only)
-        if (thesis.getStatus() != null) {
-            tvThesisStatus.setText(thesis.getStatus());
-        } else {
-            tvThesisStatus.setText("Unbekannt");
-        }
+        SessionManager sessionManager = new SessionManager(this);
+        boolean isStudent = !sessionManager.isTutor();
+        String displayStatus = ThesisStatusHelper.getDisplayStatus(this, thesis, isStudent);
+        tvThesisStatus.setText(displayStatus.isEmpty() ? "Unbekannt" : displayStatus);
 
         if (thesis.getBillingStatus() != null) {
             tvBillingStatus.setText(thesis.getBillingStatus());

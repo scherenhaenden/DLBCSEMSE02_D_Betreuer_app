@@ -65,6 +65,8 @@ public class ThesisStatusViewModel extends ViewModel {
 
         String status = thesis.getStatus();
         boolean hasTutor = thesis.getTutorId() != null;
+        boolean hasFile = thesis.getDocumentFileName() != null && !thesis.getDocumentFileName().isEmpty();
+        boolean hasSecondSupervisor = thesis.getSecondSupervisorId() != null;
 
         if ("STUDENT".equals(role.getName())) {
             // Student kann nur ändern wenn:
@@ -73,10 +75,10 @@ public class ThesisStatusViewModel extends ViewModel {
             if ("IN_DISCUSSION".equals(status)) {
                 return hasTutor; // Nur wenn Tutor zugewiesen ist
             }
-            return "REGISTERED".equals(status);
+            return "REGISTERED".equals(status) && hasFile;
         } else {
             // Tutor kann nur bei SUBMITTED ändern (zu DEFENDED)
-            return "SUBMITTED".equals(status);
+            return "SUBMITTED".equals(status) && hasSecondSupervisor;
         }
     }
 
