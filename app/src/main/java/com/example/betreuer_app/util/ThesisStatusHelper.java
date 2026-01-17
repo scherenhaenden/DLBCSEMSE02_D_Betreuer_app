@@ -23,13 +23,15 @@ public class ThesisStatusHelper {
         }
 
         String status = thesis.getStatus();
-        UUID tutorId = thesis.getTutorId();
 
         if (isStudent) {
             if (status == null || status.isEmpty()) {
                 return context.getString(R.string.status_created);
             }
-            if (tutorId == null && "IN_DISCUSSION".equals(status)) {
+            if ("IN_DISCUSSION".equals(status)) {
+                return context.getString(R.string.status_in_coordination);
+            }
+            if ("REGISTERED".equals(status) && !isStudentRegistrationConfirmed(context, thesis)) {
                 return context.getString(R.string.status_in_coordination);
             }
         }
@@ -50,7 +52,10 @@ public class ThesisStatusHelper {
             if (!hasSupervisionRequest) {
                 return context.getString(R.string.status_created);
             }
-            if (!isRequestAccepted) {
+            if ("IN_DISCUSSION".equals(thesis.getStatus())) {
+                return context.getString(R.string.status_in_coordination);
+            }
+            if ("REGISTERED".equals(thesis.getStatus()) && !isStudentRegistrationConfirmed(context, thesis)) {
                 return context.getString(R.string.status_in_coordination);
             }
         }
@@ -108,5 +113,23 @@ public class ThesisStatusHelper {
     public static boolean canTutorChangeStatus(ThesisApiModel thesis) {
         if (thesis == null) return false;
         return "SUBMITTED".equals(thesis.getStatus());
+    }
+
+    public static void markStudentRegistrationConfirmed(Context context, ThesisApiModel thesis) {
+        if (context == null || thesis == null || thesis.getId() == null) return;
+        context.getSharedPreferences("thesis_status_prefs", Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("student_registered_" + thesis.getId(), true)
+                .apply();
+    }
+
+    public static boolean isStudentRegistrationConfirmed(Context context, ThesisApiModel thesis) {
+        if (context == null || thesis == null || thesis.getId() == null) return false;
+        String status = thesis.getStatus();
+        if ("SUBMITTED".equals(status) || "DEFENDED".equals(status)) {
+            return true;
+        }
+        return context.getSharedPreferences("thesis_status_prefs", Context.MODE_PRIVATE)
+                .getBoolean("student_registered_" + thesis.getId(), false);
     }
 }

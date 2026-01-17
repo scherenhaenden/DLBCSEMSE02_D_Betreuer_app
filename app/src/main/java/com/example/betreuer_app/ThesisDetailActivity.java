@@ -219,6 +219,9 @@ public class ThesisDetailActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ThesisDetailActivity.this, "Status erfolgreich aktualisiert", Toast.LENGTH_SHORT).show();
                     currentThesis = response.body();
+                    if (isStudent && ("REGISTERED".equals(newStatus.getName()) || "SUBMITTED".equals(newStatus.getName()))) {
+                        ThesisStatusHelper.markStudentRegistrationConfirmed(ThesisDetailActivity.this, currentThesis);
+                    }
                     displayThesisDetails(currentThesis);
                 } else {
                     String errorMessage;
@@ -419,6 +422,10 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
     private void setupThesisStatusDisplay(ThesisApiModel thesis, boolean isStudent, boolean isTutor) {
         String currentStatus = thesis.getStatus();
+        boolean isStudentRegistrationConfirmed = ThesisStatusHelper.isStudentRegistrationConfirmed(this, thesis);
+        if (isStudent && "REGISTERED".equals(currentStatus) && !isStudentRegistrationConfirmed) {
+            currentStatus = "IN_DISCUSSION";
+        }
         boolean hasTutor = thesis.getTutorId() != null;
 
         // Erstelle verfügbare Status-Optionen basierend auf Benutzerrolle und aktuellem Status
@@ -443,7 +450,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
             // Mit Tutor: Student kann Status ändern
             if ("IN_DISCUSSION".equals(currentStatus)) {
                 availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
-                    "IN_DISCUSSION", getString(R.string.status_in_discussion)));
+                    "IN_DISCUSSION", getString(R.string.status_in_coordination)));
                 availableStatuses.add(new com.example.betreuer_app.model.ThesisStatusResponse(
                     "REGISTERED", getString(R.string.status_registered)));
             } else if ("REGISTERED".equals(currentStatus)) {

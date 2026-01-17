@@ -20,6 +20,7 @@ import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.RoleApiModel;
 import com.example.betreuer_app.model.ThesisStatus;
 import com.example.betreuer_app.viewmodel.ThesisStatusViewModel;
+import com.example.betreuer_app.util.ThesisStatusHelper;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -94,6 +95,12 @@ public class ThesisStatusFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     // Aktualisiere das ViewModel mit der Antwort vom Server
                     viewModel.thesisData.setValue(response.body());
+                    RoleApiModel role = viewModel.currentUserRole.getValue();
+                    if (role != null
+                            && "STUDENT".equals(role.getName())
+                            && ("REGISTERED".equals(newStatus) || "SUBMITTED".equals(newStatus))) {
+                        ThesisStatusHelper.markStudentRegistrationConfirmed(requireContext(), response.body());
+                    }
                     Toast.makeText(getContext(), "Status erfolgreich aktualisiert", Toast.LENGTH_SHORT).show();
                 } else {
                     String errorMessage = "Fehler beim Aktualisieren des Status";
