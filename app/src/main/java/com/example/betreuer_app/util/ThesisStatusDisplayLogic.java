@@ -39,14 +39,23 @@ public class ThesisStatusDisplayLogic {
             this.spinnerEnabled = spinnerEnabled;
         }
 
+        /**
+         * Returns the current display mode.
+         */
         public DisplayMode getDisplayMode() {
             return displayMode;
         }
 
+        /**
+         * Returns a list of available thesis statuses.
+         */
         public List<ThesisStatusResponse> getAvailableStatuses() {
             return availableStatuses;
         }
 
+        /**
+         * Returns the current status text.
+         */
         public String getCurrentStatusText() {
             return currentStatusText;
         }
@@ -111,7 +120,19 @@ public class ThesisStatusDisplayLogic {
     }
 
     /**
-     * Compute display configuration for student users
+     * Compute display configuration for student users.
+     *
+     * This method determines the appropriate display settings based on the student's current status,
+     * whether they have a tutor, and the status of their supervision request. It handles different
+     * scenarios, such as when a supervision request has not been created, when a request is pending
+     * tutor assignment, and when the student has a tutor, providing the relevant status transitions
+     * for the user interface.
+     *
+     * @param context the context used to retrieve string resources
+     * @param currentStatus the current status of the student's thesis
+     * @param hasTutor indicates if the student has been assigned a tutor
+     * @param hasSupervisionRequest indicates if the student has created a supervision request
+     * @param isSupervisionRequestAccepted indicates if the supervision request has been accepted
      */
     private DisplayResult computeStudentDisplay(
             Context context,
@@ -179,7 +200,7 @@ public class ThesisStatusDisplayLogic {
     }
 
     /**
-     * Compute display configuration for tutor users
+     * Computes the display configuration for tutor users based on the current status.
      */
     private DisplayResult computeTutorDisplay(Context context, String currentStatus) {
         List<ThesisStatusResponse> availableStatuses = new ArrayList<>();
