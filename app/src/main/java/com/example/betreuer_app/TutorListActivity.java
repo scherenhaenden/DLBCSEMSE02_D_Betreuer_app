@@ -177,12 +177,23 @@ public class TutorListActivity extends AppCompatActivity {
 
     /**
      * Loads the list of tutors from the API based on the selected subject area and search name.
-     * Updates the RecyclerView with the fetched tutors or displays an error message if the request fails.
+     * This method fetches tutors using the tutorRepository and updates the RecyclerView with the
+     * fetched tutors. If the request fails or no tutors are found, an appropriate error message
+     * is displayed. The method also handles navigation to the TutorProfileActivity with relevant
+     * tutor details, including the tutor's ID, name, and email.
+     *
      * @param name The search query for tutor names. Can be null or empty for no name filter.
      */
     private void loadTutors(String name) {
         tutorRepository.getTutors(selectedSubjectAreaId, null, name, 1, 20, new Callback<TutorsResponse>() {
             @Override
+            /**
+             * Handles the response from a Tutors API call.
+             *
+             * This method checks if the response is successful and contains a non-null body.
+             * If valid items are present, it initializes a TutorListAdapter with the items and sets up an intent to navigate to the TutorProfileActivity,
+             * passing relevant tutor information. If no items are found or the response is unsuccessful, it displays a toast message indicating the issue.
+             */
             public void onResponse(Call<TutorsResponse> call, Response<TutorsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     var items = response.body().getItems();

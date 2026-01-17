@@ -31,6 +31,15 @@ public class TutorProfileActivity extends AppCompatActivity {
      * It also sets up click listeners for buttons to view offers and create requests,
      * passing the necessary data through intents.
      */
+    /**
+     * Initializes the TutorProfileActivity and sets up the user interface.
+     *
+     * This method is called when the activity is created. It sets the content view,
+     * initializes the toolbar, and retrieves tutor information from the intent.
+     * If the tutor ID is missing, a toast message is displayed and the activity is finished.
+     * It also sets up click listeners for buttons to view offers, create requests,
+     * and contact the tutor, passing necessary data through intents.
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutor_profile);

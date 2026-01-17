@@ -54,6 +54,9 @@ public class ContactTutorActivity extends AppCompatActivity {
         btnEmailCopy.setOnClickListener(v -> handleEmailCopy());
     }
 
+    /**
+     * Handles the process of composing and sending an email to the tutor.
+     */
     private void handleEmailWrite(String displayName) {
         if (TextUtils.isEmpty(tutorEmail)) {
             Toast.makeText(this, R.string.contact_tutor_no_email_toast, Toast.LENGTH_SHORT).show();
@@ -80,6 +83,9 @@ public class ContactTutorActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Copies the tutor's email to the clipboard if it is not empty and shows a toast message.
+     */
     private void handleEmailCopy() {
         if (TextUtils.isEmpty(tutorEmail)) {
             Toast.makeText(this, R.string.contact_tutor_no_email_toast, Toast.LENGTH_SHORT).show();
