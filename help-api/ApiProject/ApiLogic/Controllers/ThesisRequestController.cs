@@ -22,9 +22,27 @@ namespace ApiProject.ApiLogic.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRequest([FromBody] CreateThesisRequestRequest request)
         {
-            var requesterId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var createdRequest = await _requestBusinessLogicService.CreateRequestAsync(requesterId, request.ThesisId, request.ReceiverId, request.RequestType, request.Message, request.PlannedStartOfSupervision, request.PlannedEndOfSupervision);
-            return CreatedAtAction(nameof(GetRequestById), new { id = createdRequest.Id }, MapToResponse(createdRequest));
+            try
+            {
+                var requesterId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                var createdRequest = await _requestBusinessLogicService.CreateRequestAsync(
+                    requesterId,
+                    request.ThesisId,
+                    request.ReceiverId,
+                    request.RequestType,
+                    request.Message,
+                    request.PlannedStartOfSupervision,
+                    request.PlannedEndOfSupervision
+                );
+
+                return CreatedAtAction(nameof(GetRequestById), new { id = createdRequest.Id }, MapToResponse(createdRequest));
+            }
+            catch (Exception ex)
+            {
+                // Return the exact message to the client so Android can show a meaningful Toast
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet]

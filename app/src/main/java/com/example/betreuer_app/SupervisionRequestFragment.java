@@ -25,6 +25,10 @@ import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.model.ThesisRequestResponse;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -312,7 +316,16 @@ public class SupervisionRequestFragment extends Fragment {
                     Toast.makeText(activity, "Anfrage erfolgreich gesendet.", Toast.LENGTH_SHORT).show();
                     activity.finish();
                 } else {
-                    Toast.makeText(activity, "Fehler beim Senden der Anfrage", Toast.LENGTH_SHORT).show();
+                    String errorBodyString = null;
+                    if (response.errorBody() != null) {
+                        try {
+                            errorBodyString = response.errorBody().string();
+                        } catch (IOException e) {
+                            errorBodyString = null;
+                        }
+                    }
+                    String userMessage = mapReviewRequestErrorToUserMessage(activity, response.code(), errorBodyString);
+                    Toast.makeText(activity, userMessage, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -323,5 +336,56 @@ public class SupervisionRequestFragment extends Fragment {
                 Toast.makeText(activity, "Netzwerkfehler: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private String mapReviewRequestErrorToUserMessage(Context context, int statusCode, @Nullable String errorBodyString) {
+        String fallback = context.getString(R.string.review_request_error_generic);
+        String messageCandidate = extractErrorMessage(errorBodyString);
+        String contentToCheck = messageCandidate != null ? messageCandidate : errorBodyString;
+        if (contentToCheck != null) {
+            String normalized = contentToCheck.toLowerCase(Locale.ROOT);
+            if (normalized.contains("the selected tutor does not cover the subject area of this thesis")
+                    || (normalized.contains("fachbereich") && normalized.contains("gehört nicht"))
+                    || (normalized.contains("subject area") && normalized.contains("does not cover"))) {
+                return context.getString(R.string.review_request_error_subject_area_mismatch);
+            }
+            if (normalized.contains("a supervision request already exists for this thesis")) {
+                return context.getString(R.string.review_request_error_duplicate_request);
+            }
+            if (normalized.contains("only the thesis owner") && normalized.contains("can request supervision")) {
+                return context.getString(R.string.review_request_error_not_owner);
+            }
+            if (normalized.contains("receiver of a request must be a tutor")) {
+                return context.getString(R.string.review_request_error_receiver_not_tutor);
+            }
+            if (normalized.contains("second supervisor cannot be the same as the main supervisor")) {
+                return context.getString(R.string.review_request_error_same_supervisor);
+            }
+            if (statusCode == 400 || statusCode == 409 || statusCode == 422) {
+                return fallback;
+            }
+        }
+        return fallback;
+    }
+
+    private @Nullable String extractErrorMessage(@Nullable String errorBodyString) {
+        if (errorBodyString == null || errorBodyString.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            JSONObject jsonObject = new JSONObject(errorBodyString);
+            if (jsonObject.has("message")) {
+                return jsonObject.optString("message", null);
+            }
+            if (jsonObject.has("error")) {
+                return jsonObject.optString("error", null);
+            }
+            if (jsonObject.has("detail")) {
+                return jsonObject.optString("detail", null);
+            }
+        } catch (JSONException e) {
+            return null;
+        }
+        return null;
     }
 }

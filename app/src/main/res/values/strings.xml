@@ -16,4 +16,10 @@
     <string name="status_submitted">Abgegeben</string>
     <string name="status_defended">Kolloquium abgehalten / Benotet</string>
     <string name="status_waiting_for_tutor">Warte auf Betreuerzusage</string>
+    <string name="review_request_error_subject_area_mismatch">Anfrage konnte nicht gesendet werden: Der Betreuer gehört nicht zum gewählten Fachbereich.</string>
+    <string name="review_request_error_generic">Fehler beim Senden der Anfrage</string>
+    <string name="review_request_error_duplicate_request">Für diese Abschlussarbeit existiert bereits eine Betreuungsanfrage.</string>
+    <string name="review_request_error_not_owner">Nur der Eigentümer der Abschlussarbeit kann eine Betreuungsanfrage stellen.</string>
+    <string name="review_request_error_receiver_not_tutor">Die ausgewählte Person ist kein Betreuer.</string>
+    <string name="review_request_error_same_supervisor">Der Zweitbetreuer darf nicht identisch mit dem Hauptbetreuer sein.</string>
 </resources>

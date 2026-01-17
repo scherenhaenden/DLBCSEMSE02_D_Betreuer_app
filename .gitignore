@@ -22,3 +22,4 @@ help-api/ApiProject.Tests/obj/
 help-api/ApiProject.Seed/obj/
 help-api/ApiProject.Seed/bin/
 
+*.patch
