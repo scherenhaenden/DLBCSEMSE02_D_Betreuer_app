@@ -19,6 +19,7 @@ public class TutorProfileActivity extends AppCompatActivity {
 
     private String tutorId;
     private String tutorName;
+    private String tutorEmail;
 
     @Override
     /**
@@ -43,6 +44,7 @@ public class TutorProfileActivity extends AppCompatActivity {
         if (getIntent() != null) {
             tutorId = getIntent().getStringExtra("TUTOR_ID");
             tutorName = getIntent().getStringExtra("TUTOR_NAME");
+            tutorEmail = getIntent().getStringExtra("TUTOR_EMAIL");
         }
 
         if (tutorId == null) {
@@ -56,6 +58,7 @@ public class TutorProfileActivity extends AppCompatActivity {
 
         MaterialButton btnViewOffers = findViewById(R.id.btn_view_offers);
         MaterialButton btnCreateRequest = findViewById(R.id.btn_create_request);
+        MaterialButton btnContactTutor = findViewById(R.id.btn_contact_tutor);
 
         btnViewOffers.setOnClickListener(v -> {
             Intent intent = new Intent(TutorProfileActivity.this, ThesisOfferDashboardActivity.class); // Or a specific filtered list activity
@@ -80,6 +83,19 @@ public class TutorProfileActivity extends AppCompatActivity {
             // Leite Intent-Extras für zweiten Supervisor weiter
             if (getIntent().getBooleanExtra("SELECTING_SECOND_SUPERVISOR", false)) {
                 intent.putExtra("SELECTING_SECOND_SUPERVISOR", true);
+                intent.putExtra("THESIS_ID", getIntent().getStringExtra("THESIS_ID"));
+            }
+
+            startActivity(intent);
+        });
+
+        btnContactTutor.setOnClickListener(v -> {
+            Intent intent = new Intent(TutorProfileActivity.this, ContactTutorActivity.class);
+            intent.putExtra("TUTOR_ID", tutorId);
+            intent.putExtra("TUTOR_NAME", tutorName);
+            intent.putExtra("TUTOR_EMAIL", tutorEmail);
+
+            if (getIntent().getBooleanExtra("SELECTING_SECOND_SUPERVISOR", false)) {
                 intent.putExtra("THESIS_ID", getIntent().getStringExtra("THESIS_ID"));
             }
 

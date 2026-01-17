@@ -192,6 +192,7 @@ public class TutorListActivity extends AppCompatActivity {
                             Intent intent = new Intent(TutorListActivity.this, TutorProfileActivity.class);
                             intent.putExtra("TUTOR_ID", tutor.getId().toString());
                             intent.putExtra("TUTOR_NAME", (tutor.getFirstName() != null ? tutor.getFirstName() : "") + " " + (tutor.getLastName() != null ? tutor.getLastName() : ""));
+                            intent.putExtra("TUTOR_EMAIL", tutor.getEmail());
 
                             // Leite Intent-Extras für zweiten Supervisor weiter
                             if (getIntent().getBooleanExtra("SELECTING_SECOND_SUPERVISOR", false)) {

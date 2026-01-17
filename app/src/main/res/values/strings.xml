@@ -22,4 +22,18 @@
     <string name="review_request_error_not_owner">Nur der Eigentümer der Abschlussarbeit kann eine Betreuungsanfrage stellen.</string>
     <string name="review_request_error_receiver_not_tutor">Die ausgewählte Person ist kein Betreuer.</string>
     <string name="review_request_error_same_supervisor">Der Zweitbetreuer darf nicht identisch mit dem Hauptbetreuer sein.</string>
+    <string name="contact_tutor_button">Kontakt aufnehmen</string>
+    <string name="contact_tutor_title">Kontakt aufnehmen</string>
+    <string name="contact_tutor_email_label">E-Mail-Adresse</string>
+    <string name="contact_tutor_email_write">E-Mail schreiben</string>
+    <string name="contact_tutor_email_copy">E-Mail kopieren</string>
+    <string name="contact_tutor_no_email_toast">Keine E-Mail-Adresse hinterlegt.</string>
+    <string name="contact_tutor_no_email_app">Keine E-Mail-App gefunden.</string>
+    <string name="contact_tutor_email_copied">E-Mail-Adresse kopiert.</string>
+    <string name="contact_tutor_missing_email">Keine E-Mail-Adresse hinterlegt</string>
+    <string name="contact_tutor_email_subject">Betreuung Abschlussarbeit – Anfrage</string>
+    <string name="contact_tutor_email_body_intro">Hallo %1$s,\n\nich möchte Sie bezüglich einer Betreuung meiner Abschlussarbeit kontaktieren. Mein Exposé sende ich Ihnen im Anhang / separat.\n\n</string>
+    <string name="contact_tutor_email_thesis_id">Abschlussarbeit-ID: %1$s</string>
+    <string name="contact_tutor_email_body_outro">Viele Grüße</string>
+    <string name="contact_tutor_fallback_name">Tutor</string>
 </resources>

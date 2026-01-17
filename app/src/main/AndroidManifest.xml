@@ -59,6 +59,12 @@
             android:exported="false"
             android:label="Tutor Profil"
             android:parentActivityName=".TutorListActivity" />
+
+        <activity
+            android:name=".ContactTutorActivity"
+            android:exported="false"
+            android:label="@string/contact_tutor_title"
+            android:parentActivityName=".TutorProfileActivity" />
             
         <!-- Supervision Request Activity -->
         <activity
