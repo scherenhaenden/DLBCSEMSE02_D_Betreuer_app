@@ -1,8 +1,6 @@
 package com.example.betreuer_app.ui.thesislist;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.betreuer_app.R;
 import com.example.betreuer_app.ThesisDetailActivity;
-import com.example.betreuer_app.constants.AuthConstants;
 import com.example.betreuer_app.model.ThesesResponse;
 import com.example.betreuer_app.model.ThesisApiModel;
 import com.example.betreuer_app.viewmodel.ThesisListViewModel;
@@ -66,22 +63,15 @@ public class ThesisListFragment extends Fragment {
             });
         }
 
-        SharedPreferences prefs = requireContext().getSharedPreferences(AuthConstants.PREFS_NAME, Context.MODE_PRIVATE);
-        String role = prefs.getString(AuthConstants.KEY_USER_ROLE, "");
-
-        if ("tutor".equalsIgnoreCase(role)) {
+        // TODO: Navigate to CreateThesisActivity if needed, already handled in dashboard or here?
+        // The user has a separate activity for creation, usually started from dashboard,
+        // but if we want it here:
+        // Intent intent = new Intent(getActivity(), com.example.betreuer_app.CreateThesisActivity.class);
+        // startActivity(intent);
+        if (fabAddThesis != null) {
             fabAddThesis.setVisibility(View.GONE);
-        } else {
-            fabAddThesis.setVisibility(View.VISIBLE);
+            fabAddThesis.setOnClickListener(null);
         }
-
-        fabAddThesis.setOnClickListener(v -> {
-             // TODO: Navigate to CreateThesisActivity if needed, already handled in dashboard or here? 
-             // The user has a separate activity for creation, usually started from dashboard, 
-             // but if we want it here:
-             // Intent intent = new Intent(getActivity(), com.example.betreuer_app.CreateThesisActivity.class);
-             // startActivity(intent);
-        });
 
         viewModel.getTheses().observe(getViewLifecycleOwner(), new Observer<ThesesResponse>() {
             @Override
