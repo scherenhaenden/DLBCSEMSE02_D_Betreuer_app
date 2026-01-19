@@ -107,7 +107,8 @@ public class ThesisStatusDisplayLogic {
             return computeStudentDisplay(context, currentStatus, hasTutor,
                 hasSupervisionRequest, isSupervisionRequestAccepted);
         } else if (isTutor) {
-            return computeTutorDisplay(context, currentStatus);
+            boolean hasSecondSupervisor = thesis.getSecondSupervisorId() != null;
+            return computeTutorDisplay(context, currentStatus, hasSecondSupervisor);
         }
 
         // Default fallback: show text view
@@ -201,28 +202,37 @@ public class ThesisStatusDisplayLogic {
 
     /**
      * Computes the display configuration for tutor users based on the current status.
+     *
+     * CRITICAL FIX: When the thesis is SUBMITTED and has a second supervisor, the tutor
+     * can change the status to DEFENDED. However, the spinner MUST include BOTH statuses:
+     * - SUBMITTED (current status) - to maintain the current state
+     * - DEFENDED (target status) - to allow manual transition
+     *
+     * This prevents automatic status changes when the spinner is initialized.
+     * The status can ONLY be changed by explicit tutor action.
      */
-    private DisplayResult computeTutorDisplay(Context context, String currentStatus) {
-        List<ThesisStatusResponse> availableStatuses = new ArrayList<>();
+    private DisplayResult computeTutorDisplay(Context context, String currentStatus, boolean hasSecondSupervisor) {
+        if ("SUBMITTED".equals(currentStatus) && hasSecondSupervisor) {
+            List<ThesisStatusResponse> availableStatuses = new ArrayList<>();
+            // CRITICAL: Include current status FIRST to prevent automatic selection of DEFENDED
+            availableStatuses.add(new ThesisStatusResponse(
+                "SUBMITTED", context.getString(R.string.status_submitted)));
+            availableStatuses.add(new ThesisStatusResponse(
+                "DEFENDED", context.getString(R.string.status_defended)));
 
-        // Tutor sees all statuses
-        availableStatuses.add(new ThesisStatusResponse(
-            "IN_DISCUSSION", context.getString(R.string.status_in_discussion)));
-        availableStatuses.add(new ThesisStatusResponse(
-            "REGISTERED", context.getString(R.string.status_registered)));
-        availableStatuses.add(new ThesisStatusResponse(
-            "SUBMITTED", context.getString(R.string.status_submitted)));
-        availableStatuses.add(new ThesisStatusResponse(
-            "DEFENDED", context.getString(R.string.status_defended)));
-
-        // Tutor can only change status when thesis is SUBMITTED
-        boolean canEdit = "SUBMITTED".equals(currentStatus);
+            return new DisplayResult(
+                DisplayMode.SPINNER,
+                availableStatuses,
+                null,
+                true
+            );
+        }
 
         return new DisplayResult(
-            DisplayMode.SPINNER,
-            availableStatuses,
-            null,
-            canEdit
+            DisplayMode.TEXT_VIEW,
+            new ArrayList<>(),
+            ThesisStatusHelper.translateStatus(context, currentStatus),
+            false
         );
     }
 
