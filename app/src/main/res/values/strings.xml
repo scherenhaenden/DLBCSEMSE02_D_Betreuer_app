@@ -25,6 +25,7 @@
     <string name="toast_need_expose">Statuswechsel nicht möglich: Bitte zuerst das Exposé hochladen.</string>
     <string name="toast_need_second_examiner">Statuswechsel nicht möglich: Bitte zuerst eine:n Zweitgutachter:in zuordnen.</string>
     <string name="toast_not_allowed">Statuswechsel nicht möglich.</string>
+    <string name="confirm_defended_status_change">Status zu „Kolloquium abgehalten / Benotet“ ändern?</string>
     <string name="review_request_error_subject_area_mismatch">Anfrage konnte nicht gesendet werden: Der Betreuer gehört nicht zum gewählten Fachbereich.</string>
     <string name="review_request_error_generic">Fehler beim Senden der Anfrage</string>
     <string name="review_request_error_duplicate_request">Für diese Abschlussarbeit existiert bereits eine Betreuungsanfrage.</string>

@@ -210,6 +210,15 @@ public class EditThesisActivity extends AppCompatActivity {
      * Display thesis details in UI
      */
     private void displayThesisDetails(ThesisApiModel thesis) {
+        // DEBUGGING: Log status BEFORE any UI updates
+        android.util.Log.i("EditThesisActivity", "=== DISPLAY THESIS DETAILS ===");
+        android.util.Log.i("EditThesisActivity", "Thesis ID: " + thesis.getId());
+        android.util.Log.i("EditThesisActivity", "Status (from API): " + thesis.getStatus());
+        android.util.Log.i("EditThesisActivity", "BillingStatus: " + thesis.getBillingStatus());
+        android.util.Log.i("EditThesisActivity", "TutorId: " + thesis.getTutorId());
+        android.util.Log.i("EditThesisActivity", "SecondSupervisorId: " + thesis.getSecondSupervisorId());
+        android.util.Log.i("EditThesisActivity", "=============================");
+
         etTitle.setText(thesis.getTitle());
         etDescription.setText(thesis.getDescription());
         tvCurrentDocument.setText(thesis.getDocumentFileName() != null ?
@@ -237,6 +246,12 @@ public class EditThesisActivity extends AppCompatActivity {
 
         // Update document display
         updateDocumentDisplay();
+
+        // DEBUGGING: Log status AFTER all UI updates
+        android.util.Log.i("EditThesisActivity", "=== AFTER DISPLAY ===");
+        android.util.Log.i("EditThesisActivity", "Status (after display): " + thesis.getStatus());
+        android.util.Log.i("EditThesisActivity", "UI Status Text: " + tvThesisStatus.getText());
+        android.util.Log.i("EditThesisActivity", "=====================");
     }
 
 

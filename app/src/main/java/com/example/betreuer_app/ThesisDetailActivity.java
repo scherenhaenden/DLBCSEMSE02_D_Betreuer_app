@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -76,6 +77,7 @@ public class ThesisDetailActivity extends AppCompatActivity {
     private boolean isSpinnerInitializing = false;
     private boolean hasSupervisionRequest = false;
     private boolean isSupervisionRequestAccepted = false;
+    private boolean isStatusSpinnerUserInitiated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,19 +183,62 @@ public class ThesisDetailActivity extends AppCompatActivity {
         spinnerStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // CRITICAL DEBUGGING: Log every spinner selection event
+                android.util.Log.e("SPINNER_BUG", "=== SPINNER ITEM SELECTED ===");
+                android.util.Log.e("SPINNER_BUG", "Position: " + position);
+                android.util.Log.e("SPINNER_BUG", "currentThesis: " + (currentThesis != null ? currentThesis.getId() : "null"));
+                android.util.Log.e("SPINNER_BUG", "isSpinnerInitializing: " + isSpinnerInitializing);
+                android.util.Log.e("SPINNER_BUG", "isTutor: " + isTutor);
+                android.util.Log.e("SPINNER_BUG", "isStatusSpinnerUserInitiated: " + isStatusSpinnerUserInitiated);
+
                 if (currentThesis == null || isSpinnerInitializing) {
+                    android.util.Log.e("SPINNER_BUG", "RETURN: currentThesis null or initializing");
+                    android.util.Log.e("SPINNER_BUG", "=============================");
                     return;
+                }
+                if (isTutor && !isStatusSpinnerUserInitiated) {
+                    android.util.Log.e("SPINNER_BUG", "RETURN: Tutor mode but not user initiated");
+                    android.util.Log.e("SPINNER_BUG", "=============================");
+                    return;
+                }
+                if (isTutor) {
+                    isStatusSpinnerUserInitiated = false;
                 }
                 com.example.betreuer_app.model.ThesisStatusResponse selectedStatus =
                     (com.example.betreuer_app.model.ThesisStatusResponse) parent.getItemAtPosition(position);
+
+                android.util.Log.e("SPINNER_BUG", "Selected status: " + selectedStatus.getName());
+                android.util.Log.e("SPINNER_BUG", "Current thesis status: " + currentThesis.getStatus());
+
                 if (!selectedStatus.getName().equals(currentThesis.getStatus())) {
-                    updateThesisStatus(selectedStatus);
+                    android.util.Log.e("SPINNER_BUG", "STATUS CHANGE DETECTED! Will update from " +
+                        currentThesis.getStatus() + " to " + selectedStatus.getName());
+                    if (isTutor) {
+                        android.util.Log.e("SPINNER_BUG", "Calling promptTutorStatusChange()");
+                        promptTutorStatusChange(selectedStatus);
+                    } else {
+                        android.util.Log.e("SPINNER_BUG", "Calling updateThesisStatus()");
+                        updateThesisStatus(selectedStatus);
+                    }
+                } else {
+                    android.util.Log.e("SPINNER_BUG", "No status change - same status selected");
                 }
+                if (!isTutor) {
+                    isStatusSpinnerUserInitiated = false;
+                }
+                android.util.Log.e("SPINNER_BUG", "=============================");
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
+        });
+        spinnerStatus.setOnTouchListener((v, event) -> {
+            android.util.Log.e("SPINNER_BUG", "=== SPINNER TOUCHED BY USER ===");
+            android.util.Log.e("SPINNER_BUG", "Setting isStatusSpinnerUserInitiated = true");
+            android.util.Log.e("SPINNER_BUG", "================================");
+            isStatusSpinnerUserInitiated = true;
+            return false;
         });
     }
 
@@ -450,10 +495,26 @@ public class ThesisDetailActivity extends AppCompatActivity {
     }
 
     private void setupThesisStatusDisplay(ThesisApiModel thesis, boolean isStudent, boolean isTutor) {
+        // CRITICAL DEBUGGING: Log all status information BEFORE any UI changes
+        android.util.Log.e("STATUS_BUG", "=== SETUP THESIS STATUS DISPLAY ===");
+        android.util.Log.e("STATUS_BUG", "Thesis ID: " + thesis.getId());
+        android.util.Log.e("STATUS_BUG", "Status (from thesis object): " + thesis.getStatus());
+        android.util.Log.e("STATUS_BUG", "TutorId: " + thesis.getTutorId());
+        android.util.Log.e("STATUS_BUG", "SecondSupervisorId: " + thesis.getSecondSupervisorId());
+        android.util.Log.e("STATUS_BUG", "hasSecondSupervisor: " + (thesis.getSecondSupervisorId() != null));
+        android.util.Log.e("STATUS_BUG", "isTutor: " + isTutor);
+        android.util.Log.e("STATUS_BUG", "isStudent: " + isStudent);
+
         // Use the extracted business logic class
         ThesisStatusDisplayLogic displayLogic = new ThesisStatusDisplayLogic();
         ThesisStatusDisplayLogic.DisplayResult result = displayLogic.computeStatusDisplay(
             this, thesis, isStudent, isTutor, hasSupervisionRequest, isSupervisionRequestAccepted);
+
+        android.util.Log.e("STATUS_BUG", "DisplayMode: " + result.getDisplayMode());
+        android.util.Log.e("STATUS_BUG", "Available Statuses: " + result.getAvailableStatuses().size());
+        for (int i = 0; i < result.getAvailableStatuses().size(); i++) {
+            android.util.Log.e("STATUS_BUG", "  [" + i + "] " + result.getAvailableStatuses().get(i).getName());
+        }
 
         // Apply the display configuration
         if (result.getDisplayMode() == ThesisStatusDisplayLogic.DisplayMode.TEXT_VIEW) {
@@ -462,8 +523,10 @@ public class ThesisDetailActivity extends AppCompatActivity {
             textViewStatus.setVisibility(View.VISIBLE);
             spinnerStatus.setVisibility(View.GONE);
             isSpinnerInitializing = false; // Reset flag
+            android.util.Log.e("STATUS_BUG", "Mode: TEXT_VIEW - No spinner interaction");
         } else {
             // Show spinner, hide text view
+            android.util.Log.e("STATUS_BUG", "Mode: SPINNER - Setting up spinner...");
             textViewStatus.setVisibility(View.GONE);
             spinnerStatus.setVisibility(View.VISIBLE);
             spinnerStatus.setEnabled(result.isSpinnerEnabled());
@@ -471,12 +534,14 @@ public class ThesisDetailActivity extends AppCompatActivity {
             // Temporarily remove listener to prevent it from triggering when we set the adapter
             AdapterView.OnItemSelectedListener currentListener = spinnerStatus.getOnItemSelectedListener();
             spinnerStatus.setOnItemSelectedListener(null);
+            android.util.Log.e("STATUS_BUG", "Listener temporarily removed");
 
             // Setup Spinner Adapter
             ArrayAdapter<com.example.betreuer_app.model.ThesisStatusResponse> statusAdapter =
                 new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, result.getAvailableStatuses());
             statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerStatus.setAdapter(statusAdapter);
+            android.util.Log.e("STATUS_BUG", "Adapter set with " + result.getAvailableStatuses().size() + " items");
 
             // Set current selection
             String currentStatus = thesis.getStatus();
@@ -486,14 +551,26 @@ public class ThesisDetailActivity extends AppCompatActivity {
             }
 
             int statusIndex = displayLogic.findStatusIndex(result.getAvailableStatuses(), currentStatus);
+            android.util.Log.e("STATUS_BUG", "Current status to find: " + currentStatus);
+            android.util.Log.e("STATUS_BUG", "Found status index: " + statusIndex);
+
             if (statusIndex >= 0) {
                 spinnerStatus.setSelection(statusIndex);
+                android.util.Log.e("STATUS_BUG", "Spinner selection set to index: " + statusIndex);
+            } else {
+                android.util.Log.e("STATUS_BUG", "WARNING: Status not found in list! Default selection (index 0) will be used.");
+                android.util.Log.e("STATUS_BUG", "THIS IS THE BUG! Current status '" + currentStatus + "' not in available statuses!");
             }
 
             // Re-attach listener after setting selection
             spinnerStatus.setOnItemSelectedListener(currentListener);
+            android.util.Log.e("STATUS_BUG", "Listener re-attached");
             isSpinnerInitializing = false; // Reset flag after everything is set up
         }
+        isStatusSpinnerUserInitiated = false;
+        android.util.Log.e("STATUS_BUG", "=== SETUP COMPLETE ===");
+        android.util.Log.e("STATUS_BUG", "Final status in thesis object: " + thesis.getStatus());
+        android.util.Log.e("STATUS_BUG", "======================");
     }
 
     private void loadSupervisionRequestStatus(String thesisId) {
@@ -603,6 +680,15 @@ public class ThesisDetailActivity extends AppCompatActivity {
 
         Toast.makeText(this, getString(R.string.toast_not_allowed), Toast.LENGTH_SHORT).show();
         return false;
+    }
+
+    private void promptTutorStatusChange(com.example.betreuer_app.model.ThesisStatusResponse newStatus) {
+        new AlertDialog.Builder(this)
+            .setTitle(getString(R.string.thesis_status))
+            .setMessage(getString(R.string.confirm_defended_status_change))
+            .setPositiveButton(android.R.string.ok, (dialog, which) -> updateThesisStatus(newStatus))
+            .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss())
+            .show();
     }
 
     private void updateAddSecondSupervisorButtonVisibility() {
